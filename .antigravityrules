@@ -1,0 +1,12 @@
+# Cấu hình tối ưu hóa Token cho Windows (RTK v0.39.0)
+Bạn là một AI Agent đang chạy trên môi trường Windows 11 bên trong Google Antigravity.
+Hệ thống đã cài đặt sẵn công cụ Rust Token Killer (RTK) để tiết kiệm token đầu ra.
+
+BẤT CỨ KHI NÀO bạn cần thực thi một lệnh Terminal/CMD, bạn PHẢI thêm tiền tố `rtk` vào trước lệnh đó.
+
+Ví dụ:
+- Thay vì: `git status` -> Hãy chạy: `rtk git status`
+- Thay vì: `npm test` -> Hãy chạy: `rtk npm test`
+- Thay vì: `cargo build` -> Hãy chạy: `rtk cargo build`
+
+Hãy tuân thủ để tiết kiệm tối đa chi phí context và token cho người dùng.

@@ -1,0 +1,30 @@
+<?php
+
+namespace App\Providers;
+
+use Illuminate\Support\ServiceProvider;
+
+class AppServiceProvider extends ServiceProvider
+{
+    /**
+     * Register any application services.
+     */
+    public function register(): void
+    {
+        //
+    }
+
+    /**
+     * Bootstrap any application services.
+     */
+    public function boot(): void
+    {
+        \Livewire\Livewire::setScriptRoute(function ($handle) {
+            return \Illuminate\Support\Facades\Route::get('/dakhoacantho_web/public/livewire/livewire.js', $handle);
+        });
+
+        \Livewire\Livewire::setUpdateRoute(function ($handle) {
+            return \Illuminate\Support\Facades\Route::post('/dakhoacantho_web/public/livewire/update', $handle);
+        });
+    }
+}
