@@ -18,6 +18,8 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
+use Filament\Navigation\NavigationItem;
+
 class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
@@ -27,8 +29,9 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->brandName('Đa Khoa Gia Phước CMS')
             ->colors([
-                'primary' => Color::Amber,
+                'primary' => '#1e40af',
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
@@ -37,8 +40,19 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
-                Widgets\AccountWidget::class,
-                Widgets\FilamentInfoWidget::class,
+                \App\Filament\Widgets\DashboardStatsWidget::class,
+                \App\Filament\Widgets\PatientVisitsChart::class,
+                \App\Filament\Widgets\SpecialtiesChart::class,
+            ])
+            ->navigationItems([
+                NavigationItem::make('Bệnh nhân')
+                    ->url('#')
+                    ->icon('heroicon-o-user-group')
+                    ->sort(5),
+                NavigationItem::make('Báo cáo & Phân tích')
+                    ->url('#')
+                    ->icon('heroicon-o-chart-bar')
+                    ->sort(6),
             ])
             ->middleware([
                 EncryptCookies::class,

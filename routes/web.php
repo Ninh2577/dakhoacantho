@@ -14,7 +14,7 @@ Route::get('/', [PageController::class, 'home'])->name('home');
 Route::get('/lien-he', [PageController::class, 'contact'])->name('contact');
 
 // Category Index Page
-Route::get('/chuyen-khoa', [CategoryController::class, 'index'])->name('category.index');
+Route::get('/chuyen-khoa', [CategoryController::class, 'index'])->name('categories.index');
 
 // 3. Consultation Form POST
 Route::post('/tu-van', [ConsultationController::class, 'store'])->name('consultation.store');

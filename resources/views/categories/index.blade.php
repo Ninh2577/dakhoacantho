@@ -2,6 +2,10 @@
 
 @section('title', 'Tất cả Chuyên khoa | Danh mục Chuyên khoa')
 
+@php
+    $featuredArticle = $articles->currentPage() == 1 ? $articles->first() : null;
+@endphp
+
 @section('content')
 <div class="py-8 md:py-12 bg-slate-50/50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -38,24 +42,26 @@
             <!-- Left Sidebar (lg:col-span-3) -->
             <aside class="lg:col-span-3 space-y-6">
                 <!-- Group filter list -->
-                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 space-y-4">
-                    <h3 class="text-sm font-extrabold text-slate-900 uppercase tracking-wider pb-3 border-b border-slate-50 flex items-center gap-2">
-                        <svg class="w-4 h-4 text-clinic-teal" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
-                        </svg>
-                        Lọc theo nhóm
-                    </h3>
+                <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+                    <div class="bg-sky-50 px-5 py-4 border-b border-slate-100">
+                        <h3 class="text-sm font-extrabold text-clinic-blue uppercase tracking-wider flex items-center gap-2">
+                            <svg class="w-4 h-4 text-clinic-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path>
+                            </svg>
+                            Lọc theo nhóm
+                        </h3>
+                    </div>
                     
-                    <div class="space-y-1">
+                    <div class="p-5 space-y-1">
                         <!-- All categories link (Active by default here) -->
-                        <a href="{{ route('category.index') }}" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-bold transition-all bg-clinic-blue text-white shadow-sm">
+                        <a href="{{ route('categories.index') }}" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-bold transition-all bg-clinic-blue text-white shadow-sm">
                             <span>Tất cả chuyên khoa</span>
                             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
                             </svg>
                         </a>
 
-                        @foreach($categories as $category)
+                        @foreach($parentCategories as $category)
                             <a href="{{ route('category.show', ['category_path' => $category->full_path]) }}" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-bold transition-all text-slate-600 hover:bg-slate-50">
                                 <span>{{ $category->name }}</span>
                             </a>
@@ -64,15 +70,15 @@
                 </div>
 
                 <!-- Consultation promo banner -->
-                <div class="bg-gradient-to-br from-clinic-blue to-[#0b4c8c] text-white rounded-2xl p-6 shadow-md border border-white/10 relative overflow-hidden group">
+                <div class="bg-gradient-to-br from-[#0a3875] to-[#082a58] text-white rounded-2xl p-6 shadow-md border border-white/10 relative overflow-hidden group">
                     <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
                     
                     <div class="space-y-4 relative">
                         <h4 class="text-base font-extrabold tracking-tight">Tư vấn trực tuyến</h4>
                         <p class="text-xs text-slate-200 leading-relaxed font-medium">
-                            Bác sĩ chuyên khoa đang chờ trực tuyến để giải đáp nhanh chóng mọi thắc mắc về sức khỏe của bạn.
+                            Bác sĩ chuyên khoa đang chờ giải đáp thắc mắc của bạn.
                         </p>
-                        <a href="#" class="w-full inline-flex items-center justify-center px-4 py-2.5 bg-white hover:bg-slate-50 text-clinic-blue font-extrabold text-xs rounded-xl shadow-sm transition-all" onclick="alert('Đang kết nối đến bác sĩ tư vấn...');">
+                        <a href="#" class="w-full inline-flex items-center justify-center px-4 py-2.5 bg-white hover:bg-slate-50 text-[#0a3875] font-extrabold text-xs rounded-xl shadow-sm transition-all" onclick="alert('Đang kết nối đến bác sĩ tư vấn...');">
                             Chat với bác sĩ
                         </a>
                     </div>
@@ -130,7 +136,10 @@
 
                 <!-- Article Grid -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-                    @forelse($articles as $article)
+                    @forelse($articles as $index => $article)
+                        @if($articles->currentPage() == 1 && $index == 0)
+                            @continue
+                        @endif
                         <x-article-card :article="$article" />
                     @empty
                         <div class="col-span-full py-12 text-center text-slate-400 bg-white rounded-3xl border border-slate-100 shadow-sm">
@@ -163,39 +172,68 @@
                 <!-- Pagination Component -->
                 @if($articles->hasPages())
                     <nav class="flex items-center justify-center pt-8 border-t border-slate-100" aria-label="Pagination">
-                        <div class="inline-flex items-center gap-1.5">
+                        <div class="inline-flex items-center gap-1.5 flex-wrap justify-center">
                             <!-- Previous Page -->
                             @if($articles->onFirstPage())
                                 <span class="p-2.5 bg-white border border-slate-200 text-slate-300 rounded-xl cursor-not-allowed">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                                    </svg>
                                 </span>
                             @else
                                 <a href="{{ $articles->previousPageUrl() }}" class="p-2.5 bg-white border border-slate-200 text-slate-600 hover:text-clinic-blue rounded-xl shadow-sm transition-all">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path>
+                                    </svg>
                                 </a>
                             @endif
 
-                            <!-- Page Numbers -->
-                            @foreach ($articles->getUrlRange(1, $articles->lastPage()) as $page => $url)
-                                @if ($page == $articles->currentPage())
+                            <!-- Page Numbers (Windowed to prevent horizontal overflow) -->
+                            @php
+                                $currentPage = $articles->currentPage();
+                                $lastPage = $articles->lastPage();
+                                $start = max($currentPage - 2, 1);
+                                $end = min($currentPage + 2, $lastPage);
+                            @endphp
+
+                            @if($start > 1)
+                                <a href="{{ $articles->url(1) }}" class="w-10 h-10 inline-flex items-center justify-center bg-white border border-slate-200 text-slate-600 font-extrabold rounded-xl shadow-sm hover:text-clinic-blue transition-all">1</a>
+                                @if($start > 2)
+                                    <span class="w-10 h-10 inline-flex items-center justify-center text-slate-400 font-bold">...</span>
+                                @endif
+                            @endif
+
+                            @for ($page = $start; $page <= $end; $page++)
+                                @if ($page == $currentPage)
                                     <span class="w-10 h-10 inline-flex items-center justify-center bg-clinic-blue text-white font-extrabold rounded-xl shadow-md">
                                         {{ $page }}
                                     </span>
                                 @else
-                                    <a href="{{ $url }}" class="w-10 h-10 inline-flex items-center justify-center bg-white border border-slate-200 text-slate-600 font-extrabold rounded-xl shadow-sm hover:text-clinic-blue transition-all">
+                                    <a href="{{ $articles->url($page) }}" class="w-10 h-10 inline-flex items-center justify-center bg-white border border-slate-200 text-slate-600 font-extrabold rounded-xl shadow-sm hover:text-clinic-blue transition-all">
                                         {{ $page }}
                                     </a>
                                 @endif
-                            @endforeach
+                            @endfor
+
+                            @if($end < $lastPage)
+                                @if($end < $lastPage - 1)
+                                    <span class="w-10 h-10 inline-flex items-center justify-center text-slate-400 font-bold">...</span>
+                                @endif
+                                <a href="{{ $articles->url($lastPage) }}" class="w-10 h-10 inline-flex items-center justify-center bg-white border border-slate-200 text-slate-600 font-extrabold rounded-xl shadow-sm hover:text-clinic-blue transition-all">{{ $lastPage }}</a>
+                            @endif
 
                             <!-- Next Page -->
                             @if($articles->hasMorePages())
                                 <a href="{{ $articles->nextPageUrl() }}" class="p-2.5 bg-white border border-slate-200 text-slate-600 hover:text-clinic-blue rounded-xl shadow-sm transition-all">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
                                 </a>
                             @else
                                 <span class="p-2.5 bg-white border border-slate-200 text-slate-300 rounded-xl cursor-not-allowed">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></span class="p-2.5 bg-white border border-slate-200 text-slate-300 rounded-xl cursor-not-allowed">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                                    </svg>
                                 </span>
                             @endif
                         </div>

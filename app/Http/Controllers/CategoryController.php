@@ -13,24 +13,18 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        // Get parent-level categories with subcategories
-        $categories = Category::whereNull('parent_id')
-            ->where('name', '!=', 'Chưa được phân loại')
-            ->with('children')
+        // Fetch the top-level main categories for the sidebar filter
+        $parentCategories = Category::where('parent_id', -1)
+            ->whereIn('slug', ['nam-khoa', 'phu-khoa', 'ngoai-khoa', 'noi-khoa', 'benh-xa-hoi', 'xet-nghiem'])
             ->get();
 
-        // Retrieve and paginate all published articles
+        // Fetch all published articles (paginated by 10)
         $articles = Article::with('category')
             ->where('is_published', true)
             ->latest()
-            ->paginate(4);
+            ->paginate(10);
 
-        // Fetch a featured article
-        $featuredArticle = Article::with('category')
-            ->where('is_published', true)
-            ->first();
-
-        return view('categories.index', compact('categories', 'articles', 'featuredArticle'));
+        return view('categories.index', compact('parentCategories', 'articles'));
     }
 
     public function show(string $category_path)
@@ -48,7 +42,7 @@ class CategoryController extends Controller
         }
 
         // Retrieve all root categories and their descendants for the category sidebar index
-        $categories = Category::whereNull('parent_id')->with('children')->get();
+        $categories = Category::where('parent_id', -1)->with('children')->get();
 
         // Collect the category ID and all of its subcategories' IDs recursively
         $categoryIds = $this->getCategoryAndChildrenIds($selectedCategory);

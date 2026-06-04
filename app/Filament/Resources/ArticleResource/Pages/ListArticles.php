@@ -16,4 +16,11 @@ class ListArticles extends ListRecords
             Actions\CreateAction::make(),
         ];
     }
+
+    protected function getFooterWidgets(): array
+    {
+        return [
+            ArticleResource\Widgets\ArticleStatsWidget::class,
+        ];
+    }
 }

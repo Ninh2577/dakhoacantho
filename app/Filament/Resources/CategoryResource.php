@@ -13,17 +13,24 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
+use Filament\Forms\Components\FileUpload;
+
 class CategoryResource extends Resource
 {
     protected static ?string $model = Category::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $navigationIcon = 'heroicon-o-folder';
+
+    protected static ?string $navigationLabel = 'Danh mục';
+
+    protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Forms\Components\Select::make('parent_id')
+                    ->label('Danh mục cha')
                     ->relationship('parent', 'name')
                     ->placeholder('Chọn danh mục cha (nếu có)')
                     ->nullable()
@@ -40,37 +47,17 @@ class CategoryResource extends Resource
                     ->maxLength(255),
                 Forms\Components\Textarea::make('description')
                     ->columnSpanFull(),
+                FileUpload::make('featured_image')
+                    ->label('Ảnh Banner Mega Menu')
+                    ->image()
+                    ->directory('category-banners')
+                    ->columnSpanFull(),
             ]);
     }
 
-    public static function table(Table $table): Table
+    public static function tree(\SolutionForest\FilamentTree\Components\Tree $tree): \SolutionForest\FilamentTree\Components\Tree
     {
-        return $table
-            ->columns([
-                Tables\Columns\TextColumn::make('name')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('slug')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-            ])
-            ->filters([
-                //
-            ])
-            ->actions([
-                Tables\Actions\EditAction::make(),
-            ])
-            ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+        return $tree;
     }
 
     public static function getRelations(): array

@@ -20,6 +20,21 @@ class DatabaseSeeder extends Seeder
             'name' => 'Admin',
             'email' => 'admin@dakhoacantho.com',
             'password' => bcrypt('password'),
+            'role' => 'admin',
+        ]);
+
+        \App\Models\User::create([
+            'name' => 'Admin VN',
+            'email' => 'admin@dakhoacantho.vn',
+            'password' => bcrypt('password123@#'),
+            'role' => 'admin',
+        ]);
+
+        \App\Models\User::create([
+            'name' => 'IGF Admin',
+            'email' => 'igf@dakhoacantho.vn',
+            'password' => bcrypt('igf'),
+            'role' => 'admin',
         ]);
 
         // User::factory(10)->create();

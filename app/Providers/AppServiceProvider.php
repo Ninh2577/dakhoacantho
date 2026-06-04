@@ -4,6 +4,9 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 
+use Illuminate\Support\Facades\View;
+use App\Models\Category;
+
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -25,6 +28,14 @@ class AppServiceProvider extends ServiceProvider
 
         \Livewire\Livewire::setUpdateRoute(function ($handle) {
             return \Illuminate\Support\Facades\Route::post('/dakhoacantho_web/public/livewire/update', $handle);
+        });
+
+        View::composer('*', function ($view) {
+            $view->with('mainCategories', Category::where('parent_id', -1)
+                ->where('name', '!=', 'Chưa được phân loại')
+                ->with('children.children')
+                ->orderBy('order')
+                ->get());
         });
     }
 }

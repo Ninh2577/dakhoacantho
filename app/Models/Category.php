@@ -3,19 +3,17 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use SolutionForest\FilamentTree\Concern\ModelTree;
 
 class Category extends Model
 {
-    protected $fillable = ['parent_id', 'name', 'slug', 'description'];
+    use ModelTree;
+
+    protected $fillable = ['parent_id', 'order', 'name', 'slug', 'description', 'featured_image'];
 
     public function parent()
     {
         return $this->belongsTo(Category::class, 'parent_id');
-    }
-
-    public function children()
-    {
-        return $this->hasMany(Category::class, 'parent_id');
     }
 
     public function getFullPathAttribute()
@@ -32,5 +30,20 @@ class Category extends Model
     public function articles()
     {
         return $this->hasMany(Article::class);
+    }
+
+    public function determineParentColumnName(): string
+    {
+        return 'parent_id';
+    }
+
+    public function determineOrderColumnName(): string
+    {
+        return 'order';
+    }
+
+    public function determineTitleColumnName(): string
+    {
+        return 'name';
     }
 }
