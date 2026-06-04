@@ -6,36 +6,54 @@
         </p>
     </div>
 
-    <form action="#" method="POST" class="space-y-4" onsubmit="event.preventDefault(); alert('Thông tin tư vấn của bạn đã được gửi thành công! Bác sĩ sẽ liên hệ trong 15 phút.');">
+    @if(session('success'))
+        <div class="p-4 bg-teal-50 border border-teal-200 text-teal-800 rounded-2xl text-sm font-semibold text-center">
+            {{ session('success') }}
+        </div>
+    @endif
+
+    <form action="{{ route('consultation.store') }}" method="POST" class="space-y-4">
         @csrf
         <!-- Name -->
         <div class="space-y-1.5">
             <label for="name" class="block text-xs font-bold text-slate-700 uppercase tracking-wide">Họ và tên *</label>
-            <input type="text" id="name" name="name" required placeholder="Nguyễn Văn A" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-clinic-blue focus:bg-white rounded-xl text-sm font-semibold text-slate-800 outline-none transition-all">
+            <input type="text" id="name" name="name" required value="{{ old('name') }}" placeholder="Nguyễn Văn A" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-clinic-blue focus:bg-white rounded-xl text-sm font-semibold text-slate-800 outline-none transition-all">
+            @error('name')
+                <p class="text-xs font-bold text-red-500 mt-1">{{ $message }}</p>
+            @enderror
         </div>
 
         <!-- Phone -->
         <div class="space-y-1.5">
             <label for="phone" class="block text-xs font-bold text-slate-700 uppercase tracking-wide">Số điện thoại *</label>
-            <input type="tel" id="phone" name="phone" required placeholder="090 123 4587" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-clinic-blue focus:bg-white rounded-xl text-sm font-semibold text-slate-800 outline-none transition-all">
+            <input type="tel" id="phone" name="phone" required value="{{ old('phone') }}" placeholder="090 123 4587" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-clinic-blue focus:bg-white rounded-xl text-sm font-semibold text-slate-800 outline-none transition-all">
+            @error('phone')
+                <p class="text-xs font-bold text-red-500 mt-1">{{ $message }}</p>
+            @enderror
         </div>
 
         <!-- Specialty Dropdown -->
         <div class="space-y-1.5">
-            <label for="specialty" class="block text-xs font-bold text-slate-700 uppercase tracking-wide">Chuyên khoa cần tư vấn</label>
-            <select id="specialty" name="specialty" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-clinic-blue focus:bg-white rounded-xl text-sm font-semibold text-slate-800 outline-none transition-all">
+            <label for="department" class="block text-xs font-bold text-slate-700 uppercase tracking-wide">Chuyên khoa cần tư vấn</label>
+            <select id="department" name="department" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-clinic-blue focus:bg-white rounded-xl text-sm font-semibold text-slate-800 outline-none transition-all">
                 <option value="">Chọn chuyên khoa</option>
-                <option value="nam-khoa">Nam Khoa</option>
-                <option value="phu-khoa">Phụ Khoa</option>
-                <option value="benh-xa-hoi">Bệnh Xã Hội</option>
-                <option value="hau-mon">Hậu Môn - Trực Tràng</option>
+                <option value="Nam Khoa" {{ old('department') == 'Nam Khoa' ? 'selected' : '' }}>Nam Khoa</option>
+                <option value="Phụ Khoa" {{ old('department') == 'Phụ Khoa' ? 'selected' : '' }}>Phụ Khoa</option>
+                <option value="Bệnh Xã Hội" {{ old('department') == 'Bệnh Xã Hội' ? 'selected' : '' }}>Bệnh Xã Hội</option>
+                <option value="Hậu Môn - Trực Tràng" {{ old('department') == 'Hậu Môn - Trực Tràng' ? 'selected' : '' }}>Hậu Môn - Trực Tràng</option>
             </select>
+            @error('department')
+                <p class="text-xs font-bold text-red-500 mt-1">{{ $message }}</p>
+            @enderror
         </div>
 
         <!-- Symptoms -->
         <div class="space-y-1.5">
             <label for="symptoms" class="block text-xs font-bold text-slate-700 uppercase tracking-wide">Triệu chứng của bạn</label>
-            <textarea id="symptoms" name="symptoms" rows="3" placeholder="Mô tả sơ lược tình trạng sức khỏe của bạn..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-clinic-blue focus:bg-white rounded-xl text-sm font-semibold text-slate-800 outline-none transition-all resize-none"></textarea>
+            <textarea id="symptoms" name="symptoms" rows="3" placeholder="Mô tả sơ lược tình trạng sức khỏe của bạn..." class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-clinic-blue focus:bg-white rounded-xl text-sm font-semibold text-slate-800 outline-none transition-all resize-none">{{ old('symptoms') }}</textarea>
+            @error('symptoms')
+                <p class="text-xs font-bold text-red-500 mt-1">{{ $message }}</p>
+            @enderror
         </div>
 
         <!-- Submit Button -->

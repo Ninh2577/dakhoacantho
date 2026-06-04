@@ -129,7 +129,7 @@
                     <p class="text-xs md:text-sm text-slate-500 leading-normal">Chẩn đoán trĩ nội, trĩ ngoại và rò hậu môn bằng phương pháp PPH, HCPT không đau.</p>
                 </div>
             </div>
-            <a href="{{ route('category.show') }}" class="inline-flex items-center text-xs font-extrabold text-clinic-teal hover:underline">
+            <a href="{{ route('category.show', ['category_path' => 'nam-khoa']) }}" class="inline-flex items-center text-xs font-extrabold text-clinic-teal hover:underline">
                 <span>Tìm hiểu phương pháp điều trị</span>
                 <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -152,7 +152,7 @@
                     Cập nhật những thông tin mới nhất về sức khỏe và các lời khuyên từ bác sĩ chuyên khoa.
                 </p>
             </div>
-            <a href="{{ route('category.show') }}" class="inline-flex items-center px-4 py-2 border border-slate-200 hover:bg-slate-50 text-xs font-extrabold text-slate-700 rounded-xl transition-all shadow-sm">
+            <a href="{{ route('category.show', ['category_path' => 'nam-khoa']) }}" class="inline-flex items-center px-4 py-2 border border-slate-200 hover:bg-slate-50 text-xs font-extrabold text-slate-700 rounded-xl transition-all shadow-sm">
                 Xem tất cả chuyên khoa
             </a>
         </div>

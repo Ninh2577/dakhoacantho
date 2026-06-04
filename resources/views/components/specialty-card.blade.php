@@ -28,7 +28,7 @@
 
         <!-- Read more indicator -->
         <div class="pt-4 mt-2 flex items-center justify-start border-t border-white/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-            <a href="{{ route('category.show', ['slug' => $slug]) }}" class="inline-flex items-center text-xs font-bold text-teal-300 hover:underline">
+            <a href="{{ route('category.show', ['category_path' => $slug]) }}" class="inline-flex items-center text-xs font-bold text-teal-300 hover:underline">
                 <span>Tìm hiểu chuyên khoa</span>
                 <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>

@@ -18,8 +18,8 @@ class DatabaseSeeder extends Seeder
         // Create Admin User for Filament
         \App\Models\User::create([
             'name' => 'Admin',
-            'email' => 'admin@dakhoacantho.vn',
-            'password' => bcrypt('password123'),
+            'email' => 'admin@dakhoacantho.com',
+            'password' => bcrypt('password'),
         ]);
 
         // User::factory(10)->create();

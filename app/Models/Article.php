@@ -21,4 +21,9 @@ class Article extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    public function getCategoryPathAttribute()
+    {
+        return $this->category ? $this->category->full_path : 'uncategorized';
+    }
 }

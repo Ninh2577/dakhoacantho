@@ -23,6 +23,12 @@ class CategoryResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\Select::make('parent_id')
+                    ->relationship('parent', 'name')
+                    ->placeholder('Chọn danh mục cha (nếu có)')
+                    ->nullable()
+                    ->searchable()
+                    ->preload(),
                 Forms\Components\TextInput::make('name')
                     ->required()
                     ->maxLength(255)

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $selectedCategory->name . ' | Danh mục Chuyên khoa')
+@section('title', 'Tất cả Chuyên khoa | Danh mục Chuyên khoa')
 
 @section('content')
 <div class="py-8 md:py-12 bg-slate-50/50">
@@ -18,7 +18,7 @@
                 <li aria-current="page">
                     <div class="flex items-center">
                         <svg class="w-5 h-5 text-slate-300" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd"></path></svg>
-                        <span class="ml-1 md:ml-2 text-slate-400 font-medium">Chuyên khoa</span>
+                        <span class="ml-1 md:ml-2 text-slate-400 font-medium">Tất cả chuyên khoa</span>
                     </div>
                 </li>
             </ol>
@@ -47,14 +47,17 @@
                     </h3>
                     
                     <div class="space-y-1">
+                        <!-- All categories link (Active by default here) -->
+                        <a href="{{ route('category.index') }}" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-bold transition-all bg-clinic-blue text-white shadow-sm">
+                            <span>Tất cả chuyên khoa</span>
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                            </svg>
+                        </a>
+
                         @foreach($categories as $category)
-                            <a href="{{ route('category.show', ['category_path' => $category->full_path]) }}" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-bold transition-all {{ $selectedCategory->id === $category->id ? 'bg-clinic-blue text-white' : 'text-slate-600 hover:bg-slate-50' }}">
+                            <a href="{{ route('category.show', ['category_path' => $category->full_path]) }}" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-bold transition-all text-slate-600 hover:bg-slate-50">
                                 <span>{{ $category->name }}</span>
-                                @if($selectedCategory->id === $category->id)
-                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                    </svg>
-                                @endif
                             </a>
                         @endforeach
                     </div>
@@ -62,7 +65,6 @@
 
                 <!-- Consultation promo banner -->
                 <div class="bg-gradient-to-br from-clinic-blue to-[#0b4c8c] text-white rounded-2xl p-6 shadow-md border border-white/10 relative overflow-hidden group">
-                    <!-- Background decor shapes -->
                     <div class="absolute -right-10 -bottom-10 w-32 h-32 bg-white/5 rounded-full blur-2xl"></div>
                     
                     <div class="space-y-4 relative">
@@ -132,7 +134,7 @@
                         <x-article-card :article="$article" />
                     @empty
                         <div class="col-span-full py-12 text-center text-slate-400 bg-white rounded-3xl border border-slate-100 shadow-sm">
-                            Không tìm thấy bài viết nào thuộc chuyên mục này.
+                            Không tìm thấy bài viết nào.
                         </div>
                     @endforelse
                 </div>
@@ -158,7 +160,7 @@
                     </div>
                 @endif
 
-                <!-- Pagination Component (Custom HTML Matching Mockups) -->
+                <!-- Pagination Component -->
                 @if($articles->hasPages())
                     <nav class="flex items-center justify-center pt-8 border-t border-slate-100" aria-label="Pagination">
                         <div class="inline-flex items-center gap-1.5">
@@ -193,7 +195,7 @@
                                 </a>
                             @else
                                 <span class="p-2.5 bg-white border border-slate-200 text-slate-300 rounded-xl cursor-not-allowed">
-                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></span class="p-2.5 bg-white border border-slate-200 text-slate-300 rounded-xl cursor-not-allowed">
                                 </span>
                             @endif
                         </div>

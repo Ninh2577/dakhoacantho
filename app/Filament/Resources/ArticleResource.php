@@ -38,6 +38,8 @@ class ArticleResource extends Resource
                     ->maxLength(255),
                 Forms\Components\RichEditor::make('content')
                     ->required()
+                    ->fileAttachmentsDirectory('articles/attachments')
+                    ->fileAttachmentsDisk('public')
                     ->columnSpanFull(),
                 Forms\Components\FileUpload::make('thumbnail_image')
                     ->image()

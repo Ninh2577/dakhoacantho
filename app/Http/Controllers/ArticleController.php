@@ -8,15 +8,21 @@ use App\Models\Article;
 
 class ArticleController extends Controller
 {
-    public function show(string $category_slug, string $article_slug)
+    public function show(string $category_path, string $slug)
     {
         $article = Article::with('category')
-            ->where('slug', $article_slug)
-            ->whereHas('category', function ($query) use ($category_slug) {
-                $query->where('slug', $category_slug);
-            })
+            ->where('slug', $slug)
             ->where('is_published', true)
             ->firstOrFail();
+
+        // Strict SEO path verification:
+        // Ensure that the accessed category_path matches the article's actual category full path
+        if ($article->category_path !== $category_path) {
+            abort(404);
+        }
+
+        // Dynamically replace storage uploads path to support local subdirectories (XAMPP) and production domain root
+        $article->content = str_replace('/storage/uploads/', asset('storage/uploads') . '/', $article->content);
 
         return view('articles.show', compact('article'));
     }

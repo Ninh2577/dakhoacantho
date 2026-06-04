@@ -74,10 +74,10 @@ class MigrateWordPressData extends Command
             ->table('bqtdbhah0_terms as t')
             ->join('bqtdbhah0_term_taxonomy as tt', 't.term_id', '=', 'tt.term_id')
             ->where('tt.taxonomy', 'category')
-            ->select('t.term_id', 't.name', 't.slug', 'tt.description')
+            ->select('t.term_id', 't.name', 't.slug', 'tt.description', 'tt.parent')
             ->get();
 
-        $this->info("Migrating " . $wpCategories->count() . " categories...");
+        $this->info("Migrating " . $wpCategories->count() . " categories (Pass 1 - Basic Info)...");
         $categoryBar = $this->output->createProgressBar($wpCategories->count());
         $categoryBar->start();
 
@@ -88,11 +88,30 @@ class MigrateWordPressData extends Command
                     'name' => $wpCat->name,
                     'slug' => $wpCat->slug ?: Str::slug($wpCat->name),
                     'description' => $wpCat->description ?: null,
+                    'parent_id' => null,
                 ]
             );
             $categoryBar->advance();
         }
         $categoryBar->finish();
+        $this->newLine();
+
+        $this->info("Linking parent-child relationships (Pass 2 - Hierarchy)...");
+        $hierarchyBar = $this->output->createProgressBar($wpCategories->count());
+        $hierarchyBar->start();
+
+        foreach ($wpCategories as $wpCat) {
+            if ($wpCat->parent > 0) {
+                if (Category::where('id', $wpCat->parent)->exists()) {
+                    $category = Category::find($wpCat->term_id);
+                    if ($category) {
+                        $category->update(['parent_id' => $wpCat->parent]);
+                    }
+                }
+            }
+            $hierarchyBar->advance();
+        }
+        $hierarchyBar->finish();
         $this->newLine();
         $this->info("Categories migration completed!");
 
@@ -161,11 +180,14 @@ class MigrateWordPressData extends Command
             $postCategoryIds = $relationships->get($post->ID);
             $categoryId = $defaultCategory->id;
             if ($postCategoryIds && $postCategoryIds->isNotEmpty()) {
-                // Find first valid category id
-                foreach ($postCategoryIds as $rel) {
-                    if (Category::where('id', $rel->term_id)->exists()) {
-                        $categoryId = $rel->term_id;
-                        break;
+                $cats = Category::whereIn('id', $postCategoryIds->pluck('term_id'))->get();
+                if ($cats->isNotEmpty()) {
+                    // Try to find the deepest child category (which has a parent)
+                    $childCat = $cats->whereNotNull('parent_id')->first();
+                    if ($childCat) {
+                        $categoryId = $childCat->id;
+                    } else {
+                        $categoryId = $cats->first()->id;
                     }
                 }
             }
@@ -205,15 +227,56 @@ class MigrateWordPressData extends Command
                 }
             }
 
-            // Process article content: Replace wp-content/uploads/ with storage/uploads/
+            // Process article content: Clean shortcodes and fix domain URLs
             $content = $post->post_content;
-            
-            // URL cleanup inside the post content
-            $content = str_replace('http://localhost/dakhoacantho/wp-content/uploads/', '/storage/uploads/', $content);
-            $content = str_replace('https://localhost/dakhoacantho/wp-content/uploads/', '/storage/uploads/', $content);
-            $content = str_replace('/wp-content/uploads/', '/storage/uploads/', $content);
-            $content = str_replace('wp-content/uploads/', 'storage/uploads/', $content);
-            $content = str_replace('wp-content\\/uploads\\/', 'storage\\/uploads\\/', $content);
+
+            // 1. Convert WordPress [caption] shortcodes into standard HTML <figure> tags
+            $content = preg_replace_callback('/\[caption[^\]]*\](.*?)\[\/caption\]/is', function($matches) {
+                $innerContent = $matches[1];
+                return '<figure class="wp-caption flex flex-col items-center justify-center my-6 p-2 bg-slate-50 border border-slate-100 rounded-2xl max-w-full mx-auto">'
+                     . trim($innerContent)
+                     . '</figure>';
+            }, $content);
+
+            // 2. Normalize and clean image paths
+            $content = str_replace([
+                'http://dakhoacantho.com/wp-content/uploads/',
+                'https://dakhoacantho.com/wp-content/uploads/',
+                'http://localhost/dakhoacantho/wp-content/uploads/',
+                'https://localhost/dakhoacantho/wp-content/uploads/',
+                '/wp-content/uploads/',
+                'wp-content/uploads/',
+                'wp-content\\/uploads\\/',
+                'http://dakhoacantho.com/storage/uploads/',
+                'https://dakhoacantho.com/storage/uploads/',
+                'http://localhost/dakhoacantho/storage/uploads/',
+                'https://localhost/dakhoacantho/storage/uploads/'
+            ], [
+                '/storage/uploads/',
+                '/storage/uploads/',
+                '/storage/uploads/',
+                '/storage/uploads/',
+                '/storage/uploads/',
+                'storage/uploads/',
+                'storage\\/uploads\\/',
+                '/storage/uploads/',
+                '/storage/uploads/',
+                '/storage/uploads/',
+                '/storage/uploads/'
+            ], $content);
+
+            // 3. Convert absolute internal domain links to root relative links
+            $content = str_replace([
+                'http://dakhoacantho.com/',
+                'https://dakhoacantho.com/',
+                'http://localhost/dakhoacantho/',
+                'https://localhost/dakhoacantho/'
+            ], [
+                '/',
+                '/',
+                '/',
+                '/'
+            ], $content);
 
             Article::updateOrCreate(
                 ['id' => $post->ID],
