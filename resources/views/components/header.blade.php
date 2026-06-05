@@ -1,23 +1,12 @@
-<!-- Emergency Hotline Banner (Always visible at top) -->
-<div class="bg-clinic-blue text-white text-xs md:text-sm font-semibold py-2 px-4 text-center tracking-wide shadow-sm">
-    <div class="max-w-7xl mx-auto flex items-center justify-center gap-2">
-        <svg class="w-4 h-4 animate-pulse text-red-400" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-            <path d="M2 3a1 1 0 011-1h2.153a1 1 0 01.986.836l.74 4.435a1 1 0 01-.54 1.06l-1.548.773a11.037 11.037 0 006.105 6.105l.774-1.548a1 1 0 011.059-.54l4.435.74a1 1 0 01.836.986V17a1 1 0 01-1 1h-2C7.82 18 2 12.18 2 5V3z"></path>
-        </svg>
-        <span>HOTLINE CẤP CỨU 24/7: <a href="tel:0933496986" class="underline hover:text-teal-300 font-extrabold">0933 49 69 86</a> — LUÔN SẴN SÀNG PHỤC VỤ</span>
-    </div>
-</div>
-
 <!-- Header / Navbar -->
-<header class="sticky top-0 z-50 shadow-lg" x-data="{ mobileMenuOpen: false }">
+<header class="sticky top-0 z-50 shadow-lg" x-data="{ mobileMenuOpen: false, searchOpen: false }">
 
     <!-- Logo Bar (white background) -->
     <div class="bg-white/95 backdrop-blur-md border-b border-slate-100">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-20">
+        <div class="max-w-[1440px] mx-auto px-3 lg:px-6 h-20 flex items-center justify-between">
 
                 <!-- Logo -->
-                <div class="flex-shrink-0">
+                <div class="flex-shrink-0 mr-2 xl:mr-8">
                     <a href="{{ route('home') }}" class="flex items-center gap-2 group">
                         <span class="p-2 bg-gradient-to-br from-clinic-sky to-clinic-blue text-white rounded-xl shadow-md">
                             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -32,8 +21,9 @@
                 </div>
 
                 <!-- Center Navigation Area (Redesigned Mega Menu) -->
-                <nav class="hidden lg:flex items-center space-x-8 font-semibold text-gray-800">
-                    <a href="{{ url('/') }}" class="hover:text-blue-600 transition duration-200">Trang chủ</a>
+                <div class="hidden lg:flex flex-1 justify-center overflow-visible">
+                    <nav class="flex items-center text-[15px] font-semibold text-gray-800">
+                    <a href="{{ url('/') }}" class="px-2 xl:px-4 whitespace-nowrap hover:text-blue-600 transition duration-200 py-6">Trang chủ</a>
 
                     @if(isset($mainCategories))
                         @foreach($mainCategories as $category)
@@ -42,7 +32,7 @@
 
                                     {{-- Nav trigger --}}
                                     <a href="{{ url('/category/' . $category->full_path) }}"
-                                       class="flex items-center gap-1 transition duration-200 py-6 font-semibold relative"
+                                       class="px-2 xl:px-4 flex items-center whitespace-nowrap gap-1 transition duration-200 py-6 font-semibold relative"
                                        :class="open ? 'text-blue-600' : 'text-gray-800 hover:text-blue-600'">
                                         {{ $category->name }}
                                         <svg class="w-3.5 h-3.5 text-gray-400 transition-transform duration-200" :class="open ? 'rotate-180 text-blue-500' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
@@ -121,23 +111,34 @@
                                     </div>
                                 </div>
                             @else
-                                <a href="{{ url('/category/' . $category->full_path) }}" class="hover:text-blue-600 transition duration-200 py-6">{{ $category->name }}</a>
+                                <a href="{{ url('/category/' . $category->full_path) }}" class="px-2 xl:px-4 whitespace-nowrap hover:text-blue-600 transition duration-200 py-6">{{ $category->name }}</a>
                             @endif
                         @endforeach
                     @endif
 
-                    <a href="{{ url('/lien-he') }}" class="hover:text-blue-600 transition duration-200 py-6">Liên hệ</a>
-                </nav>
+                    <a href="{{ url('/lien-he') }}" class="px-2 xl:px-4 whitespace-nowrap hover:text-blue-600 transition duration-200 py-6">Liên hệ</a>
+                    </nav>
+                </div>
 
                 <!-- Header Actions (Desktop) -->
-                <div class="hidden lg:flex items-center gap-4">
-                    <a href="{{ route('contact') }}" class="inline-flex items-center justify-center px-5 py-2.5 text-xs font-extrabold text-white bg-clinic-blue hover:bg-opacity-90 rounded-lg shadow-md transition-all">
+                <div class="flex-shrink-0 hidden lg:flex items-center ml-2 xl:ml-8 gap-4">
+                    <button @click="searchOpen = true" class="text-slate-600 hover:text-clinic-blue transition p-2 cursor-pointer focus:outline-none" aria-label="Tìm kiếm">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </button>
+                    <a href="{{ route('contact') }}" class="inline-flex items-center justify-center whitespace-nowrap w-max px-5 xl:px-6 py-2.5 text-sm font-extrabold text-white bg-clinic-blue hover:bg-opacity-90 rounded-lg shadow-md transition-all">
                         ĐẶT LỊCH KHÁM
                     </a>
                 </div>
 
-                <!-- Hamburger Menu Button (Mobile) -->
-                <div class="flex items-center lg:hidden">
+                <!-- Mobile Actions -->
+                <div class="flex-shrink-0 flex items-center gap-2 lg:hidden">
+                    <button @click="searchOpen = true" class="text-clinic-blue focus:outline-none p-2" aria-label="Tìm kiếm">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+                        </svg>
+                    </button>
                     <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-clinic-blue focus:outline-none p-2" aria-label="Toggle Menu">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                             <path x-show="!mobileMenuOpen" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
@@ -250,5 +251,79 @@
 
         </ul>
     </nav>
+
+    <!-- Search Modal Overlay -->
+    <div x-show="searchOpen" 
+         class="fixed inset-0 z-50 overflow-y-auto" 
+         style="display: none;" 
+         @keydown.window.escape="searchOpen = false" 
+         role="dialog" 
+         aria-modal="true">
+        <!-- Backdrop -->
+        <div x-show="searchOpen" 
+             x-transition:enter="ease-out duration-300"
+             x-transition:enter-start="opacity-0"
+             x-transition:enter-end="opacity-100"
+             x-transition:leave="ease-in duration-200"
+             x-transition:leave-start="opacity-100"
+             x-transition:leave-end="opacity-0"
+             @click="searchOpen = false" 
+             class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm transition-opacity"></div>
+
+        <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+
+        <!-- Modal Box -->
+        <div x-show="searchOpen" 
+             x-transition:enter="ease-out duration-300"
+             x-transition:enter-start="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+             x-transition:enter-end="opacity-100 translate-y-0 sm:scale-100"
+             x-transition:leave="ease-in duration-200"
+             x-transition:leave-start="opacity-100 translate-y-0 sm:scale-100"
+             x-transition:leave-end="opacity-0 translate-y-4 sm:translate-y-0 sm:scale-95"
+             class="relative inline-block w-full max-w-2xl px-6 py-8 overflow-hidden text-left align-bottom transition-all transform bg-white rounded-3xl shadow-2xl sm:my-8 sm:align-middle sm:p-8">
+            
+            <button @click="searchOpen = false" type="button" class="absolute top-4 right-4 text-slate-400 hover:text-slate-600 outline-none">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+
+            <div class="space-y-6">
+                <h3 class="text-xl font-extrabold text-slate-900">Tìm kiếm thông tin y khoa</h3>
+                <form action="{{ route('search') }}" method="GET" class="flex flex-col gap-4">
+                    <div>
+                        <label for="q" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Từ khóa (Tên bệnh, triệu chứng...)</label>
+                        <input type="text" 
+                               name="q" 
+                               id="q" 
+                               value="{{ request('q') }}" 
+                               placeholder="Nhập từ khóa cần tìm..." 
+                               class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:border-clinic-blue outline-none transition text-sm font-semibold">
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="start_date" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Từ ngày</label>
+                            <input type="date" 
+                                   name="start_date" 
+                                   id="start_date" 
+                                   value="{{ request('start_date') }}" 
+                                   class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:border-clinic-blue outline-none transition text-sm font-semibold text-slate-600">
+                        </div>
+                        <div>
+                            <label for="end_date" class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Đến ngày</label>
+                            <input type="date" 
+                                   name="end_date" 
+                                   id="end_date" 
+                                   value="{{ request('end_date') }}" 
+                                   class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:border-clinic-blue outline-none transition text-sm font-semibold text-slate-600">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="w-full px-6 py-3.5 mt-2 text-white bg-clinic-blue hover:bg-opacity-95 font-extrabold rounded-xl text-sm transition shadow-md shadow-clinic-blue/10">
+                        Tìm kiếm
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
 
 </header>

@@ -25,7 +25,7 @@
         }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased flex flex-col min-h-screen selection:bg-clinic-teal selection:text-white">
+<body class="bg-slate-50 text-slate-800 antialiased flex flex-col min-h-screen selection:bg-clinic-teal selection:text-white overflow-x-hidden">
 
     <x-header />
 

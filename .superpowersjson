@@ -1,0 +1,17 @@
+{
+    "features": {
+        "auto_context_trimmer": true,
+        "token_budget_enforcement": true,
+        "aggressive_compression": true
+    },
+    "rules_mapping": {
+        "use_rtk_wrapper": true,
+        "preferred_shell": "bash"
+    },
+    "exclude_from_context": [
+        "node_modules/**",
+        "vendor/**",
+        "storage/framework/cache/**",
+        "public/storage/uploads/**"
+    ]
+}

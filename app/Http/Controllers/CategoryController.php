@@ -60,6 +60,13 @@ class CategoryController extends Controller
             ->where('is_published', true)
             ->first();
 
+        // Check for custom landing page
+        $customView = 'categories.landing.' . $selectedCategory->slug;
+        if (view()->exists($customView)) {
+            $category = $selectedCategory;
+            return view($customView, compact('categories', 'category', 'selectedCategory', 'articles', 'featuredArticle'));
+        }
+
         return view('categories.show', compact('categories', 'selectedCategory', 'articles', 'featuredArticle'));
     }
 

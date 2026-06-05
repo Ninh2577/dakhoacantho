@@ -15,6 +15,19 @@ class Article extends Model
         'meta_title',
         'meta_description',
         'is_published',
+        'focus_keyword',
+        'seo_slug',
+        'canonical_url',
+        'robots_index',
+        'robots_follow',
+        'og_title',
+        'og_description',
+        'og_image',
+        'twitter_title',
+        'twitter_description',
+        'twitter_image',
+        'seo_score',
+        'seo_checks',
     ];
 
     public function category()

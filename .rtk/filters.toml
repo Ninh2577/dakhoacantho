@@ -1,0 +1,7 @@
+schema_version = 1
+
+[filters.laravel-artisan]
+description = "Tối ưu hóa các lệnh PHP Artisan cho Laravel"
+match_command = "^php\\s+artisan"
+strip_ansi = true
+max_lines = 500

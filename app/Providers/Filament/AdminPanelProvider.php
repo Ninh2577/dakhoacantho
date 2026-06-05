@@ -44,16 +44,6 @@ class AdminPanelProvider extends PanelProvider
                 \App\Filament\Widgets\PatientVisitsChart::class,
                 \App\Filament\Widgets\SpecialtiesChart::class,
             ])
-            ->navigationItems([
-                NavigationItem::make('Bệnh nhân')
-                    ->url('#')
-                    ->icon('heroicon-o-user-group')
-                    ->sort(5),
-                NavigationItem::make('Báo cáo & Phân tích')
-                    ->url('#')
-                    ->icon('heroicon-o-chart-bar')
-                    ->sort(6),
-            ])
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,

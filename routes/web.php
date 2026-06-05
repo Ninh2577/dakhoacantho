@@ -6,6 +6,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\ConsultationController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\SearchController;
 
 // 1. Home Page
 Route::get('/', [PageController::class, 'home'])->name('home');
@@ -18,6 +19,9 @@ Route::get('/chuyen-khoa', [CategoryController::class, 'index'])->name('categori
 
 // 3. Consultation Form POST
 Route::post('/tu-van', [ConsultationController::class, 'store'])->name('consultation.store');
+
+// Search Route
+Route::get('/tim-kiem', [SearchController::class, 'index'])->name('search');
 
 // 4. SEO Sitemap
 Route::get('/sitemap.xml', [SitemapController::class, 'index']);

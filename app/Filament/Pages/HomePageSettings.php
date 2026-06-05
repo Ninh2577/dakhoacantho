@@ -2,6 +2,7 @@
 
 namespace App\Filament\Pages;
 
+use App\Models\Setting;
 use Filament\Pages\Page;
 
 use Filament\Forms\Form;
@@ -33,7 +34,8 @@ class HomePageSettings extends Page implements \Filament\Forms\Contracts\HasForm
 
     public function mount(): void
     {
-        $this->form->fill();
+        $this->data = Setting::get('homepage_layout', []);
+        $this->form->fill($this->data);
     }
 
     public function form(Form $form): Form
@@ -95,9 +97,10 @@ class HomePageSettings extends Page implements \Filament\Forms\Contracts\HasForm
     {
         try {
             $data = $this->form->getState();
+            Setting::set('homepage_layout', $data);
             
             Notification::make()
-                ->title('Cấu hình đã được lưu tạm thời!')
+                ->title('Cấu hình đã được lưu!')
                 ->success()
                 ->send();
         } catch (Halt $exception) {

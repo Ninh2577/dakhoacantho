@@ -1,18 +1,3 @@
-# Cấu hình Tối ưu hóa Toàn diện (RTK + Superpowers)
-Hệ thống đang vận hành trên môi trường Git Bash (Windows 11).
-Dự án đã được tích hợp bộ đôi công cụ tối ưu chi phí: Runtime Token Killer (RTK) và Superpowers Extension.
-
-QUY TẮC BẮT BUỘC CHO AGENT:
-1. Bạn PHẢI ưu tiên sử dụng môi trường Git Bash hiện tại để thực thi lệnh.
-2. Mọi lệnh Terminal liên quan đến hệ thống (Laravel Artisan, Composer, NPM, Git) đều phải được bọc qua bộ lọc của RTK.
-3. Khi quét mã nguồn hoặc phân tích dự án, tuân thủ nghiêm ngặt file cấu hình loại trừ `.superpowersjson` để tránh đọc các file cache và file phương tiện trong thư mục `storage` và `vendor`.
-
-Mẫu lệnh thực thi tiêu chuẩn:
-- `rtk php artisan route:list`
-- `rtk php artisan migrate:status`
-- `rtk git diff`
-
-## Quy tắc RTK Claude
 <!-- rtk-instructions v2 -->
 # RTK (Rust Token Killer) - Token-Optimized Commands
 

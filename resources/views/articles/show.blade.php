@@ -1,15 +1,43 @@
 @extends('layouts.app')
 
-@section('title', $article->meta_title ?? $article->title . ' | Phòng Khám Đa Khoa Cần Thơ')
+@section('title', e($article->meta_title ?? $article->title . ' | Phòng Khám Đa Khoa Gia Phước'))
 
 @section('meta')
-    <meta name="description" content="{{ $article->meta_description ?? Str::limit(strip_tags($article->content), 160) }}">
-    <meta property="og:title" content="{{ $article->meta_title ?? $article->title }}">
-    <meta property="og:description" content="{{ $article->meta_description ?? Str::limit(strip_tags($article->content), 160) }}">
-    @if($article->thumbnail_image)
+    @php
+        $rawDesc = $article->meta_description 
+            ?? $article->excerpt 
+            ?? (trim(strip_tags($article->content ?? '')) !== '' ? Str::limit(strip_tags($article->content), 160) : $article->title);
+        $seoDesc = trim($rawDesc);
+    @endphp
+    
+    <meta name="description" content="{{ $seoDesc }}">
+    
+    {{-- Canonical link --}}
+    <link rel="canonical" href="{{ $article->canonical_url ?? url()->current() }}">
+
+    {{-- Robots metadata --}}
+    <meta name="robots" content="{{ ($article->robots_index ?? true) ? 'index' : 'noindex' }},{{ ($article->robots_follow ?? true) ? 'follow' : 'nofollow' }}">
+
+    {{-- Open Graph (Facebook) --}}
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="{{ $article->og_title ?? $article->meta_title ?? $article->title }}">
+    <meta property="og:description" content="{{ $article->og_description ?? $seoDesc }}">
+    <meta property="og:url" content="{{ url()->current() }}">
+    @if($article->og_image)
+        <meta property="og:image" content="{{ asset('storage/' . $article->og_image) }}">
+    @elseif($article->thumbnail_image)
         <meta property="og:image" content="{{ asset('storage/' . $article->thumbnail_image) }}">
     @endif
-    <meta property="og:type" content="article">
+
+    {{-- Twitter --}}
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="{{ $article->twitter_title ?? $article->meta_title ?? $article->title }}">
+    <meta name="twitter:description" content="{{ $article->twitter_description ?? $seoDesc }}">
+    @if($article->twitter_image)
+        <meta name="twitter:image" content="{{ asset('storage/' . $article->twitter_image) }}">
+    @elseif($article->thumbnail_image)
+        <meta name="twitter:image" content="{{ asset('storage/' . $article->thumbnail_image) }}">
+    @endif
 @endsection
 
 @section('content')

@@ -37,15 +37,20 @@ class CategoryResource extends Resource
                     ->searchable()
                     ->preload(),
                 Forms\Components\TextInput::make('name')
+                    ->label('Tên danh mục')
                     ->required()
                     ->maxLength(255)
                     ->live(onBlur: true)
                     ->afterStateUpdated(fn (Forms\Set $set, ?string $state) => $set('slug', \Illuminate\Support\Str::slug($state))),
                 Forms\Components\TextInput::make('slug')
+                    ->label('Đường dẫn (Slug)')
+                    ->helperText('Tự động tạo từ tên, có thể tùy chỉnh. Dùng cho URL thân thiện SEO.')
                     ->required()
                     ->unique(ignoreRecord: true)
                     ->maxLength(255),
                 Forms\Components\Textarea::make('description')
+                    ->label('Mô tả')
+                    ->helperText('Tóm tắt về chuyên khoa/danh mục này.')
                     ->columnSpanFull(),
                 FileUpload::make('featured_image')
                     ->label('Ảnh Banner Mega Menu')
@@ -57,7 +62,22 @@ class CategoryResource extends Resource
 
     public static function tree(\SolutionForest\FilamentTree\Components\Tree $tree): \SolutionForest\FilamentTree\Components\Tree
     {
-        return $tree;
+        return $tree
+            ->actions([
+                \SolutionForest\FilamentTree\Actions\EditAction::make(),
+                \SolutionForest\FilamentTree\Actions\DeleteAction::make()
+                    ->before(function (\SolutionForest\FilamentTree\Actions\DeleteAction $action, Category $record) {
+                        if ($record->articles()->exists()) {
+                            \Filament\Notifications\Notification::make()
+                                ->warning()
+                                ->title('Không thể xóa!')
+                                ->body('Danh mục này đang chứa bài viết. Vui lòng xóa hoặc di chuyển các bài viết trước khi xóa danh mục.')
+                                ->persistent()
+                                ->send();
+                            $action->cancel();
+                        }
+                    }),
+            ]);
     }
 
     public static function getRelations(): array

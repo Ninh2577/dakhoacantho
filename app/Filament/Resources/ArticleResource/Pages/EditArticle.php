@@ -16,4 +16,18 @@ class EditArticle extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    protected function mutateFormDataBeforeSave(array $data): array
+    {
+        $article = $this->record;
+        $article->fill($data);
+
+        $analyzer = new \App\Services\ArticleSeoAnalyzerService();
+        $result = $analyzer->analyze($article);
+
+        $data['seo_score'] = $result['score'];
+        $data['seo_checks'] = json_encode($result);
+
+        return $data;
+    }
 }
