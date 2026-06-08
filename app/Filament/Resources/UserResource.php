@@ -21,7 +21,7 @@ class UserResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
     
-    protected static ?string $navigationLabel = 'Quản lý người dùng';
+    protected static ?string $navigationLabel = 'Người dùng';
     
     protected static ?int $navigationSort = 7;
 
@@ -50,9 +50,9 @@ class UserResource extends Resource
                 Forms\Components\Select::make('role')
                     ->label('Vai trò')
                     ->options([
-                        'admin' => 'Admin',
-                        'doctor' => 'Doctor',
-                        'editor' => 'Editor',
+                        'admin' => 'Quản trị viên',
+                        'doctor' => 'Bác sĩ',
+                        'editor' => 'Biên tập viên',
                     ])
                     ->required()
                     ->default('editor'),
@@ -84,6 +84,12 @@ class UserResource extends Resource
                         'editor' => 'warning',
                         default => 'gray',
                     })
+                    ->formatStateUsing(fn (string $state): string => match ($state) {
+                        'admin' => 'Quản trị viên',
+                        'doctor' => 'Bác sĩ',
+                        'editor' => 'Biên tập viên',
+                        default => $state,
+                    })
                     ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
@@ -95,9 +101,9 @@ class UserResource extends Resource
                 Tables\Filters\SelectFilter::make('role')
                     ->label('Vai trò')
                     ->options([
-                        'admin' => 'Admin',
-                        'doctor' => 'Doctor',
-                        'editor' => 'Editor',
+                        'admin' => 'Quản trị viên',
+                        'doctor' => 'Bác sĩ',
+                        'editor' => 'Biên tập viên',
                     ]),
             ])
             ->actions([

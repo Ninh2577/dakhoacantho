@@ -18,7 +18,7 @@
 
 @section('content')
 <!-- Hero Section -->
-<section class="bg-gradient-to-br from-blue-50 via-white to-teal-50/30 py-12 md:py-20 overflow-hidden">
+<section id="gioi-thieu" class="bg-gradient-to-br from-blue-50 via-white to-teal-50/30 py-12 md:py-20 overflow-hidden">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             

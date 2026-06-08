@@ -10,6 +10,11 @@ class ListArticleComments extends ListRecords
 {
     protected static string $resource = ArticleCommentResource::class;
 
+    public function getTitle(): string
+    {
+        return 'Bình luận bài viết';
+    }
+
     protected function getHeaderActions(): array
     {
         return [

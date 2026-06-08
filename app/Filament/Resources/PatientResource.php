@@ -95,12 +95,12 @@ class PatientResource extends Resource
                                         ->searchable()
                                         ->placeholder('Chọn chuyên khoa'),
                                     Select::make('source')
-                                        ->label('Nguồn khách hàng')
+                                        ->label('Nguồn khách')
                                         ->options(Patient::sourceOptions())
                                         ->placeholder('Biết đến từ đâu?'),
                                 ]),
                                 Textarea::make('notes')
-                                    ->label('Ghi chú triệu chứng / nhu cầu')
+                                    ->label('Ghi chú')
                                     ->rows(3)
                                     ->placeholder('Mô tả ngắn về triệu chứng hoặc nhu cầu tư vấn...')
                                     ->columnSpanFull(),
@@ -113,7 +113,7 @@ class PatientResource extends Resource
                         Section::make('📋 Trạng thái & Theo dõi')
                             ->schema([
                                 Select::make('status')
-                                    ->label('Trạng thái chăm sóc')
+                                    ->label('Trạng thái')
                                     ->options(Patient::statusOptions())
                                     ->required()
                                     ->default('new'),

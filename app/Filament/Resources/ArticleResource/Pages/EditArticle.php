@@ -10,10 +10,15 @@ class EditArticle extends EditRecord
 {
     protected static string $resource = ArticleResource::class;
 
+    public function getTitle(): string
+    {
+        return 'Sửa bài viết';
+    }
+
     protected function getHeaderActions(): array
     {
         return [
-            Actions\DeleteAction::make(),
+            Actions\DeleteAction::make()->label('Xóa'),
         ];
     }
 

@@ -82,7 +82,7 @@
                     </div>
 
                     <!-- Right Google Maps Iframe -->
-                    <div class="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm min-h-[300px] flex">
+                    <div id="ban-do" class="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm min-h-[300px] flex">
                         <iframe 
                             src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3928.79326462719!2d105.78201531534927!3d10.033904992827725!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31a062983794d2bb%3A0x88f50c05877f0a8c!2zNTcgSMO5bmcgVsawxqFuZywgVGjhu5tpIELDrG5oLCBOaW5oIEtp4buBdSwgQ-G6p24gVGjGoSwgVmlldG5hbQ!5e0!3m2!1sen!2s!4v1623123456789!5m2!1sen!2s" 
                             class="w-full h-full border-0" 

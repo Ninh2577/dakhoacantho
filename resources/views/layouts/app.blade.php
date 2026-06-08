@@ -34,6 +34,7 @@
         @yield('content')
     </main>
 
+    <x-pre-footer-cta />
     <x-footer />
 
     @livewireScripts

@@ -43,7 +43,7 @@ class CategoryResource extends Resource
                     ->live(onBlur: true)
                     ->afterStateUpdated(fn (Forms\Set $set, ?string $state) => $set('slug', \Illuminate\Support\Str::slug($state))),
                 Forms\Components\TextInput::make('slug')
-                    ->label('Đường dẫn (Slug)')
+                    ->label('Đường dẫn')
                     ->helperText('Tự động tạo từ tên, có thể tùy chỉnh. Dùng cho URL thân thiện SEO.')
                     ->required()
                     ->unique(ignoreRecord: true)

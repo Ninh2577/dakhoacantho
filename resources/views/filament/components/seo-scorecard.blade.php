@@ -24,11 +24,11 @@
     <!-- Scorecard Navigation Tabs -->
     <div class="flex flex-wrap border-b border-slate-100 text-xs font-bold gap-1 bg-slate-50 p-1 rounded-lg">
         <button type="button" @click="activeTab = 'basic'" class="px-3 py-1.5 rounded-md transition-all shrink-0"
-                :class="activeTab === 'basic' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-900'">Basic SEO</button>
+                :class="activeTab === 'basic' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-900'">SEO cơ bản</button>
         <button type="button" @click="activeTab = 'content'" class="px-3 py-1.5 rounded-md transition-all shrink-0"
-                :class="activeTab === 'content' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-900'">Checklist</button>
+                :class="activeTab === 'content' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-900'">Danh sách kiểm tra</button>
         <button type="button" @click="activeTab = 'preview'" class="px-3 py-1.5 rounded-md transition-all shrink-0"
-                :class="activeTab === 'preview' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-900'">Preview</button>
+                :class="activeTab === 'preview' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-900'">Xem trước</button>
         <button type="button" @click="activeTab = 'advanced'" class="px-3 py-1.5 rounded-md transition-all shrink-0"
                 :class="activeTab === 'advanced' ? 'bg-white shadow text-slate-900' : 'text-slate-500 hover:text-slate-900'">Nâng cao</button>
     </div>
@@ -41,7 +41,7 @@
             <li class="flex items-start gap-2">
                 <span x-show="checks.hasKeyword" class="text-emerald-500 text-sm">✔️</span>
                 <span x-show="!checks.hasKeyword" class="text-rose-500 text-sm">❌</span>
-                <span>Từ khóa chính: <span x-text="keyword ? '«' + keyword + '»' : 'Chưa thiết lập'"></span></span>
+                <span>Từ khóa chính: <span x-text="keyword && typeof keyword === 'string' ? '«' + keyword + '»' : (keyword ? '«' + String(keyword) + '»' : 'Chưa nhập')"></span></span>
             </li>
             <!-- Meta Title length -->
             <li class="flex items-start gap-2">

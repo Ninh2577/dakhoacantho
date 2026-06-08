@@ -10,6 +10,11 @@ class EditConsultation extends EditRecord
 {
     protected static string $resource = ConsultationResource::class;
 
+    public function getTitle(): string
+    {
+        return 'Sửa tư vấn';
+    }
+
     protected function getHeaderActions(): array
     {
         return [

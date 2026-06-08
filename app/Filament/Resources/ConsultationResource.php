@@ -38,7 +38,7 @@ class ConsultationResource extends Resource
                             ->schema([
                                 Grid::make(2)->schema([
                                     Forms\Components\TextInput::make('name')
-                                        ->label('Họ và tên')
+                                        ->label('Họ tên')
                                         ->required()
                                         ->maxLength(255),
                                     Forms\Components\TextInput::make('phone')
@@ -47,7 +47,7 @@ class ConsultationResource extends Resource
                                         ->tel()
                                         ->maxLength(20),
                                     Forms\Components\TextInput::make('department')
-                                        ->label('Chuyên khoa quan tâm')
+                                        ->label('Chuyên khoa')
                                         ->maxLength(255),
                                     Forms\Components\Select::make('assigned_to')
                                         ->label('Người phụ trách')
@@ -56,14 +56,14 @@ class ConsultationResource extends Resource
                                         ->placeholder('Chọn nhân viên xử lý'),
                                 ]),
                                 Forms\Components\Textarea::make('symptoms')
-                                    ->label('Nội dung tư vấn / Triệu chứng')
+                                    ->label('Triệu chứng')
                                     ->rows(4)
                                     ->columnSpanFull(),
                             ]),
                         Section::make('📝 Ghi chú nội bộ')
                             ->schema([
                                 Forms\Components\Textarea::make('notes')
-                                    ->label('')
+                                    ->label('Ghi chú nội bộ')
                                     ->rows(4)
                                     ->placeholder('Ghi chú nội bộ sau khi liên hệ (bệnh nhân không thấy)...')
                                     ->columnSpanFull(),

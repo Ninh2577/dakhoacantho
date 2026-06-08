@@ -10,6 +10,11 @@ class EditArticleComment extends EditRecord
 {
     protected static string $resource = ArticleCommentResource::class;
 
+    public function getTitle(): string
+    {
+        return 'Sửa bình luận';
+    }
+
     protected function getHeaderActions(): array
     {
         return [

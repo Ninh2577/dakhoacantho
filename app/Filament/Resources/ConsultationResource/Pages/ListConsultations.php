@@ -10,6 +10,11 @@ class ListConsultations extends ListRecords
 {
     protected static string $resource = ConsultationResource::class;
 
+    public function getTitle(): string
+    {
+        return 'Tư vấn';
+    }
+
     protected function getHeaderActions(): array
     {
         return [

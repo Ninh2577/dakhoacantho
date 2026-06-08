@@ -9,4 +9,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateArticleComment extends CreateRecord
 {
     protected static string $resource = ArticleCommentResource::class;
+
+    public function getTitle(): string
+    {
+        return 'Thêm bình luận';
+    }
 }

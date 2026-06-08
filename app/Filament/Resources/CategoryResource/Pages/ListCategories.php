@@ -12,6 +12,11 @@ class ListCategories extends TreePage
 
     protected static int $maxDepth = 3;
 
+    public function getTitle(): string
+    {
+        return 'Danh mục';
+    }
+
     protected function getTreeActions(): array
     {
         return [

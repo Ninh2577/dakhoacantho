@@ -15,6 +15,9 @@ Route::get('/', [PageController::class, 'home'])->name('home');
 // 2. Contact Page
 Route::get('/lien-he', [PageController::class, 'contact'])->name('contact');
 
+Route::view('/chinh-sach-bao-mat', 'policies.privacy')->name('privacy.policy');
+Route::view('/dieu-khoan-su-dung', 'policies.terms')->name('terms.policy');
+
 // Category Index Page
 Route::get('/chuyen-khoa', [CategoryController::class, 'index'])->name('categories.index');
 
@@ -25,7 +28,7 @@ Route::post('/tu-van', [ConsultationController::class, 'store'])->name('consulta
 Route::get('/tim-kiem', [SearchController::class, 'index'])->name('search');
 
 // 4. SEO Sitemap
-Route::get('/sitemap.xml', [SitemapController::class, 'index']);
+Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
 // 5. Category Archive (wildcard to capture nested parent/child paths)
 Route::get('/category/{category_path}', [CategoryController::class, 'show'])
@@ -41,4 +44,3 @@ Route::get('/{category_path}/{slug}.html', [ArticleController::class, 'show'])
 Route::post('/articles/{article}/comments', [ArticleCommentController::class, 'store'])
     ->name('articles.comments.store')
     ->middleware(['web', 'throttle:5,1']);
-

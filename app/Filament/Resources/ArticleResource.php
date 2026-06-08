@@ -42,32 +42,42 @@ class ArticleResource extends Resource
                     Grid::make(1)->columnSpan(2)->schema([
                         Section::make('Nội dung bài viết')->schema([
                             Select::make('category_id')
+                                ->label('Danh mục')
                                 ->relationship('category', 'name')
+                                ->placeholder('Chọn danh mục')
                                 ->required()
                                 ->searchable()
                                 ->preload(),
                             TextInput::make('title')
+                                ->label('Tiêu đề')
+                                ->placeholder('Nhập tiêu đề bài viết')
                                 ->required()
                                 ->maxLength(255)
                                 ->live(onBlur: true)
                                 ->afterStateUpdated(fn (Forms\Set $set, ?string $state) => $set('slug', \Illuminate\Support\Str::slug($state))),
                             TextInput::make('slug')
+                                ->label('Đường dẫn')
+                                ->placeholder('Đường dẫn được sinh tự động')
+                                ->helperText('Đường dẫn không dấu, viết thường, ngăn cách bằng dấu gạch ngang.')
                                 ->required()
                                 ->maxLength(255)
                                 ->unique(ignoreRecord: true)
                                 ->live(onBlur: true),
                             RichEditor::make('content')
+                                ->label('Nội dung')
                                 ->required()
                                 ->fileAttachmentsDirectory('articles/attachments')
                                 ->fileAttachmentsDisk('public')
                                 ->columnSpanFull()
                                 ->live(onBlur: true),
                             FileUpload::make('thumbnail_image')
+                                ->label('Ảnh đại diện')
                                 ->image()
                                 ->directory('articles/thumbnails')
                                 ->disk('public')
                                 ->live(),
                             Toggle::make('is_published')
+                                ->label('Xuất bản')
                                 ->required()
                                 ->live(),
                         ]),
@@ -84,16 +94,18 @@ class ArticleResource extends Resource
                             Tabs::make('SEO Config')->tabs([
                                 Tabs\Tab::make('SEO cơ bản')->schema([
                                     TextInput::make('focus_keyword')
-                                        ->label('Từ khóa chính (Focus Keyword)')
+                                        ->label('Từ khóa chính')
+                                        ->placeholder('Nhập từ khóa chính bài viết')
                                         ->live(debounce: 500),
                                     TextInput::make('meta_title')
-                                        ->label('Meta Title')
+                                        ->label('Tiêu đề SEO')
+                                        ->placeholder('Tiêu đề hiển thị trên Google')
                                         ->maxLength(255)
                                         ->live(debounce: 500)
                                         ->suffixAction(
                                             Forms\Components\Actions\Action::make('generateMetaTitle')
                                                 ->icon('heroicon-m-sparkles')
-                                                ->tooltip('Tự tạo Meta Title từ tiêu đề')
+                                                ->tooltip('Tạo tiêu đề SEO từ tiêu đề bài viết')
                                                 ->action(function (Forms\Set $set, Forms\Get $get) {
                                                     $title = $get('title') ?? '';
                                                     $set('meta_title', mb_substr($title, 0, 60));
@@ -101,13 +113,14 @@ class ArticleResource extends Resource
                                         )
                                         ->helperText('Tiêu đề hiển thị trên Google (Tốt nhất: 50-60 ký tự).'),
                                     Textarea::make('meta_description')
-                                        ->label('Meta Description')
+                                        ->label('Mô tả SEO')
+                                        ->placeholder('Mô tả hiển thị trên Google')
                                         ->rows(3)
                                         ->live(debounce: 500)
                                         ->hintAction(
                                             Forms\Components\Actions\Action::make('generateMetaDesc')
                                                 ->icon('heroicon-m-sparkles')
-                                                ->tooltip('Tự tạo Meta Description từ nội dung')
+                                                ->tooltip('Tạo mô tả SEO từ nội dung')
                                                 ->action(function (Forms\Set $set, Forms\Get $get) {
                                                     $content = $get('content') ?? '';
                                                     $plain = strip_tags($content);
@@ -117,21 +130,24 @@ class ArticleResource extends Resource
                                         )
                                         ->helperText('Mô tả hiển thị trên Google (Tốt nhất: 150-160 ký tự).'),
                                     TextInput::make('seo_slug')
-                                        ->label('SEO Slug')
+                                        ->label('Đường dẫn SEO')
+                                        ->placeholder('Đường dẫn tối ưu SEO')
                                         ->live(debounce: 500),
                                     TextInput::make('canonical_url')
-                                        ->label('Canonical URL')
+                                        ->label('URL chuẩn')
+                                        ->placeholder('https://...')
                                         ->url()
                                         ->live(debounce: 500),
                                 ]),
                                 Tabs\Tab::make('Mạng xã hội')->schema([
                                     TextInput::make('og_title')
-                                        ->label('Facebook Title')
+                                        ->label('Tiêu đề Facebook')
+                                        ->placeholder('Tiêu đề khi chia sẻ lên Facebook')
                                         ->live(debounce: 500)
                                         ->suffixAction(
                                             Forms\Components\Actions\Action::make('syncSocial')
                                                 ->icon('heroicon-m-arrow-path')
-                                                ->tooltip('Đồng bộ tiêu đề & mô tả từ Meta SEO')
+                                                ->tooltip('Đồng bộ từ SEO cơ bản')
                                                 ->action(function (Forms\Set $set, Forms\Get $get) {
                                                     $metaTitle = $get('meta_title') ?? '';
                                                     $metaDesc = $get('meta_description') ?? '';
@@ -144,24 +160,27 @@ class ArticleResource extends Resource
                                         )
                                         ->helperText('Tiêu đề hiển thị khi chia sẻ lên Facebook.'),
                                     Textarea::make('og_description')
-                                        ->label('Facebook Description')
+                                        ->label('Mô tả Facebook')
+                                        ->placeholder('Mô tả khi chia sẻ lên Facebook')
                                         ->rows(3)
                                         ->live(debounce: 500),
                                     FileUpload::make('og_image')
-                                        ->label('Facebook Image')
+                                        ->label('Ảnh Facebook')
                                         ->image()
                                         ->directory('articles/seo')
                                         ->disk('public')
                                         ->live(),
                                     TextInput::make('twitter_title')
-                                        ->label('Twitter Title')
+                                        ->label('Tiêu đề Twitter')
+                                        ->placeholder('Tiêu đề cho Twitter')
                                         ->live(debounce: 500),
                                     Textarea::make('twitter_description')
-                                        ->label('Twitter Description')
+                                        ->label('Mô tả Twitter')
+                                        ->placeholder('Mô tả cho Twitter')
                                         ->rows(3)
                                         ->live(debounce: 500),
                                     FileUpload::make('twitter_image')
-                                        ->label('Twitter Image')
+                                        ->label('Ảnh Twitter')
                                         ->image()
                                         ->directory('articles/seo')
                                         ->disk('public')
@@ -169,11 +188,13 @@ class ArticleResource extends Resource
                                 ]),
                                 Tabs\Tab::make('Nâng cao')->schema([
                                     Toggle::make('robots_index')
-                                        ->label('Index (Cho phép lập chỉ mục)')
+                                        ->label('Cho phép lập chỉ mục')
+                                        ->helperText('Cho phép Google lập chỉ mục bài viết này')
                                         ->default(true)
                                         ->live(),
                                     Toggle::make('robots_follow')
-                                        ->label('Follow (Cho phép theo dõi link)')
+                                        ->label('Cho phép theo dõi liên kết')
+                                        ->helperText('Cho phép Google theo dõi các liên kết trong bài viết')
                                         ->default(true)
                                         ->live(),
                                 ]),

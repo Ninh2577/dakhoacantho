@@ -10,6 +10,16 @@ class CreateArticle extends CreateRecord
 {
     protected static string $resource = ArticleResource::class;
 
+    public function getTitle(): string
+    {
+        return 'Thêm bài viết';
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
+
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $article = new \App\Models\Article($data);

@@ -32,7 +32,7 @@ class ArticleCommentResource extends Resource
                             ->schema([
                                 Forms\Components\Grid::make(2)->schema([
                                     Forms\Components\TextInput::make('name')
-                                        ->label('Họ và tên')
+                                        ->label('Họ tên')
                                         ->required()
                                         ->maxLength(100),
                                     Forms\Components\TextInput::make('phone')
@@ -49,7 +49,7 @@ class ArticleCommentResource extends Resource
                                         ->columnSpanFull(),
                                 ]),
                                 Forms\Components\Textarea::make('content')
-                                    ->label('Nội dung bình luận')
+                                    ->label('Nội dung')
                                     ->required()
                                     ->rows(6)
                                     ->maxLength(1000)
@@ -88,7 +88,7 @@ class ArticleCommentResource extends Resource
             )
             ->columns([
                 Tables\Columns\TextColumn::make('name')
-                    ->label('Người bình luận')
+                    ->label('Họ tên')
                     ->searchable()
                     ->sortable()
                     ->weight('bold')

@@ -10,6 +10,11 @@ class EditCategory extends EditRecord
 {
     protected static string $resource = CategoryResource::class;
 
+    public function getTitle(): string
+    {
+        return 'Sửa danh mục';
+    }
+
     protected function getHeaderActions(): array
     {
         return [

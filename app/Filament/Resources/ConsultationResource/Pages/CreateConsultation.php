@@ -9,4 +9,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateConsultation extends CreateRecord
 {
     protected static string $resource = ConsultationResource::class;
+
+    public function getTitle(): string
+    {
+        return 'Thêm tư vấn';
+    }
 }

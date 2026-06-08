@@ -10,10 +10,15 @@ class ListArticles extends ListRecords
 {
     protected static string $resource = ArticleResource::class;
 
+    public function getTitle(): string
+    {
+        return 'Bài viết';
+    }
+
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()->label('Thêm bài viết'),
         ];
     }
 
