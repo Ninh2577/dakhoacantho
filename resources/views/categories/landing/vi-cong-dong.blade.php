@@ -1,6 +1,24 @@
 @extends('layouts.app')
 
-@section('title', 'Vì Cộng Đồng - Trái Tim Nhân Ái & Hoạt Động Thiện Nguyện | Đa Khoa Gia Phước')
+@section('title', 'Vì Cộng Đồng - Trách Nhiệm Xã Hội & Giáo Dục Sức Khỏe | Đa Khoa Gia Phước')
+
+@section('meta')
+    <x-seo 
+        title="Vì Cộng Đồng - Trách Nhiệm Xã Hội & Giáo Dục Sức Khỏe | Đa Khoa Gia Phước" 
+        description="Hoạt động trách nhiệm xã hội, giáo dục sức khỏe học đường và lan tỏa thông tin phòng ngừa bệnh truyền nhiễm tại địa phương của Đa Khoa Gia Phước Cần Thơ." 
+        canonical="{{ route('category.show', ['category_path' => 'vi-cong-dong']) }}"
+        :breadcrumbs="[
+            ['name' => 'Trang chủ', 'url' => route('home')],
+            ['name' => 'Vì Cộng Đồng', 'url' => route('category.show', ['category_path' => 'vi-cong-dong'])]
+        ]"
+        :faqs="[
+            ['q' => 'Các hoạt động cộng đồng của Đa Khoa Gia Phước là gì?', 'a' => 'Đa Khoa Gia Phước chủ yếu tập trung vào giáo dục sức khỏe cộng đồng, nâng cao nhận thức phòng chống bệnh truyền nhiễm, phổ biến các kiến thức y học và hướng dẫn giữ gìn vệ sinh học đường tại địa phương.'],
+            ['q' => 'Tôi có thể đăng ký tham gia các chiến dịch nâng cao nhận thức sức khỏe không?', 'a' => 'Bạn có thể liên hệ trực tiếp với chúng tôi qua hotline 0966.332.352 để đăng ký nhận thông tin về các chương trình, hoạt động truyền thông và giáo dục sức khỏe cộng đồng sắp tới.'],
+            ['q' => 'Phòng khám Gia Phước hỗ trợ bà con thế nào?', 'a' => 'Phòng khám định kỳ chia sẻ các tài liệu y tế, hướng dẫn phòng ngừa dịch bệnh miễn phí cho người dân và sẵn sàng hỗ trợ tư vấn sức khỏe qua tổng đài hotline chính thức.']
+        ]"
+    />
+@endsection
+
 
 @section('content')
 <div class="bg-slate-50 min-h-screen">
@@ -58,7 +76,7 @@
             <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
                 <div>
                     <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Hoạt Động Tiêu Biểu</h2>
-                    <p class="text-slate-500 mt-2 max-w-xl">Kiến tạo những giá trị bền vững cho cộng đồng thông qua chuyên môn y khoa và trái tim nhân ái của đội ngũ y bác sĩ Gia Phước.</p>
+                    <p class="text-slate-500 mt-2 max-w-xl">Kiến tạo những giá trị bền vững cho cộng đồng thông qua chuyên môn y khoa và sự tận tâm của tập thể y tế phòng khám Đa Khoa Gia Phước.</p>
                 </div>
                 <a href="#cta-section" class="inline-flex items-center text-clinic-blue font-bold text-sm hover:underline">
                     Xem tất cả hoạt động &rarr;
@@ -149,10 +167,10 @@
                     <div class="space-y-3">
                         <span class="text-xs font-bold text-clinic-blue uppercase tracking-wider">Góc nhìn người trong cuộc</span>
                         <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
-                            Tìm Lại Ánh Sáng Cho Cuộc Đời Mới
+                            Lan Tỏa Kiến Thức Phòng Ngừa Dịch Bệnh
                         </h2>
                         <p class="text-slate-500 text-sm md:text-base leading-relaxed">
-                            Câu chuyện về những mảnh đời khó khăn đã nhận được sự hỗ trợ kịp thời từ Quỹ Từ Thiện Gia Phước. Chúng tôi tin rằng, mỗi ca phẫu thuật, mỗi viên thuốc được trao đi là một niềm hy vọng mới được thắp sáng cho tương lai người bệnh.
+                            Bên cạnh công tác tư vấn y tế, Đa Khoa Gia Phước chú trọng hoạt động chia sẻ cẩm nang, tài liệu y khoa phòng chống dịch bệnh truyền nhiễm cho bà con địa phương nhằm xây dựng cộng đồng khỏe mạnh và chủ động bảo vệ bản thân.
                         </p>
                     </div>
 
@@ -160,20 +178,85 @@
                     <div class="grid grid-cols-2 gap-6 pt-4 border-t border-slate-200">
                         <!-- Stat 1 -->
                         <div class="space-y-1">
-                            <span class="block text-4xl md:text-5xl font-black text-clinic-blue tracking-tight">120+</span>
-                            <span class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Ca phẫu thuật thiện nguyện</span>
+                            <span class="block text-4xl md:text-5xl font-black text-clinic-teal tracking-tight">&check;</span>
+                            <span class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Giáo dục sức khỏe học đường</span>
                         </div>
 
                         <!-- Stat 2 -->
                         <div class="space-y-1">
-                            <span class="block text-4xl md:text-5xl font-black text-clinic-blue tracking-tight">2.5 tỷ</span>
-                            <span class="block text-xs font-bold text-slate-500 uppercase tracking-wider">Tổng giá trị tài trợ năm 2024</span>
+                            <span class="block text-4xl md:text-5xl font-black text-clinic-teal tracking-tight">&check;</span>
+                            <span class="block text-xs font-bold text-slate-700 uppercase tracking-wider">Tài liệu phòng ngừa miễn phí</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
     </section>
+
+    <!-- FAQ Section -->
+    <section class="py-20 md:py-24 bg-white border-t border-slate-100">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 space-y-4">
+                <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Câu Hỏi Thường Gặp</h2>
+                <div class="w-16 h-1 bg-clinic-blue mx-auto rounded-full"></div>
+            </div>
+
+            <div x-data="{ active: null }" class="space-y-4">
+                <!-- FAQ 1 -->
+                <div class="bg-slate-50 rounded-2xl border border-slate-150 shadow-sm overflow-hidden transition-all duration-300">
+                    <button @click="active = active === 1 ? null : 1" class="w-full flex items-center justify-between p-6 text-left focus:outline-none">
+                        <span class="font-bold text-slate-900 pr-4 text-sm md:text-base">Các hoạt động cộng đồng của Đa Khoa Gia Phước là gì?</span>
+                        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-white flex items-center justify-center text-slate-500 transition-transform duration-300" :class="active === 1 ? 'rotate-180 bg-clinic-blue text-white' : ''">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </span>
+                    </button>
+                    <div x-show="active === 1" x-collapse x-cloak>
+                        <div class="px-6 pb-6 text-slate-600 text-sm leading-relaxed border-t border-slate-150 pt-4 bg-white">
+                            Đa Khoa Gia Phước chủ yếu tập trung vào giáo dục sức khỏe cộng đồng, nâng cao nhận thức phòng chống bệnh truyền nhiễm, phổ biến các kiến thức y học và hướng dẫn giữ gìn vệ sinh học đường tại địa phương.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 2 -->
+                <div class="bg-slate-50 rounded-2xl border border-slate-150 shadow-sm overflow-hidden transition-all duration-300">
+                    <button @click="active = active === 2 ? null : 2" class="w-full flex items-center justify-between p-6 text-left focus:outline-none">
+                        <span class="font-bold text-slate-900 pr-4 text-sm md:text-base">Tôi có thể đăng ký tham gia các chiến dịch nâng cao nhận thức sức khỏe không?</span>
+                        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-white flex items-center justify-center text-slate-500 transition-transform duration-300" :class="active === 2 ? 'rotate-180 bg-clinic-blue text-white' : ''">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </span>
+                    </button>
+                    <div x-show="active === 2" x-collapse x-cloak>
+                        <div class="px-6 pb-6 text-slate-600 text-sm leading-relaxed border-t border-slate-150 pt-4 bg-white">
+                            Bạn có thể liên hệ trực tiếp với chúng tôi qua hotline 0966.332.352 để đăng ký nhận thông tin về các chương trình, hoạt động truyền thông và giáo dục sức khỏe cộng đồng sắp tới.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 3 -->
+                <div class="bg-slate-50 rounded-2xl border border-slate-150 shadow-sm overflow-hidden transition-all duration-300">
+                    <button @click="active = active === 3 ? null : 3" class="w-full flex items-center justify-between p-6 text-left focus:outline-none">
+                        <span class="font-bold text-slate-900 pr-4 text-sm md:text-base">Phòng khám Gia Phước hỗ trợ bà con thế nào?</span>
+                        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-white flex items-center justify-center text-slate-500 transition-transform duration-300" :class="active === 3 ? 'rotate-180 bg-clinic-blue text-white' : ''">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </span>
+                    </button>
+                    <div x-show="active === 3" x-collapse x-cloak>
+                        <div class="px-6 pb-6 text-slate-600 text-sm leading-relaxed border-t border-slate-150 pt-4 bg-white">
+                            Phòng khám định kỳ chia sẻ các tài liệu y tế, hướng dẫn phòng ngừa dịch bệnh miễn phí cho người dân và sẵn sàng hỗ trợ tư vấn sức khỏe qua tổng đài hotline chính thức.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Related Articles Section -->
+    <x-related-articles-carousel
+        title="Bài viết vì sức khỏe cộng đồng"
+        subtitle="Chia sẻ kiến thức, hoạt động truyền thông sức khỏe và thông tin hữu ích cho cộng đồng."
+        :articles="$relatedArticles"
+        :viewAllUrl="route('categories.index')"
+    />
 
     <!-- Bottom CTA Banner (Chung tay vì cộng đồng) -->
     <section id="cta-section" class="py-16 md:py-20 bg-gradient-to-br from-clinic-blue to-[#0b4c8c] text-white text-center relative overflow-hidden">

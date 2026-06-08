@@ -2,6 +2,24 @@
 
 @section('title', 'Xét Nghiệm Chính Xác - Kết Quả Tin Cậy | Đa Khoa Gia Phước')
 
+@section('meta')
+    <x-seo 
+        title="Xét Nghiệm Chính Xác - Kết Quả Tin Cậy | Đa Khoa Gia Phước" 
+        description="Dịch vụ xét nghiệm tổng quát, tầm soát ung thư, xét nghiệm gen di truyền, xét nghiệm nội tiết tại Đa Khoa Gia Phước Cần Thơ. Quy trình nhanh chóng, kết quả chính xác." 
+        canonical="{{ route('category.show', ['category_path' => 'xet-nghiem']) }}"
+        :breadcrumbs="[
+            ['name' => 'Trang chủ', 'url' => route('home')],
+            ['name' => 'Xét Nghiệm', 'url' => route('category.show', ['category_path' => 'xet-nghiem'])]
+        ]"
+        :faqs="[
+            ['q' => 'Thời gian nhận kết quả xét nghiệm tại Gia Phước là bao lâu?', 'a' => 'Thời gian trả kết quả tùy thuộc vào từng loại xét nghiệm cụ thể. Với các xét nghiệm cơ bản, kết quả sẽ có sau 2 - 4 giờ và có thể nhận kết quả trực tuyến nhanh chóng.'],
+            ['q' => 'Tôi cần chuẩn bị gì trước khi thực hiện xét nghiệm?', 'a' => 'Tùy thuộc vào loại xét nghiệm, một số xét nghiệm máu yêu cầu nhịn ăn từ 8 - 12 giờ trước khi lấy mẫu. Đội ngũ tư vấn sẽ liên hệ hướng dẫn chi tiết cho bạn trước khi thực hiện.'],
+            ['q' => 'Kết quả xét nghiệm tại Đa Khoa Gia Phước có đảm bảo độ chính xác không?', 'a' => 'Có, hệ thống phòng Lab đạt tiêu chuẩn ISO 15189:2012 cùng các trang thiết bị hiện đại từ Roche, Abbott giúp đảm bảo kết quả phân tích chính xác và tin cậy nhất.']
+        ]"
+    />
+@endsection
+
+
 @section('content')
 <div x-data="{ isOpen: false }" class="bg-slate-50 min-h-screen">
     <!-- Hero Section -->
@@ -224,7 +242,7 @@
                     </div>
                     <!-- Overlapping Blue badge bottom left -->
                     <div class="absolute -bottom-6 left-6 bg-clinic-blue text-white p-5 rounded-2xl shadow-xl border border-white/10 max-w-[240px]">
-                        <h4 class="text-base font-extrabold">100%</h4>
+                        <h4 class="text-base font-extrabold">Đạt Chuẩn</h4>
                         <p class="text-[11px] text-blue-200 mt-1 leading-normal font-semibold">Kết quả được kiểm soát bởi Hệ thống Mỹ & Đức</p>
                     </div>
                 </div>
@@ -278,12 +296,77 @@
                     </span>
                     <h4 class="font-extrabold text-slate-900 text-lg">3. Nhận Kết Quả</h4>
                     <p class="text-slate-500 text-xs leading-relaxed max-w-xs mx-auto">
-                        Xem kết quả online qua hệ thống điện tử và nhận tư vấn trực tiếp từ Bác sĩ.
+                        Xem kết quả online qua hệ thống điện tử và nhận tư vấn, hướng dẫn trực tiếp từ đội ngũ chuyên môn.
                     </p>
                 </div>
             </div>
         </div>
     </section>
+ 
+    <!-- FAQ Section -->
+    <section class="py-20 md:py-24 bg-slate-50 border-t border-slate-100">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 space-y-4">
+                <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Câu Hỏi Thường Gặp</h2>
+                <div class="w-16 h-1 bg-clinic-blue mx-auto rounded-full"></div>
+            </div>
+
+            <div x-data="{ active: null }" class="space-y-4">
+                <!-- FAQ 1 -->
+                <div class="bg-white rounded-2xl border border-slate-150 shadow-sm overflow-hidden transition-all duration-300">
+                    <button @click="active = active === 1 ? null : 1" class="w-full flex items-center justify-between p-6 text-left focus:outline-none">
+                        <span class="font-bold text-slate-900 pr-4 text-sm md:text-base">Thời gian nhận kết quả xét nghiệm tại Gia Phước là bao lâu?</span>
+                        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 transition-transform duration-300" :class="active === 1 ? 'rotate-180 bg-clinic-blue text-white' : ''">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </span>
+                    </button>
+                    <div x-show="active === 1" x-collapse x-cloak>
+                        <div class="px-6 pb-6 text-slate-600 text-sm leading-relaxed border-t border-slate-50 pt-4">
+                            Thời gian trả kết quả tùy thuộc vào từng loại xét nghiệm cụ thể. Với các xét nghiệm cơ bản, kết quả sẽ có sau 2 - 4 giờ và có thể nhận kết quả trực tuyến nhanh chóng.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 2 -->
+                <div class="bg-white rounded-2xl border border-slate-150 shadow-sm overflow-hidden transition-all duration-300">
+                    <button @click="active = active === 2 ? null : 2" class="w-full flex items-center justify-between p-6 text-left focus:outline-none">
+                        <span class="font-bold text-slate-900 pr-4 text-sm md:text-base">Tôi cần chuẩn bị gì trước khi thực hiện xét nghiệm?</span>
+                        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 transition-transform duration-300" :class="active === 2 ? 'rotate-180 bg-clinic-blue text-white' : ''">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </span>
+                    </button>
+                    <div x-show="active === 2" x-collapse x-cloak>
+                        <div class="px-6 pb-6 text-slate-600 text-sm leading-relaxed border-t border-slate-50 pt-4">
+                            Tùy thuộc vào loại xét nghiệm, một số xét nghiệm máu yêu cầu nhịn ăn từ 8 - 12 giờ trước khi lấy mẫu. Đội ngũ tư vấn sẽ liên hệ hướng dẫn chi tiết cho bạn trước khi thực hiện.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 3 -->
+                <div class="bg-white rounded-2xl border border-slate-150 shadow-sm overflow-hidden transition-all duration-300">
+                    <button @click="active = active === 3 ? null : 3" class="w-full flex items-center justify-between p-6 text-left focus:outline-none">
+                        <span class="font-bold text-slate-900 pr-4 text-sm md:text-base">Kết quả xét nghiệm tại Đa Khoa Gia Phước có đảm bảo độ chính xác không?</span>
+                        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 transition-transform duration-300" :class="active === 3 ? 'rotate-180 bg-clinic-blue text-white' : ''">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </span>
+                    </button>
+                    <div x-show="active === 3" x-collapse x-cloak>
+                        <div class="px-6 pb-6 text-slate-600 text-sm leading-relaxed border-t border-slate-50 pt-4">
+                            Có, hệ thống phòng Lab đạt tiêu chuẩn ISO 15189:2012 cùng các trang thiết bị hiện đại từ Roche, Abbott giúp đảm bảo kết quả phân tích chính xác và tin cậy nhất.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Related Articles Section -->
+    <x-related-articles-carousel
+        title="Bài viết liên quan về Xét nghiệm"
+        subtitle="Những lưu ý trước khi xét nghiệm, thời gian nhận kết quả và cách lựa chọn gói kiểm tra phù hợp."
+        :articles="$relatedArticles"
+        :viewAllUrl="route('categories.index')"
+    />
 
     <!-- Bottom CTA Banner -->
     <section class="py-16 bg-white">
@@ -299,7 +382,7 @@
                     <button @click="isOpen = true" class="inline-flex items-center justify-center px-6 py-3.5 bg-white text-clinic-blue font-extrabold rounded-xl transition-all shadow-md text-sm">
                         Đăng ký ngay
                     </button>
-                    <a href="tel:02923813867" class="inline-flex items-center justify-center px-6 py-3.5 bg-clinic-blue hover:bg-opacity-95 text-white font-extrabold rounded-xl transition-all border border-white/20 text-sm">
+                    <a href="tel:0966332352" class="inline-flex items-center justify-center px-6 py-3.5 bg-clinic-blue hover:bg-opacity-95 text-white font-extrabold rounded-xl transition-all border border-white/20 text-sm">
                         Liên hệ tư vấn
                     </a>
                 </div>
@@ -318,9 +401,10 @@
          x-transition:leave-end="opacity-0"
          x-cloak>
         <div @click.away="isOpen = false" 
+             x-data="{ submitting: false, name: '', phone: '', isValidPhone() { return /^(03|05|07|08|09)\d{8}$/.test(this.phone); } }"
              class="bg-white rounded-3xl p-6 sm:p-8 max-w-lg w-full relative shadow-2xl border border-slate-100 overflow-y-auto max-h-[90vh]">
             
-            <button @click="isOpen = false" class="absolute top-4 right-4 text-slate-400 hover:text-slate-655 outline-none">
+            <button @click="isOpen = false" class="absolute top-4 right-4 text-slate-400 hover:text-slate-650 outline-none">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l18 18"></path>
                 </svg>
@@ -330,10 +414,10 @@
                 Đăng Ký Xét Nghiệm
             </h3>
             <p class="text-slate-500 text-xs text-center mb-6">
-                Vui lòng cung cấp thông tin, bác sĩ tư vấn sẽ liên hệ lại ngay.
+                Vui lòng cung cấp thông tin, đội ngũ tư vấn sẽ liên hệ hỗ trợ ngay.
             </p>
 
-            <form id="booking-form-xetnghiem" action="{{ route('consultation.store') }}" method="POST" onsubmit="mergeXetNghiemFields()" class="space-y-4">
+            <form id="booking-form-xetnghiem" action="{{ route('consultation.store') }}" method="POST" @submit="if(name && isValidPhone()) { submitting = true; mergeXetNghiemFields(); } else { $event.preventDefault(); }" class="space-y-4">
                 @csrf
                 <input type="hidden" name="department" value="Xét Nghiệm">
                 <input type="hidden" id="xet-symptoms-hidden" name="symptoms" value="">
@@ -341,7 +425,7 @@
                 <!-- Họ và tên -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Họ và tên *</label>
-                    <input type="text" name="name" required placeholder="Nguyễn Văn A" 
+                    <input type="text" name="name" required x-model="name" placeholder="Nguyễn Văn A" 
                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-clinic-blue focus:bg-white focus:ring-1 focus:ring-clinic-blue/20 outline-none text-slate-800 text-sm font-semibold rounded-xl transition-all">
                     @error('name')
                         <p class="text-rose-500 text-xs mt-1">{{ $message }}</p>
@@ -351,8 +435,11 @@
                 <!-- Số điện thoại -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Số điện thoại *</label>
-                    <input type="tel" name="phone" required placeholder="090x xxx xxx" 
+                    <input type="tel" name="phone" required x-model="phone" placeholder="0966332352" 
                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-clinic-blue focus:bg-white focus:ring-1 focus:ring-clinic-blue/20 outline-none text-slate-800 text-sm font-semibold rounded-xl transition-all">
+                    <p x-show="phone.length > 0 && !isValidPhone()" class="text-xs font-semibold text-red-500 mt-1" x-cloak>
+                        Số điện thoại hợp lệ gồm 10 chữ số (bắt đầu bằng 03, 05, 07, 08, 09).
+                    </p>
                     @error('phone')
                         <p class="text-rose-500 text-xs mt-1">{{ $message }}</p>
                     @enderror
@@ -377,9 +464,25 @@
                               class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-clinic-blue focus:bg-white focus:ring-1 focus:ring-clinic-blue/20 outline-none text-slate-800 text-sm font-semibold rounded-xl transition-all resize-none"></textarea>
                 </div>
 
+                <!-- Privacy Agreement Checkbox -->
+                <div class="flex items-start gap-2.5 pt-1">
+                    <input type="checkbox" id="form-privacy-agree-xetnghiem" required checked class="mt-1 w-4 h-4 text-clinic-blue border-slate-300 rounded focus:ring-clinic-blue">
+                    <label for="form-privacy-agree-xetnghiem" class="text-xs text-slate-505 leading-normal select-none font-semibold">
+                        Tôi đồng ý với chính sách bảo mật thông tin và quy trình tư vấn riêng tư của phòng khám.
+                    </label>
+                </div>
+
                 <button type="submit" 
-                        class="w-full py-4 bg-clinic-blue hover:bg-opacity-95 text-white font-extrabold rounded-xl shadow-lg shadow-clinic-blue/20 hover:shadow-xl transition-all text-sm tracking-wide">
-                    Xác nhận đăng ký
+                        :disabled="submitting || !name || !isValidPhone()"
+                        class="w-full py-4 bg-clinic-blue disabled:bg-slate-300 disabled:cursor-not-allowed hover:bg-opacity-95 text-white font-extrabold rounded-xl shadow-lg shadow-clinic-blue/20 hover:shadow-xl transition-all text-sm tracking-wide">
+                    <span x-show="!submitting">Xác nhận đăng ký</span>
+                    <span x-show="submitting" x-cloak class="flex items-center justify-center gap-2">
+                        <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                        </svg>
+                        Đang gửi...
+                    </span>
                 </button>
             </form>
             <script>

@@ -60,14 +60,37 @@ class CategoryController extends Controller
             ->where('is_published', true)
             ->first();
 
+        // Retrieve 9 latest articles belonging to this category hierarchy (with category eager loading)
+        $relatedArticles = Article::with('category')
+            ->whereIn('category_id', $categoryIds)
+            ->where('is_published', true)
+            ->latest()
+            ->take(9)
+            ->get();
+
+        // Fallback: if there are fewer than 9 articles, merge the latest published articles from other categories
+        if ($relatedArticles->count() < 9) {
+            $needed = 9 - $relatedArticles->count();
+            $excludeIds = $relatedArticles->pluck('id')->toArray();
+            
+            $fallbackArticles = Article::with('category')
+                ->whereNotIn('id', $excludeIds)
+                ->where('is_published', true)
+                ->latest()
+                ->take($needed)
+                ->get();
+                
+            $relatedArticles = $relatedArticles->merge($fallbackArticles);
+        }
+
         // Check for custom landing page
         $customView = 'categories.landing.' . $selectedCategory->slug;
         if (view()->exists($customView)) {
             $category = $selectedCategory;
-            return view($customView, compact('categories', 'category', 'selectedCategory', 'articles', 'featuredArticle'));
+            return view($customView, compact('categories', 'category', 'selectedCategory', 'articles', 'featuredArticle', 'relatedArticles'));
         }
 
-        return view('categories.show', compact('categories', 'selectedCategory', 'articles', 'featuredArticle'));
+        return view('categories.show', compact('categories', 'selectedCategory', 'articles', 'featuredArticle', 'relatedArticles'));
     }
 
     /**

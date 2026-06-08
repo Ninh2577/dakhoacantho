@@ -1,6 +1,24 @@
 @extends('layouts.app')
 
-@section('title', 'Ngoại Khoa - Đỉnh Cao Phẫu Thuật, Chăm Sóc Toàn Diện | Đa Khoa Gia Phước')
+@section('title', 'Chuyên Khoa Ngoại Khoa - Quy Trình An Toàn & Chuyên Nghiệp | Đa Khoa Gia Phước')
+
+@section('meta')
+    <x-seo 
+        title="Chuyên Khoa Ngoại Khoa - Quy Trình An Toàn & Chuyên Nghiệp | Đa Khoa Gia Phước" 
+        description="Dịch vụ hỗ trợ tư vấn và thực hiện các tiểu phẫu ngoại khoa (bệnh trĩ, bao quy đầu, tiểu phẫu tổng quát...) tại Đa Khoa Gia Phước Cần Thơ. Quy trình vô trùng đạt chuẩn." 
+        canonical="{{ route('category.show', ['category_path' => 'ngoai-khoa']) }}"
+        :breadcrumbs="[
+            ['name' => 'Trang chủ', 'url' => route('home')],
+            ['name' => 'Ngoại Khoa', 'url' => route('category.show', ['category_path' => 'ngoai-khoa'])]
+        ]"
+        :faqs="[
+            ['q' => 'Thời gian hồi phục sau tiểu phẫu ngoại khoa là bao lâu?', 'a' => 'Thời gian hồi phục tùy thuộc vào loại tiểu phẫu cụ thể và cơ địa từng người. Thông thường với các phương pháp xâm lấn tối thiểu tại Đa Khoa Gia Phước, thời gian hồi phục nhanh chóng và bệnh nhân có thể ra về trong ngày.'],
+            ['q' => 'Quy trình tiểu phẫu ngoại khoa có đảm bảo vô trùng không?', 'a' => 'Có, toàn bộ trang thiết bị và phòng phẫu thuật đều tuân thủ nghiêm ngặt quy trình khử trùng, khử khuẩn theo tiêu chuẩn y khoa.'],
+            ['q' => 'Thông tin bệnh án của tôi có được bảo mật không?', 'a' => 'Có, mọi thông tin cá nhân và bệnh án được mã hóa và bảo mật nghiêm ngặt theo quy trình riêng tư nội bộ của phòng khám.']
+        ]"
+    />
+@endsection
+
 
 @section('content')
 <div class="bg-slate-50 min-h-screen">
@@ -35,7 +53,7 @@
                 </h1>
 
                 <p class="text-slate-300 text-lg md:text-xl leading-relaxed mb-8 max-w-2xl">
-                    Chúng tôi kết hợp công nghệ phẫu thuật tiên tiến nhất với đội ngũ chuyên gia tận tâm để mang lại kết quả tối ưu và sự an tâm tuyệt đối cho bệnh nhân.
+                    Chúng tôi kết hợp công nghệ hỗ trợ ngoại khoa tiên tiến với đội ngũ tư vấn chuyên môn tận tâm nhằm mang lại kết quả tối ưu và sự an tâm cho bệnh nhân.
                 </p>
 
                 <div class="flex flex-col sm:flex-row gap-4">
@@ -132,58 +150,66 @@
         </div>
     </section>
 
-    <!-- Đội Ngũ Bác Sĩ -->
+    <!-- Quy trình & Hỗ trợ trước/sau tiểu phẫu -->
     <section class="py-20 md:py-24 bg-slate-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
-                <div>
-                    <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Đội Ngũ Bác Sĩ Phẫu Thuật</h2>
-                    <p class="text-slate-500 mt-2 max-w-xl">Hội tụ những chuyên gia Ngoại khoa hàng đầu với hơn 20 năm kinh nghiệm làm việc tại các bệnh viện lớn trong và ngoài nước.</p>
-                </div>
-                <a href="#consult-section" class="inline-flex items-center justify-center px-5 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-clinic-blue font-extrabold rounded-xl text-xs shadow-sm transition-all whitespace-nowrap">
-                    Xem Tất Cả Bác Sĩ
-                </a>
+            <div class="text-center max-w-3xl mx-auto mb-16 space-y-4">
+                <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Quy Trình & Hỗ Trợ Trước và Sau Tiểu Phẫu</h2>
+                <div class="w-16 h-1 bg-clinic-blue mx-auto rounded-full"></div>
+                <p class="text-slate-500 text-base md:text-lg">Chúng tôi luôn đặt sự an toàn và thoải mái của người bệnh lên hàng đầu thông qua quy trình hỗ trợ chặt chẽ, chu đáo.</p>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                <!-- Bác sĩ 1 -->
-                <div class="bg-white rounded-3xl border border-slate-100 p-6 sm:p-8 shadow-sm flex flex-col sm:flex-row gap-6 hover:shadow-lg transition-all duration-300">
-                    <div class="w-full sm:w-44 h-48 rounded-2xl overflow-hidden bg-slate-100 flex-shrink-0 relative">
-                        <img src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=600" 
-                             alt="BS CKI Nguyễn Văn A" class="w-full h-full object-cover object-top">
-                    </div>
-                    <div class="flex flex-col justify-between space-y-4">
-                        <div>
-                            <span class="text-xs font-bold text-clinic-blue uppercase tracking-wider">Chuyên khoa II, 20 Năm Kinh Nghiệm</span>
-                            <h3 class="text-2xl font-bold text-slate-900 mt-1">BS CKI Nguyễn Văn A</h3>
-                            <p class="text-slate-500 text-sm mt-3 leading-relaxed">
-                                Bác sĩ Nguyễn Văn A là chuyên gia ngoại tiêu hóa đầu ngành, từng tu nghiệp tại Pháp và có hơn 20 năm kinh nghiệm phẫu thuật tại các bệnh viện trung ương lớn.
-                            </p>
+                <!-- Hướng dẫn trước tiểu phẫu -->
+                <div class="bg-white rounded-3xl border border-slate-100 p-6 sm:p-8 shadow-sm hover:shadow-lg transition-all duration-300">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-12 h-12 rounded-2xl bg-clinic-sky/10 text-clinic-blue flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+                            </svg>
                         </div>
-                        <a href="#consult-section" class="inline-flex items-center text-clinic-blue font-bold text-sm hover:underline">
-                            Đặt lịch với bác sĩ &rarr;
-                        </a>
+                        <h3 class="text-xl font-bold text-slate-900">Chuẩn bị trước tiểu phẫu</h3>
                     </div>
+                    <ul class="space-y-4">
+                        <li class="flex gap-3">
+                            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-xs font-bold mt-0.5">1</span>
+                            <p class="text-slate-600 text-sm leading-relaxed"><strong class="text-slate-900">Tư vấn tiền phẫu:</strong> Đội ngũ tư vấn hỗ trợ giải đáp thắc mắc về phương pháp và quy trình thực hiện một cách rõ ràng.</p>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-xs font-bold mt-0.5">2</span>
+                            <p class="text-slate-600 text-sm leading-relaxed"><strong class="text-slate-900">Kiểm tra sức khỏe:</strong> Thực hiện các xét nghiệm cơ bản cần thiết trước khi tiến hành để đảm bảo đủ điều kiện y tế.</p>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-xs font-bold mt-0.5">3</span>
+                            <p class="text-slate-600 text-sm leading-relaxed"><strong class="text-slate-900">Hướng dẫn cá nhân:</strong> Chỉ dẫn chi tiết về chế độ ăn uống, vệ sinh cá nhân và các lưu ý quan trọng trước giờ thực hiện.</p>
+                        </li>
+                    </ul>
                 </div>
 
-                <!-- Bác sĩ 2 -->
-                <div class="bg-white rounded-3xl border border-slate-100 p-6 sm:p-8 shadow-sm flex flex-col sm:flex-row gap-6 hover:shadow-lg transition-all duration-300">
-                    <div class="w-full sm:w-44 h-48 rounded-2xl overflow-hidden bg-slate-100 flex-shrink-0 relative">
-                        <img src="https://images.unsplash.com/photo-1594824813573-246434de83fb?auto=format&fit=crop&q=80&w=600" 
-                             alt="ThS.BS Trần Thị B" class="w-full h-full object-cover object-top">
-                    </div>
-                    <div class="flex flex-col justify-between space-y-4">
-                        <div>
-                            <span class="text-xs font-bold text-clinic-blue uppercase tracking-wider">Thạc sĩ, Bác sĩ Nội trú</span>
-                            <h3 class="text-2xl font-bold text-slate-900 mt-1">ThS.BS Trần Thị B</h3>
-                            <p class="text-slate-500 text-sm mt-3 leading-relaxed">
-                                Chuyên gia phẫu thuật nội soi tiết niệu và phụ khoa, tận tâm, tay nghề khéo léo giúp giảm tối đa sang chấn hậu phẫu cho bệnh nhân.
-                            </p>
+                <!-- Chăm sóc phục hồi sau tiểu phẫu -->
+                <div class="bg-white rounded-3xl border border-slate-100 p-6 sm:p-8 shadow-sm hover:shadow-lg transition-all duration-300">
+                    <div class="flex items-center gap-4 mb-6">
+                        <div class="w-12 h-12 rounded-2xl bg-clinic-teal/10 text-clinic-teal flex items-center justify-center flex-shrink-0">
+                            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            </svg>
                         </div>
-                        <a href="#consult-section" class="inline-flex items-center text-clinic-blue font-bold text-sm hover:underline">
-                            Đặt lịch với bác sĩ &rarr;
-                        </a>
+                        <h3 class="text-xl font-bold text-slate-900">Hỗ trợ chăm sóc phục hồi</h3>
                     </div>
+                    <ul class="space-y-4">
+                        <li class="flex gap-3">
+                            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-xs font-bold mt-0.5">1</span>
+                            <p class="text-slate-600 text-sm leading-relaxed"><strong class="text-slate-900">Theo dõi hậu phẫu:</strong> Nghỉ ngơi tại phòng lưu bệnh tiện nghi, được theo dõi sát sao các chỉ số sinh tồn và mức độ phục hồi.</p>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-xs font-bold mt-0.5">2</span>
+                            <p class="text-slate-600 text-sm leading-relaxed"><strong class="text-slate-900">Quản lý đau & Dinh dưỡng:</strong> Sử dụng các phương pháp hỗ trợ giảm đau tiên tiến và tư vấn chế độ dinh dưỡng phù hợp.</p>
+                        </li>
+                        <li class="flex gap-3">
+                            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-slate-100 text-slate-700 flex items-center justify-center text-xs font-bold mt-0.5">3</span>
+                            <p class="text-slate-600 text-sm leading-relaxed"><strong class="text-slate-900">Theo dõi từ xa:</strong> Đội ngũ nhân viên y tế liên hệ hỗ trợ nhắc lịch hẹn tái khám và hướng dẫn chăm sóc tại nhà.</p>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
@@ -211,9 +237,9 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                         </svg>
                     </div>
-                    <h3 class="text-lg font-bold text-slate-900 mb-2 relative z-10">Thăm Khám & Chỉ Định</h3>
+                    <h3 class="text-lg font-bold text-slate-900 mb-2 relative z-10">Tư Vấn & Chỉ Định</h3>
                     <p class="text-slate-500 text-sm leading-relaxed relative z-10">
-                        Bác sĩ trực tiếp thăm khám lâm sàng, chỉ định xét nghiệm và chụp chiếu cần thiết trước phẫu thuật.
+                        Đội ngũ hỗ trợ chuyên môn tiếp nhận tình trạng lâm sàng, đề xuất xét nghiệm và chuẩn bị hồ sơ trước tiểu phẫu.
                     </p>
                 </div>
 
@@ -227,7 +253,7 @@
                     </div>
                     <h3 class="text-lg font-bold text-slate-900 mb-2 relative z-10">Hội Chẩn Chuyên Môn</h3>
                     <p class="text-slate-500 text-sm leading-relaxed relative z-10">
-                        Hội đồng bác sĩ phân tích kỹ hồ sơ bệnh án, hội chẩn phương án và chuẩn bị kỹ lưỡng trang thiết bị y tế.
+                        Hội đồng chuyên môn phân tích kỹ hồ sơ bệnh lý, thống nhất phương án hỗ trợ điều trị tốt nhất.
                     </p>
                 </div>
 
@@ -309,7 +335,7 @@
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"></path>
                                 </svg>
                             </span>
-                            <span class="text-slate-700 font-bold text-sm">Phòng mổ vô trùng tuyệt đối tiêu chuẩn quốc tế.</span>
+                            <span class="text-slate-700 font-bold text-sm">Phòng mổ vô trùng đạt chuẩn chất lượng y khoa.</span>
                         </li>
                         <li class="flex items-start gap-3">
                             <span class="flex-shrink-0 w-5 h-5 bg-clinic-teal/10 text-clinic-teal rounded-full flex items-center justify-center mt-0.5">
@@ -339,6 +365,71 @@
         </div>
     </section>
 
+    <!-- FAQ Section -->
+    <section class="py-20 md:py-24 bg-slate-50 border-t border-slate-100">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 space-y-4">
+                <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Câu Hỏi Thường Gặp</h2>
+                <div class="w-16 h-1 bg-clinic-blue mx-auto rounded-full"></div>
+            </div>
+
+            <div x-data="{ active: null }" class="space-y-4">
+                <!-- FAQ 1 -->
+                <div class="bg-white rounded-2xl border border-slate-150 shadow-sm overflow-hidden transition-all duration-300">
+                    <button @click="active = active === 1 ? null : 1" class="w-full flex items-center justify-between p-6 text-left focus:outline-none">
+                        <span class="font-bold text-slate-900 pr-4 text-sm md:text-base">Thời gian hồi phục sau tiểu phẫu ngoại khoa là bao lâu?</span>
+                        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 transition-transform duration-300" :class="active === 1 ? 'rotate-180 bg-clinic-blue text-white' : ''">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </span>
+                    </button>
+                    <div x-show="active === 1" x-collapse x-cloak>
+                        <div class="px-6 pb-6 text-slate-600 text-sm leading-relaxed border-t border-slate-50 pt-4">
+                            Thời gian hồi phục tùy thuộc vào loại tiểu phẫu cụ thể và cơ địa từng người. Thông thường với các phương pháp xâm lấn tối thiểu tại Đa Khoa Gia Phước, thời gian hồi phục nhanh chóng và bệnh nhân có thể ra về trong ngày dưới sự hướng dẫn của đội ngũ tư vấn.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 2 -->
+                <div class="bg-white rounded-2xl border border-slate-150 shadow-sm overflow-hidden transition-all duration-300">
+                    <button @click="active = active === 2 ? null : 2" class="w-full flex items-center justify-between p-6 text-left focus:outline-none">
+                        <span class="font-bold text-slate-900 pr-4 text-sm md:text-base">Quy trình tiểu phẫu ngoại khoa có đảm bảo vô trùng không?</span>
+                        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 transition-transform duration-300" :class="active === 2 ? 'rotate-180 bg-clinic-blue text-white' : ''">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </span>
+                    </button>
+                    <div x-show="active === 2" x-collapse x-cloak>
+                        <div class="px-6 pb-6 text-slate-600 text-sm leading-relaxed border-t border-slate-50 pt-4">
+                            Có, toàn bộ trang thiết bị và phòng phẫu thuật đều tuân thủ nghiêm ngặt quy trình khử trùng, khử khuẩn theo tiêu chuẩn y khoa đạt chuẩn chất lượng của cơ quan quản lý.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 3 -->
+                <div class="bg-white rounded-2xl border border-slate-150 shadow-sm overflow-hidden transition-all duration-300">
+                    <button @click="active = active === 3 ? null : 3" class="w-full flex items-center justify-between p-6 text-left focus:outline-none">
+                        <span class="font-bold text-slate-900 pr-4 text-sm md:text-base">Thông tin bệnh án của tôi có được bảo mật không?</span>
+                        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 transition-transform duration-300" :class="active === 3 ? 'rotate-180 bg-clinic-blue text-white' : ''">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </span>
+                    </button>
+                    <div x-show="active === 3" x-collapse x-cloak>
+                        <div class="px-6 pb-6 text-slate-600 text-sm leading-relaxed border-t border-slate-50 pt-4">
+                            Có, mọi thông tin cá nhân và bệnh án được mã hóa và bảo mật nghiêm ngặt theo quy trình riêng tư nội bộ của phòng khám nhằm tôn trọng quyền riêng tư của khách hàng.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Related Articles Section -->
+    <x-related-articles-carousel
+        title="Bài viết liên quan về Ngoại khoa"
+        subtitle="Các kiến thức cần biết trước và sau thăm khám, thủ thuật và chăm sóc sức khỏe ngoại khoa."
+        :articles="$relatedArticles"
+        :viewAllUrl="route('categories.index')"
+    />
+
     <!-- Bottom CTA (Banner with inline form) -->
     <section id="consult-section" class="py-16 md:py-20 bg-slate-900 relative overflow-hidden">
         <!-- background decorative blur -->
@@ -360,32 +451,53 @@
                 </div>
             @endif
 
-            <h2 class="text-3xl md:text-4xl font-extrabold text-white mb-4">Bạn Cần Tư Vấn Phẫu Thuật?</h2>
+            <h2 class="text-3xl md:text-4xl font-extrabold text-white mb-4">Bạn Cần Tư Vấn Ngoại Khoa?</h2>
             <p class="text-slate-300 text-sm md:text-base max-w-2xl mx-auto mb-8 leading-relaxed">
-                Để lại thông tin, đội ngũ bác sĩ chuyên khoa của chúng tôi sẽ liên hệ tư vấn hoàn toàn miễn phí cho bạn trong 30 phút.
+                Để lại thông tin dưới đây, đội ngũ tư vấn sức khỏe của chúng tôi sẽ liên hệ tư vấn hoàn toàn miễn phí và bảo mật cho bạn trong vòng 15 phút.
             </p>
 
-            <form action="{{ route('consultation.store') }}" method="POST" class="max-w-2xl mx-auto">
-                @csrf
-                <!-- Pass default name hidden to satisfy controller requirement -->
-                <input type="hidden" name="name" value="Khách hàng Ngoại Khoa">
-                <input type="hidden" name="department" value="Ngoại Khoa">
-                <input type="hidden" name="symptoms" value="Đăng ký nhận tư vấn từ chuyên khoa Ngoại khoa">
+            <div x-data="{ submitting: false, phone: '', isValidPhone() { return /^(03|05|07|08|09)\d{8}$/.test(this.phone); } }" class="max-w-2xl mx-auto">
+                <form action="{{ route('consultation.store') }}" method="POST" @submit="if(isValidPhone()) { submitting = true; } else { $event.preventDefault(); }" class="space-y-4">
+                    @csrf
+                    <!-- Pass default name hidden to satisfy controller requirement -->
+                    <input type="hidden" name="name" value="Khách hàng Ngoại Khoa">
+                    <input type="hidden" name="department" value="Ngoại Khoa">
+                    <input type="hidden" name="symptoms" value="Đăng ký nhận tư vấn từ chuyên khoa Ngoại khoa">
 
-                <div class="flex flex-col sm:flex-row gap-3">
-                    <div class="flex-grow">
-                        <input type="tel" name="phone" required placeholder="Số điện thoại của bạn..." 
-                               class="w-full px-5 py-4 bg-white/10 border border-white/15 focus:border-clinic-blue focus:bg-white/20 outline-none text-white placeholder-white/50 text-sm rounded-xl font-medium transition-all">
-                        @error('phone')
-                            <p class="text-rose-400 text-xs text-left mt-1.5 font-bold">{{ $message }}</p>
-                        @enderror
+                    <div class="flex flex-col sm:flex-row gap-3">
+                        <div class="flex-grow">
+                            <input type="tel" name="phone" required x-model="phone" placeholder="Số điện thoại của bạn (ví dụ: 0966332352)..." 
+                                   class="w-full px-5 py-4 bg-white/10 border border-white/15 focus:border-clinic-blue focus:bg-white/20 outline-none text-white placeholder-white/50 text-sm rounded-xl font-medium transition-all">
+                            <p x-show="phone.length > 0 && !isValidPhone()" class="text-xs font-semibold text-red-400 mt-1.5 text-left" x-cloak>
+                                Số điện thoại hợp lệ gồm 10 chữ số (bắt đầu bằng 03, 05, 07, 08, 09).
+                            </p>
+                            @error('phone')
+                                <p class="text-rose-400 text-xs text-left mt-1.5 font-bold">{{ $message }}</p>
+                            @enderror
+                        </div>
+                        <button type="submit" 
+                                :disabled="submitting || !isValidPhone()"
+                                class="px-8 py-4 bg-clinic-blue disabled:bg-slate-700 disabled:cursor-not-allowed hover:bg-opacity-95 text-white font-extrabold rounded-xl shadow-lg transition-all text-sm tracking-wide shrink-0">
+                            <span x-show="!submitting">Yêu Cầu Tư Vấn</span>
+                            <span x-show="submitting" x-cloak class="flex items-center gap-2">
+                                <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                </svg>
+                                Đang gửi...
+                            </span>
+                        </button>
                     </div>
-                    <button type="submit" 
-                            class="px-8 py-4 bg-clinic-blue hover:bg-opacity-95 text-white font-extrabold rounded-xl shadow-lg transition-all text-sm tracking-wide shrink-0">
-                        Yêu Cầu Tư Vấn
-                    </button>
-                </div>
-            </form>
+
+                    <!-- Privacy Policy Agreement -->
+                    <div class="flex items-start gap-2.5 pt-2 text-left justify-center sm:justify-start">
+                        <input type="checkbox" id="form-privacy-agree-bottom" required checked class="mt-1 w-4 h-4 text-clinic-blue border-white/25 bg-slate-900 rounded focus:ring-clinic-blue">
+                        <label for="form-privacy-agree-bottom" class="text-xs text-slate-300 leading-normal select-none font-semibold">
+                            Tôi đồng ý với chính sách bảo mật thông tin và quy trình tư vấn riêng tư của phòng khám.
+                        </label>
+                    </div>
+                </form>
+            </div>
         </div>
     </section>
 </div>

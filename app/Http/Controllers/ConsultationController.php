@@ -9,15 +9,16 @@ class ConsultationController extends Controller
 {
     public function store(Request $request)
     {
-        // Validate consultation form inputs
+        // Validate consultation form inputs including Vietnamese phone format
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'phone' => 'required|string|max:50',
+            'phone' => ['required', 'string', 'regex:/^(03|05|07|08|09)\d{8}$/'],
             'department' => 'nullable|string|max:255',
             'symptoms' => 'nullable|string',
         ], [
             'name.required' => 'Vui lòng nhập họ và tên.',
             'phone.required' => 'Vui lòng nhập số điện thoại.',
+            'phone.regex' => 'Số điện thoại không đúng định dạng Việt Nam (phải có 10 số và bắt đầu bằng 03, 05, 07, 08 hoặc 09).',
         ]);
 
         // Save consultation details to database
@@ -29,7 +30,7 @@ class ConsultationController extends Controller
             'status' => 'pending',
         ]);
 
-        // Redirect back with a flash success message
-        return back()->with('success', 'Đăng ký tư vấn thành công! Bác sĩ chuyên khoa sẽ liên hệ trực tiếp với bạn trong vòng 15 phút.');
+        // Redirect back with a flash success message (doctor references replaced)
+        return back()->with('success', 'Đăng ký tư vấn thành công! Đội ngũ tư vấn sẽ liên hệ trực tiếp hỗ trợ bạn trong vòng 15 phút.');
     }
 }

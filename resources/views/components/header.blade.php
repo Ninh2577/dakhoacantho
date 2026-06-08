@@ -23,7 +23,7 @@
                 <!-- Center Navigation Area (Redesigned Mega Menu) -->
                 <div class="hidden lg:flex flex-1 justify-center overflow-visible">
                     <nav class="flex items-center text-[15px] font-semibold text-gray-800">
-                    <a href="{{ url('/') }}" class="px-2 xl:px-4 whitespace-nowrap hover:text-blue-600 transition duration-200 py-6">Trang chủ</a>
+                    <a href="{{ url('/') }}" class="px-2 xl:px-4 whitespace-nowrap transition duration-200 py-6 font-semibold border-b-2 {{ request()->is('/') ? 'text-clinic-blue font-extrabold border-clinic-blue' : 'text-gray-800 hover:text-blue-600 border-transparent' }}">Trang chủ</a>
 
                     @if(isset($mainCategories))
                         @foreach($mainCategories as $category)
@@ -32,8 +32,8 @@
 
                                     {{-- Nav trigger --}}
                                     <a href="{{ url('/category/' . $category->full_path) }}"
-                                       class="px-2 xl:px-4 flex items-center whitespace-nowrap gap-1 transition duration-200 py-6 font-semibold relative"
-                                       :class="open ? 'text-blue-600' : 'text-gray-800 hover:text-blue-600'">
+                                       class="px-2 xl:px-4 flex items-center whitespace-nowrap gap-1 transition duration-200 py-6 font-semibold relative border-b-2 {{ request()->is('category/' . $category->full_path . '*') ? 'text-clinic-blue font-extrabold border-clinic-blue' : 'text-gray-800 hover:text-blue-600 border-transparent' }}"
+                                       :class="open ? 'text-blue-600' : ''">
                                         {{ $category->name }}
                                         <svg class="w-3.5 h-3.5 text-gray-400 transition-transform duration-200" :class="open ? 'rotate-180 text-blue-500' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
                                         <span x-show="open" class="absolute bottom-0 left-0 w-full bg-blue-600 rounded-t" style="height:3px;display:none;"></span>
@@ -101,7 +101,7 @@
                                                     </div>
                                                 @endif
                                                 <h4 class="font-bold text-slate-800" style="font-size:15px;margin-bottom:6px;">Highlight</h4>
-                                                <p class="text-slate-500" style="font-size:12px;line-height:1.6;margin-bottom:1.25rem;">Đội ngũ y bác sĩ chuyên khoa hàng đầu sẵn sàng hỗ trợ và tư vấn cho bạn.</p>
+                                                <p class="text-slate-500" style="font-size:12px;line-height:1.6;margin-bottom:1.25rem;">Đội ngũ tư vấn tận tâm luôn sẵn sàng hỗ trợ và giải đáp thắc mắc của bạn.</p>
                                                 <a href="{{ url('/category/' . $category->full_path) }}"
                                                    class="inline-block bg-blue-600 text-white font-semibold rounded-full hover:bg-blue-700 transition shadow-sm"
                                                    style="font-size:13.5px;padding:8px 24px;">Xem chi tiết</a>
@@ -111,12 +111,12 @@
                                     </div>
                                 </div>
                             @else
-                                <a href="{{ url('/category/' . $category->full_path) }}" class="px-2 xl:px-4 whitespace-nowrap hover:text-blue-600 transition duration-200 py-6">{{ $category->name }}</a>
+                                <a href="{{ url('/category/' . $category->full_path) }}" class="px-2 xl:px-4 whitespace-nowrap transition duration-200 py-6 border-b-2 {{ request()->is('category/' . $category->full_path . '*') ? 'text-clinic-blue font-extrabold border-clinic-blue' : 'text-gray-800 hover:text-blue-600 border-transparent' }}">{{ $category->name }}</a>
                             @endif
                         @endforeach
                     @endif
 
-                    <a href="{{ url('/lien-he') }}" class="px-2 xl:px-4 whitespace-nowrap hover:text-blue-600 transition duration-200 py-6">Liên hệ</a>
+                    <a href="{{ url('/lien-he') }}" class="px-2 xl:px-4 whitespace-nowrap transition duration-200 py-6 border-b-2 {{ request()->is('lien-he*') ? 'text-clinic-blue font-extrabold border-clinic-blue' : 'text-gray-800 hover:text-blue-600 border-transparent' }}">Liên hệ</a>
                     </nav>
                 </div>
 

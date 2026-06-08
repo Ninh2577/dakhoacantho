@@ -2,6 +2,23 @@
 
 @section('title', 'Chuyên Khoa Bệnh Xã Hội - Bảo Mật & Kết Quả Nhanh | Đa Khoa Gia Phước')
 
+@section('meta')
+    <x-seo 
+        title="Chuyên Khoa Bệnh Xã Hội - Bảo Mật & Kết Quả Nhanh | Đa Khoa Gia Phước" 
+        description="Xét nghiệm và hỗ trợ tư vấn các bệnh xã hội (sùi mào gà, lậu, giang mai...) tại Đa Khoa Gia Phước. Quy trình kín đáo, bảo mật thông tin tối đa." 
+        canonical="{{ route('category.show', ['category_path' => 'benh-xa-hoi']) }}"
+        :breadcrumbs="[
+            ['name' => 'Trang chủ', 'url' => route('home')],
+            ['name' => 'Bệnh xã hội', 'url' => route('category.show', ['category_path' => 'benh-xa-hoi'])]
+        ]"
+        :faqs="[
+            ['q' => 'Thời gian trả kết quả xét nghiệm bệnh xã hội là bao lâu?', 'a' => 'Thời gian trả kết quả tùy thuộc vào loại xét nghiệm cụ thể. Thông thường các xét nghiệm nhanh sẽ có kết quả sau 2 - 4 giờ.'],
+            ['q' => 'Thông tin bệnh án bệnh xã hội có được bảo mật không?', 'a' => 'Tất cả thông tin cá nhân và hồ sơ bệnh án được bảo mật nghiêm ngặt theo quy trình riêng tư nội bộ của phòng khám.'],
+            ['q' => 'Chi phí hỗ trợ tư vấn và đặt lịch khám trước là bao nhiêu?', 'a' => 'Quy trình tư vấn trực tuyến và đặt hẹn trước qua hotline 0966.332.352 hoặc form đăng ký hoàn toàn miễn phí.']
+        ]"
+    />
+@endsection
+
 @section('content')
 <div class="bg-slate-50 min-h-screen">
     <!-- Hero Section -->
@@ -36,41 +53,41 @@
                     </h1>
 
                     <p class="text-slate-300 text-lg md:text-xl leading-relaxed max-w-xl">
-                        Chăm sóc sức khỏe riêng tư, an toàn và bảo mật tuyệt đối. Đội ngũ chuyên gia hàng đầu, xét nghiệm chính xác, điều trị hiệu quả bằng công nghệ hiện đại nhất.
+                        Chăm sóc sức khỏe riêng tư, an toàn và bảo mật tối đa. Quy trình tư vấn kín đáo, xét nghiệm chính xác, hỗ trợ điều trị hiệu quả bằng công nghệ hiện đại nhất.
                     </p>
-
-                    <!-- Trust Tags -->
-                    <div class="flex flex-wrap gap-4 pt-2">
-                        <div class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                            <svg class="w-5 h-5 text-clinic-teal" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                            </svg>
-                            <span class="text-sm font-bold text-white">Bảo mật 100%</span>
-                        </div>
-                        <div class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
-                            <svg class="w-5 h-5 text-clinic-teal" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            <span class="text-sm font-bold text-white">Kết quả nhanh</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Right: Booking Form Card (Col 5) -->
-                <div class="lg:col-span-5">
-                    <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-2xl text-slate-800 border border-slate-100">
-                        <h3 class="text-xl font-extrabold text-slate-900 text-center mb-1">
-                            Đặt Lịch Hẹn & Tư Vấn
-                        </h3>
-                        <p class="text-slate-500 text-xs text-center mb-6">
-                            Vui lòng cung cấp thông tin, bác sĩ sẽ liên hệ lại ngay.
-                        </p>
-
-                        @if(session('success'))
-                            <div class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 p-4 rounded-xl mb-6 text-xs font-bold">
-                                {{ session('success') }}
-                            </div>
-                        @endif
+ 
+                     <!-- Trust Tags -->
+                     <div class="flex flex-wrap gap-4 pt-2">
+                         <div class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                             <svg class="w-5 h-5 text-clinic-teal" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                 <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                             </svg>
+                             <span class="text-sm font-bold text-white">Bảo mật nghiêm ngặt</span>
+                         </div>
+                         <div class="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 backdrop-blur-sm">
+                             <svg class="w-5 h-5 text-clinic-teal" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                 <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                             </svg>
+                             <span class="text-sm font-bold text-white">Kết quả nhanh</span>
+                         </div>
+                     </div>
+                 </div>
+ 
+                 <!-- Right: Booking Form Card (Col 5) -->
+                 <div class="lg:col-span-5">
+                     <div class="bg-white rounded-3xl p-6 sm:p-8 shadow-2xl text-slate-800 border border-slate-100">
+                         <h3 class="text-xl font-extrabold text-slate-900 text-center mb-1">
+                             Đặt Lịch Hẹn & Tư Vấn
+                         </h3>
+                         <p class="text-slate-500 text-xs text-center mb-6">
+                             Vui lòng cung cấp thông tin, đội ngũ tư vấn sẽ liên hệ hỗ trợ ngay.
+                         </p>
+ 
+                         @if(session('success'))
+                             <div class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 p-4 rounded-xl mb-6 text-xs font-bold">
+                                 {{ session('success') }}
+                             </div>
+                         @endif
 
                         <form action="{{ route('consultation.store') }}" method="POST" class="space-y-4">
                             @csrf
@@ -189,8 +206,42 @@
         </div>
     </section>
 
+    <!-- Khi nào nên đi khám? Section -->
+    <section class="py-16 bg-slate-50 border-t border-slate-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-3xl mx-auto mb-12 space-y-3">
+                <h2 class="text-2xl sm:text-3xl font-black text-slate-900 tracking-tight">Khi nào nên đi khám bệnh xã hội?</h2>
+                <p class="text-slate-600 text-sm leading-relaxed font-semibold">
+                    Nhận biết sớm các triệu chứng để có phương án bảo vệ sức khỏe bản thân và bạn đời kịp thời.
+                </p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <div class="p-6 bg-white rounded-2xl border border-slate-100 shadow-sm space-y-2">
+                    <span class="text-2xl">⚠️</span>
+                    <h4 class="font-extrabold text-slate-900 text-sm">Nổi mụn, vết sùi bất thường</h4>
+                    <p class="text-slate-500 text-xs leading-relaxed font-medium">Xuất hiện các nốt sùi thịt, mụn nước nhỏ lồi lên ở cơ quan sinh dục, hậu môn hoặc miệng.</p>
+                </div>
+                <div class="p-6 bg-white rounded-2xl border border-slate-100 shadow-sm space-y-2">
+                    <span class="text-2xl">🔥</span>
+                    <h4 class="font-extrabold text-slate-900 text-sm">Tiểu buốt, tiểu rắt</h4>
+                    <p class="text-slate-500 text-xs leading-relaxed font-medium">Cảm giác đau buốt nóng rát dữ dội khi đi tiểu tiện, chảy mủ niệu đạo hoặc khí hư bất thường.</p>
+                </div>
+                <div class="p-6 bg-white rounded-2xl border border-slate-100 shadow-sm space-y-2">
+                    <span class="text-2xl">🩹</span>
+                    <h4 class="font-extrabold text-slate-900 text-sm">Vết loét không đau</h4>
+                    <p class="text-slate-500 text-xs leading-relaxed font-medium">Xuất hiện các vết trợt nông hình tròn hoặc bầu dục, màu đỏ, không gây ngứa hay đau đớn.</p>
+                </div>
+                <div class="p-6 bg-white rounded-2xl border border-slate-100 shadow-sm space-y-2">
+                    <span class="text-2xl">🔒</span>
+                    <h4 class="font-extrabold text-slate-900 text-sm">Sau quan hệ không an toàn</h4>
+                    <p class="text-slate-500 text-xs leading-relaxed font-medium">Nên chủ động xét nghiệm tầm soát sau khi có tiếp xúc hoặc quan hệ tình dục không an toàn với đối tượng nghi ngờ.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- Vì Sao Chọn Chúng Tôi -->
-    <section class="py-20 md:py-24 bg-slate-50">
+    <section class="py-20 md:py-24 bg-white">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
                 <!-- Left: Doctor image overlap (Col 5) -->
@@ -226,13 +277,13 @@
                                 </svg>
                             </span>
                             <div>
-                                <h4 class="font-bold text-slate-900 text-base">Bảo mật hồ sơ tuyệt đối</h4>
-                                <p class="text-slate-500 text-sm mt-1 leading-relaxed">
-                                    Mọi thông tin cá nhân và bệnh án được mã hóa kỹ thuật số. Chỉ bác sĩ trực tiếp điều trị mới có quyền truy cập thông tin của bạn.
+                                <h4 class="font-bold text-slate-900 text-base">Bảo mật hồ sơ nghiêm ngặt</h4>
+                                <p class="text-slate-500 text-sm mt-1 leading-relaxed font-semibold">
+                                    Mọi thông tin cá nhân và bệnh án được mã hóa kỹ thuật số. Chỉ nhân viên y tế trực tiếp phụ trách mới có quyền tiếp cận thông tin của bạn.
                                 </p>
                             </div>
                         </div>
-
+ 
                         <!-- Feature 2 -->
                         <div class="flex items-start gap-4">
                             <span class="flex-shrink-0 w-12 h-12 bg-white rounded-xl shadow-sm text-clinic-blue flex items-center justify-center border border-slate-100">
@@ -241,9 +292,9 @@
                                 </svg>
                             </span>
                             <div>
-                                <h4 class="font-bold text-slate-900 text-base">Đội ngũ bác sĩ đầu ngành</h4>
-                                <p class="text-slate-500 text-sm mt-1 leading-relaxed">
-                                    Các bác sĩ giàu kinh nghiệm chuyên môn, từng công tác tại các bệnh viện tuyến đầu cả nước, thấu hiểu tâm lý e ngại của người bệnh.
+                                <h4 class="font-bold text-slate-900 text-base">Quy trình chuyên nghiệp</h4>
+                                <p class="text-slate-500 text-sm mt-1 leading-relaxed font-semibold">
+                                    Quy trình thăm khám và hỗ trợ tư vấn riêng tư được vận hành bởi đội ngũ hỗ trợ giàu kinh nghiệm, thấu hiểu tâm lý của khách hàng.
                                 </p>
                             </div>
                         </div>
@@ -331,14 +382,22 @@
         </div>
     </section>
 
+    <!-- Related Articles Section -->
+    <x-related-articles-carousel
+        title="Bài viết liên quan về Bệnh xã hội"
+        subtitle="Cập nhật kiến thức về các bệnh lây truyền, dấu hiệu cần lưu ý và hướng tư vấn phù hợp."
+        :articles="$relatedArticles"
+        :viewAllUrl="route('categories.index')"
+    />
+
     <!-- Bottom Consultation Banner Form anchor link -->
-    <section id="consultation-section" class="py-12 bg-slate-900 text-center text-white relative overflow-hidden">
+    <section class="py-12 bg-slate-900 text-center text-white relative overflow-hidden border-t border-white/10">
         <div class="absolute inset-0 z-0">
             <div class="absolute -right-32 -bottom-32 w-80 h-80 bg-clinic-blue/20 rounded-full blur-3xl"></div>
         </div>
         <div class="max-w-4xl mx-auto px-4 relative z-10 space-y-4">
-            <h3 class="text-2xl md:text-3xl font-extrabold">Cần tư vấn trực tiếp từ bác sĩ chuyên khoa?</h3>
-            <p class="text-sm text-slate-300 max-w-xl mx-auto">Đội ngũ y tá, bác sĩ chuyên môn luôn thường trực để giải đáp mọi câu hỏi thầm kín của bạn hoàn toàn miễn phí.</p>
+            <h3 class="text-2xl md:text-3xl font-extrabold text-white">Cần tư vấn trực tiếp về tình trạng sức khỏe?</h3>
+            <p class="text-sm text-slate-350 max-w-xl mx-auto font-medium">Đội ngũ tư vấn viên luôn thường trực để giải đáp mọi câu hỏi thầm kín của bạn hoàn toàn miễn phí.</p>
             <a href="#booking-form" @click="document.querySelector('[name=name]').focus()" 
                class="inline-flex items-center justify-center px-6 py-3.5 bg-clinic-blue hover:bg-opacity-95 text-white font-extrabold rounded-xl transition-all shadow-md text-sm mt-2">
                 Kết Nối Tư Vấn Ngay

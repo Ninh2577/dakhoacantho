@@ -7,6 +7,7 @@ use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\ConsultationController;
 use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SearchController;
+use App\Http\Controllers\ArticleCommentController;
 
 // 1. Home Page
 Route::get('/', [PageController::class, 'home'])->name('home');
@@ -35,4 +36,9 @@ Route::get('/category/{category_path}', [CategoryController::class, 'show'])
 Route::get('/{category_path}/{slug}.html', [ArticleController::class, 'show'])
     ->where('category_path', '.*')
     ->name('article.show');
+
+// 7. Store Article Comment
+Route::post('/articles/{article}/comments', [ArticleCommentController::class, 'store'])
+    ->name('articles.comments.store')
+    ->middleware(['web', 'throttle:5,1']);
 

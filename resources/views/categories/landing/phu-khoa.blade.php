@@ -1,6 +1,24 @@
 @extends('layouts.app')
 
-@section('title', 'Chuyên Khoa Phụ Khoa - Tận Tâm & Kín Đáo | Đa Khoa Gia Phước')
+@section('title', 'Chuyên Khoa Phụ Khoa - Tư Vấn Uy Tín & Kín Đáo | Đa Khoa Gia Phước')
+
+@section('meta')
+    <x-seo 
+        title="Chuyên Khoa Phụ Khoa - Tư Vấn Uy Tín & Kín Đáo | Đa Khoa Gia Phước" 
+        description="Dịch vụ hỗ trợ tư vấn phụ khoa định kỳ, viêm nhiễm phụ khoa, kế hoạch hóa gia đình tại Đa Khoa Gia Phước Cần Thơ. Quy trình riêng tư, bảo mật." 
+        canonical="{{ route('category.show', ['category_path' => 'phu-khoa']) }}"
+        :breadcrumbs="[
+            ['name' => 'Trang chủ', 'url' => route('home')],
+            ['name' => 'Phụ Khoa', 'url' => route('category.show', ['category_path' => 'phu-khoa'])]
+        ]"
+        :faqs="[
+            ['q' => 'Khi nào chị em phụ nữ cần chủ động đi khám phụ khoa?', 'a' => 'Chị em phụ nữ nên chủ động đi khám phụ khoa định kỳ từ 3 - 6 tháng hoặc ngay khi xuất hiện các triệu chứng bất thường như khí hư bất thường, ngứa ngáy vùng kín, đau bụng dưới âm ỉ hoặc rối loạn kinh nguyệt.'],
+            ['q' => 'Quy trình thăm khám phụ khoa tại Gia Phước có bảo mật không?', 'a' => 'Phòng khám cam kết bảo mật nghiêm ngặt thông tin cá nhân và hồ sơ bệnh án theo quy trình khép kín, đảm bảo sự riêng tư và tôn trọng quyền cá nhân của từng khách hàng.'],
+            ['q' => 'Chi phí tư vấn và khám phụ khoa là bao nhiêu?', 'a' => 'Chi phí thăm khám phụ khoa tùy thuộc vào gói dịch vụ và các xét nghiệm cụ thể được thực hiện. Mọi chi phí đều được niêm yết công khai rõ ràng theo quy định.']
+        ]"
+    />
+@endsection
+
 
 @section('content')
 <div class="bg-rose-50/30 min-h-screen">
@@ -41,11 +59,11 @@
                         <a href="#booking-section" class="inline-flex items-center justify-center px-6 py-3.5 bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-extrabold rounded-xl transition-all shadow-lg shadow-rose-500/20 hover:shadow-xl hover:-translate-y-0.5 text-sm">
                             Tư vấn ngay
                         </a>
-                        <a href="tel:02923813867" class="inline-flex items-center justify-center px-6 py-3.5 bg-white border border-rose-200 hover:bg-rose-50 text-rose-600 font-extrabold rounded-xl transition-all text-sm gap-2">
+                        <a href="tel:0966332352" class="inline-flex items-center justify-center px-6 py-3.5 bg-white border border-rose-200 hover:bg-rose-50 text-rose-600 font-extrabold rounded-xl transition-all text-sm gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.824-1.502-5.174-3.852-6.678-6.679l1.293-.97a1.243 1.243 0 00.37-1.173L6.745 3.34a1.243 1.243 0 00-1.202-.852H3.75a2.25 2.25 0 00-2.25 2.25v1.372z"></path>
                             </svg>
-                            0292 381 3867
+                            0966.332.352
                         </a>
                     </div>
                 </div>
@@ -54,9 +72,9 @@
                 <div class="lg:col-span-5 relative flex justify-center">
                     <div class="relative w-full max-w-md aspect-[4/5] rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white/80 bg-rose-100">
                         <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800" 
-                             alt="Bác sĩ Phụ Khoa" class="w-full h-full object-cover">
+                             alt="Đội ngũ hỗ trợ Phụ Khoa" class="w-full h-full object-cover">
                     </div>
-                    <!-- Overlapping 100% Security Badge -->
+                    <!-- Overlapping Security Badge -->
                     <div class="absolute bottom-6 -left-4 md:-left-8 bg-white/90 backdrop-blur-md border border-rose-100 p-4 rounded-2xl shadow-xl max-w-[240px] flex items-start gap-3 transform hover:scale-105 transition-all">
                         <span class="flex-shrink-0 w-10 h-10 bg-pink-100 rounded-xl flex items-center justify-center text-rose-500">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -64,8 +82,8 @@
                             </svg>
                         </span>
                         <div>
-                            <h4 class="text-sm font-extrabold text-slate-900">100% Bảo mật</h4>
-                            <p class="text-[11px] text-slate-500 leading-normal font-medium mt-0.5">Phòng khám riêng tư một bác sĩ - một bệnh nhân tuyệt mật.</p>
+                            <h4 class="text-sm font-extrabold text-slate-900">Bảo mật thông tin</h4>
+                            <p class="text-[11px] text-slate-500 leading-normal font-medium mt-0.5">Quy trình tư vấn và thăm khám riêng tư, bảo mật thông tin nội bộ nghiêm ngặt.</p>
                         </div>
                     </div>
                 </div>
@@ -249,21 +267,21 @@
                             </span>
                             <div>
                                 <h5 class="text-xs text-blue-200 font-bold uppercase tracking-wider">Địa chỉ</h5>
-                                <p class="text-sm font-semibold">57 Hùng Vương, P. Thới Bình, Q. Ninh Kiều, Cần Thơ</p>
+                                <p class="text-sm font-semibold">Số 57 Hùng Vương, P.Ninh Kiều, TP.Cần Thơ</p>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Right: White Booking Form -->
-                <div class="p-8 md:p-12 bg-white flex flex-col justify-center">
+                <div x-data="{ submitting: false, name: '', phone: '', isValidPhone() { return /^(03|05|07|08|09)\d{8}$/.test(this.phone); } }" class="p-8 md:p-12 bg-white flex flex-col justify-center">
                     @if(session('success'))
                         <div class="bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 p-4 rounded-xl mb-6 text-sm font-bold">
                             {{ session('success') }}
                         </div>
                     @endif
 
-                    <form id="booking-form-phukhoa" action="{{ route('consultation.store') }}" method="POST" onsubmit="mergePhuKhoaFields()" class="space-y-5">
+                    <form id="booking-form-phukhoa" action="{{ route('consultation.store') }}" method="POST" @submit="if(name && isValidPhone()) { submitting = true; mergePhuKhoaFields(); } else { $event.preventDefault(); }" class="space-y-5">
                         @csrf
                         <input type="hidden" name="department" value="Phụ Khoa">
                         <input type="hidden" id="symptoms-hidden" name="symptoms" value="">
@@ -272,7 +290,7 @@
                             <!-- Họ và tên -->
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Họ và tên *</label>
-                                <input type="text" name="name" required placeholder="Nguyễn Văn A" 
+                                <input type="text" name="name" required x-model="name" placeholder="Nguyễn Văn A" 
                                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-rose-400 focus:bg-white focus:ring-1 focus:ring-rose-400/20 outline-none text-slate-850 text-sm font-semibold rounded-xl transition-all">
                                 @error('name')
                                     <p class="text-rose-500 text-xs mt-1">{{ $message }}</p>
@@ -282,8 +300,11 @@
                             <!-- Số điện thoại -->
                             <div>
                                 <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Số điện thoại *</label>
-                                <input type="tel" name="phone" required placeholder="090x xxx xxx" 
+                                <input type="tel" name="phone" required x-model="phone" placeholder="0966332352" 
                                        class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-rose-400 focus:bg-white focus:ring-1 focus:ring-rose-400/20 outline-none text-slate-850 text-sm font-semibold rounded-xl transition-all">
+                                <p x-show="phone.length > 0 && !isValidPhone()" class="text-xs font-semibold text-red-500 mt-1" x-cloak>
+                                    Số điện thoại hợp lệ gồm 10 chữ số (bắt đầu bằng 03, 05, 07, 08, 09).
+                                </p>
                                 @error('phone')
                                     <p class="text-rose-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror
@@ -293,7 +314,7 @@
                         <!-- Service Select -->
                         <div>
                             <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Dịch vụ quan tâm</label>
-                            <select id="service-select" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-rose-400 focus:bg-white focus:ring-1 focus:ring-rose-400/20 outline-none text-slate-800 text-sm font-semibold rounded-xl transition-all">
+                            <select id="service-select" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-rose-400 focus:bg-white focus:ring-1 focus:ring-rose-400/20 outline-none text-slate-880 text-sm font-semibold rounded-xl transition-all">
                                 <option value="Khám phụ khoa định kỳ">Khám phụ khoa định kỳ</option>
                                 <option value="Điều trị viêm nhiễm phụ khoa">Điều trị viêm nhiễm phụ khoa</option>
                                 <option value="Tầm soát ung thư cổ tử cung">Tầm soát ung thư cổ tử cung</option>
@@ -309,12 +330,28 @@
                                       class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-rose-400 focus:bg-white focus:ring-1 focus:ring-rose-400/20 outline-none text-slate-850 text-sm font-semibold rounded-xl transition-all resize-none"></textarea>
                         </div>
 
+                        <!-- Privacy Agreement Checkbox -->
+                        <div class="flex items-start gap-2.5 pt-1">
+                            <input type="checkbox" id="form-privacy-agree-phukhoa" required checked class="mt-1 w-4 h-4 text-rose-500 border-slate-300 rounded focus:ring-rose-500">
+                            <label for="form-privacy-agree-phukhoa" class="text-xs text-slate-500 leading-normal select-none font-semibold">
+                                Tôi đồng ý với chính sách bảo mật thông tin và quy trình tư vấn riêng tư của phòng khám.
+                            </label>
+                        </div>
+
                         <button type="submit" 
-                                class="w-full py-4 bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-extrabold rounded-xl shadow-lg shadow-rose-500/20 hover:shadow-xl transition-all text-sm tracking-wide">
-                            Xác nhận đăng ký
+                                :disabled="submitting || !name || !isValidPhone()"
+                                class="w-full py-4 bg-gradient-to-r from-rose-500 to-pink-600 disabled:bg-slate-300 disabled:cursor-not-allowed hover:from-rose-600 hover:to-pink-700 text-white font-extrabold rounded-xl shadow-lg shadow-rose-500/20 hover:shadow-xl transition-all text-sm tracking-wide">
+                            <span x-show="!submitting">Xác nhận đăng ký</span>
+                            <span x-show="submitting" x-cloak class="flex items-center justify-center gap-2">
+                                <svg class="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+                                </svg>
+                                Đang gửi...
+                            </span>
                         </button>
                         <p class="text-[10px] text-center text-slate-400 font-medium">
-                            * Thông tin của bạn sẽ được bảo mật hoàn toàn bảo mật.
+                            * Mọi thông tin trao đổi được cam kết bảo mật nghiêm ngặt theo quy trình riêng tư nội bộ của phòng khám.
                         </p>
                     </form>
 
@@ -330,89 +367,59 @@
         </div>
     </section>
 
-    <!-- Đội ngũ bác sĩ chuyên khoa -->
+    <!-- Không gian tư vấn Phụ khoa riêng tư & Quy trình chăm sóc kín đáo -->
     <section class="py-16 lg:py-24 bg-rose-50/20">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col md:flex-row md:items-end justify-between mb-12">
-                <div class="space-y-3">
-                    <span class="text-xs font-bold text-rose-500 uppercase tracking-widest">Đội ngũ y bác sĩ</span>
-                    <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
-                        Đội ngũ bác sĩ chuyên khoa
-                    </h2>
-                    <p class="text-slate-500 text-sm max-w-xl">
-                        Những chuyên gia giàu kinh nghiệm, thấu hiểu tâm lý phụ nữ.
-                    </p>
-                </div>
-                <!-- Simple Slider Buttons -->
-                <div class="flex gap-2 mt-4 md:mt-0">
-                    <button class="w-10 h-10 rounded-full border border-rose-200 flex items-center justify-center text-rose-500 hover:bg-rose-50 transition-colors">
-                        &larr;
-                    </button>
-                    <button class="w-10 h-10 rounded-full border border-rose-200 flex items-center justify-center text-rose-500 hover:bg-rose-50 transition-colors">
-                        &rarr;
-                    </button>
-                </div>
+            <div class="text-center max-w-3xl mx-auto mb-16 space-y-4">
+                <span class="text-xs font-bold text-rose-500 uppercase tracking-widest">Quy trình chuyên nghiệp</span>
+                <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">
+                    Không Gian Riêng Tư & Quy Trình Chăm Sóc Kín Đáo
+                </h2>
+                <div class="w-16 h-1 bg-gradient-to-r from-rose-500 to-pink-500 mx-auto rounded-full"></div>
+                <p class="text-slate-500 text-sm max-w-xl mx-auto">
+                    Chúng tôi thấu hiểu tâm lý e ngại của phụ nữ và nỗ lực mang đến một quy trình chăm sóc kín đáo, tôn trọng quyền riêng tư tuyệt đối.
+                </p>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                <!-- Bác sĩ 1 -->
-                <div class="bg-white rounded-3xl overflow-hidden border border-rose-100/50 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-                    <div class="aspect-[4/5] bg-rose-100">
-                        <img src="https://images.unsplash.com/photo-1594824813573-246434de83fb?auto=format&fit=crop&q=80&w=600" 
-                             alt="BS. CKI Nguyễn Thị Lan" class="w-full h-full object-cover">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Point 1 -->
+                <div class="bg-white p-8 rounded-3xl border border-rose-100/50 shadow-sm hover:shadow-md transition-all">
+                    <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                        </svg>
                     </div>
-                    <div class="p-6 text-center">
-                        <h4 class="font-extrabold text-slate-900 text-lg">BS. CKI Nguyễn Thị Lan</h4>
-                        <p class="text-xs text-rose-500 font-bold mt-1">Trưởng khoa Sản Phụ</p>
-                        <a href="#booking-section" class="mt-4 inline-block w-full py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-extrabold rounded-xl transition-all">
-                            Đặt lịch hẹn
-                        </a>
-                    </div>
+                    <h4 class="font-extrabold text-slate-900 text-lg mb-3">Mô hình tư vấn 1-1</h4>
+                    <p class="text-slate-500 text-sm leading-relaxed">
+                        Quy trình tư vấn khép kín giúp khách hàng thoải mái chia sẻ, trao đổi mọi thắc mắc tế nhị liên quan đến sức khỏe phụ khoa.
+                    </p>
                 </div>
 
-                <!-- Bác sĩ 2 -->
-                <div class="bg-white rounded-3xl overflow-hidden border border-rose-100/50 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-                    <div class="aspect-[4/5] bg-rose-100">
-                        <img src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=600" 
-                             alt="BS. CKI Trần Minh Tâm" class="w-full h-full object-cover object-top">
+                <!-- Point 2 -->
+                <div class="bg-white p-8 rounded-3xl border border-rose-100/50 shadow-sm hover:shadow-md transition-all">
+                    <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
                     </div>
-                    <div class="p-6 text-center">
-                        <h4 class="font-extrabold text-slate-900 text-lg">BS. CKI Trần Minh Tâm</h4>
-                        <p class="text-xs text-rose-500 font-bold mt-1">Chuyên gia Sản khoa</p>
-                        <a href="#booking-section" class="mt-4 inline-block w-full py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-extrabold rounded-xl transition-all">
-                            Đặt lịch hẹn
-                        </a>
-                    </div>
+                    <h4 class="font-extrabold text-slate-900 text-lg mb-3">Bảo mật thông tin nội bộ</h4>
+                    <p class="text-slate-500 text-sm leading-relaxed">
+                        Mọi hồ sơ y tế, thông tin cá nhân và nội dung tư vấn đều được quản lý bảo mật nghiêm ngặt trong hệ thống quản trị nội bộ.
+                    </p>
                 </div>
 
-                <!-- Bác sĩ 3 -->
-                <div class="bg-white rounded-3xl overflow-hidden border border-rose-100/50 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-                    <div class="aspect-[4/5] bg-rose-100">
-                        <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=600" 
-                             alt="ThS. BS Phạm Hồng Ngọc" class="w-full h-full object-cover">
+                <!-- Point 3 -->
+                <div class="bg-white p-8 rounded-3xl border border-rose-100/50 shadow-sm hover:shadow-md transition-all">
+                    <div class="w-12 h-12 rounded-2xl bg-rose-50 text-rose-500 flex items-center justify-center mb-6">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                        </svg>
                     </div>
-                    <div class="p-6 text-center">
-                        <h4 class="font-extrabold text-slate-900 text-lg">ThS. BS Phạm Hồng Ngọc</h4>
-                        <p class="text-xs text-rose-500 font-bold mt-1">Chuyên khoa Hiếm muộn</p>
-                        <a href="#booking-section" class="mt-4 inline-block w-full py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-extrabold rounded-xl transition-all">
-                            Đặt lịch hẹn
-                        </a>
-                    </div>
-                </div>
-
-                <!-- Bác sĩ 4 -->
-                <div class="bg-white rounded-3xl overflow-hidden border border-rose-100/50 shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all duration-300">
-                    <div class="aspect-[4/5] bg-rose-100">
-                        <img src="https://images.unsplash.com/photo-1614608682850-e0d6ed316d47?auto=format&fit=crop&q=80&w=600" 
-                             alt="BS. CKI Lê Mai Anh" class="w-full h-full object-cover">
-                    </div>
-                    <div class="p-6 text-center">
-                        <h4 class="font-extrabold text-slate-900 text-lg">BS. CKI Lê Mai Anh</h4>
-                        <p class="text-xs text-rose-500 font-bold mt-1">Cố vấn chuyên môn</p>
-                        <a href="#booking-section" class="mt-4 inline-block w-full py-2 bg-rose-50 hover:bg-rose-100 text-rose-600 text-xs font-extrabold rounded-xl transition-all">
-                            Đặt lịch hẹn
-                        </a>
-                    </div>
+                    <h4 class="font-extrabold text-slate-900 text-lg mb-3">Đồng hành tâm lý</h4>
+                    <p class="text-slate-500 text-sm leading-relaxed">
+                        Đội ngũ tư vấn viên nữ chu đáo, thấu cảm, hỗ trợ giảm bớt lo âu và hướng dẫn tận tình trong suốt thời gian kết nối.
+                    </p>
                 </div>
             </div>
         </div>
@@ -443,7 +450,7 @@
                             @endfor
                         </div>
                         <p class="text-slate-600 text-sm leading-relaxed mb-6 italic relative z-10">
-                            "Tôi rất hài lòng với sự tận tâm của bác sĩ tại đây. Phòng khám riêng tư, sạch sẽ, bác sĩ khám nhẹ nhàng và giải thích rất cặn kẽ."
+                            "Tôi rất hài lòng với sự tận tâm của đội ngũ tư vấn và nhân viên y tế tại đây. Phòng khám riêng tư, sạch sẽ, quy trình nhẹ nhàng và giải thích rất cặn kẽ."
                         </p>
                     </div>
                     <div class="flex items-center gap-3">
@@ -467,7 +474,7 @@
                             @endfor
                         </div>
                         <p class="text-slate-600 text-sm leading-relaxed mb-6 italic relative z-10">
-                            "Dịch vụ siêu âm 4D ở đây hình ảnh rõ nét, bác sĩ giải thích chu đáo từng chi tiết nhỏ. Cảm giác hoàn toàn thoải mái và an tâm khám tại đây."
+                            "Dịch vụ siêu âm 4D ở đây hình ảnh rõ nét, nhân viên y tế hỗ trợ chu đáo từng chi tiết nhỏ. Cảm giác hoàn toàn thoải mái và an tâm khi sử dụng dịch vụ tại đây."
                         </p>
                     </div>
                     <div class="flex items-center gap-3">
@@ -507,5 +514,70 @@
             </div>
         </div>
     </section>
+
+    <!-- FAQ Section -->
+    <section class="py-16 lg:py-24 bg-rose-50/20 border-t border-rose-100">
+        <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center mb-16 space-y-4">
+                <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Câu Hỏi Thường Gặp</h2>
+                <div class="w-16 h-1 bg-gradient-to-r from-rose-500 to-pink-500 mx-auto rounded-full"></div>
+            </div>
+
+            <div x-data="{ active: null }" class="space-y-4">
+                <!-- FAQ 1 -->
+                <div class="bg-white rounded-2xl border border-rose-100 shadow-sm overflow-hidden transition-all duration-300">
+                    <button @click="active = active === 1 ? null : 1" class="w-full flex items-center justify-between p-6 text-left focus:outline-none">
+                        <span class="font-bold text-slate-900 pr-4 text-sm md:text-base">Khi nào chị em phụ nữ cần chủ động đi khám phụ khoa?</span>
+                        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 transition-transform duration-300" :class="active === 1 ? 'rotate-180 bg-rose-500 text-white' : ''">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </span>
+                    </button>
+                    <div x-show="active === 1" x-collapse x-cloak>
+                        <div class="px-6 pb-6 text-slate-600 text-sm leading-relaxed border-t border-slate-50 pt-4">
+                            Chị em phụ nữ nên chủ động đi khám phụ khoa định kỳ từ 3 - 6 tháng hoặc ngay khi xuất hiện các triệu chứng bất thường như khí hư bất thường, ngứa ngáy vùng kín, đau bụng dưới âm ỉ hoặc rối loạn kinh nguyệt.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 2 -->
+                <div class="bg-white rounded-2xl border border-rose-100 shadow-sm overflow-hidden transition-all duration-300">
+                    <button @click="active = active === 2 ? null : 2" class="w-full flex items-center justify-between p-6 text-left focus:outline-none">
+                        <span class="font-bold text-slate-900 pr-4 text-sm md:text-base">Quy trình thăm khám phụ khoa tại Gia Phước có bảo mật không?</span>
+                        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 transition-transform duration-300" :class="active === 2 ? 'rotate-180 bg-rose-500 text-white' : ''">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </span>
+                    </button>
+                    <div x-show="active === 2" x-collapse x-cloak>
+                        <div class="px-6 pb-6 text-slate-600 text-sm leading-relaxed border-t border-slate-50 pt-4">
+                            Phòng khám cam kết bảo mật nghiêm ngặt thông tin cá nhân và hồ sơ bệnh án theo quy trình khép kín, đảm bảo sự riêng tư và tôn trọng quyền cá nhân của từng khách hàng.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FAQ 3 -->
+                <div class="bg-white rounded-2xl border border-rose-100 shadow-sm overflow-hidden transition-all duration-300">
+                    <button @click="active = active === 3 ? null : 3" class="w-full flex items-center justify-between p-6 text-left focus:outline-none">
+                        <span class="font-bold text-slate-900 pr-4 text-sm md:text-base">Chi phí tư vấn và khám phụ khoa là bao nhiêu?</span>
+                        <span class="flex-shrink-0 w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 transition-transform duration-300" :class="active === 3 ? 'rotate-180 bg-rose-500 text-white' : ''">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                        </span>
+                    </button>
+                    <div x-show="active === 3" x-collapse x-cloak>
+                        <div class="px-6 pb-6 text-slate-600 text-sm leading-relaxed border-t border-slate-50 pt-4">
+                            Chi phí thăm khám phụ khoa tùy thuộc vào gói dịch vụ và các xét nghiệm cụ thể được thực hiện. Mọi chi phí đều được niêm yết công khai rõ ràng theo quy định.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Related Articles Section -->
+    <x-related-articles-carousel
+        title="Bài viết liên quan về Phụ khoa"
+        subtitle="Thông tin sức khỏe phụ khoa, dấu hiệu thường gặp và lưu ý trong chăm sóc sức khỏe nữ giới."
+        :articles="$relatedArticles"
+        :viewAllUrl="route('categories.index')"
+    />
 </div>
 @endsection
