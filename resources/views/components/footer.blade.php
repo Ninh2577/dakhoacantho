@@ -61,7 +61,7 @@
 
 <footer class="w-full bg-[#343b3f] text-white">
     <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 lg:py-16">
-        <div class="grid gap-10 md:grid-cols-2 lg:grid-cols-4">
+        <div class="grid grid-cols-1 gap-10 md:grid-cols-2 lg:grid-cols-4">
                     <section>
                         <h2 class="text-[2rem] font-black leading-tight tracking-tight text-white sm:text-[2.15rem] lg:text-[2.35rem]">{{ $clinicName }}</h2>
                         <p class="mt-5 max-w-xs text-[15px] font-semibold leading-8 text-slate-300">
