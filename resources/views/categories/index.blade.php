@@ -2,6 +2,19 @@
 
 @section('title', 'Tất cả Chuyên khoa | Danh mục Chuyên khoa')
 
+@section('meta')
+    <x-seo
+        page-type="category"
+        title="Tất cả Chuyên khoa | Danh mục Chuyên khoa"
+        description="Tổng hợp tất cả các danh mục chuyên khoa tại Phòng Khám Đa Khoa Gia Phước Cần Thơ: Nam khoa, Phụ khoa, Bệnh xã hội..."
+        :canonical="route('categories.index')"
+        :breadcrumbs="[
+            ['name' => 'Trang chủ', 'url' => route('home')],
+            ['name' => 'Chuyên khoa', 'url' => route('categories.index')]
+        ]"
+    />
+@endsection
+
 @php
     $featuredArticle = $articles->currentPage() == 1 ? $articles->first() : null;
 @endphp
@@ -112,7 +125,7 @@
                                 </span>
                                 
                                 <h2 class="text-xl md:text-2xl font-black text-slate-900 group-hover:text-clinic-blue transition-colors leading-tight">
-                                    <a href="{{ url($featuredArticle->category_path . '/' . $featuredArticle->slug . '.html') }}">
+                                    <a href="{{ $featuredArticle->public_url }}">
                                         {{ $featuredArticle->title }}
                                     </a>
                                 </h2>
@@ -123,7 +136,7 @@
                             </div>
 
                             <div class="flex items-center gap-3 pt-4 border-t border-slate-50">
-                                <a href="{{ url($featuredArticle->category_path . '/' . $featuredArticle->slug . '.html') }}" class="inline-flex items-center justify-center px-6 py-2.5 bg-clinic-blue hover:bg-opacity-95 text-white font-extrabold rounded-xl text-xs shadow-md transition-all">
+                                <a href="{{ $featuredArticle->public_url }}" class="inline-flex items-center justify-center px-6 py-2.5 bg-clinic-blue hover:bg-opacity-95 text-white font-extrabold rounded-xl text-xs shadow-md transition-all">
                                     Xem chi tiết
                                 </a>
                                 <button class="p-2.5 border border-slate-200 hover:bg-slate-50 rounded-xl text-slate-500 transition-all" aria-label="Share">
@@ -163,7 +176,7 @@
                             </p>
                             <span class="block text-[10px] text-slate-400 font-bold">Cậu Lông Team &bull; {{ date('d/m/Y') }}</span>
                         </div>
-                        <a href="{{ url($featuredArticle->category_path . '/' . $featuredArticle->slug . '.html') }}" class="inline-flex items-center justify-center px-4 py-2 bg-clinic-sky hover:bg-opacity-95 text-white font-extrabold rounded-xl text-xs shadow-md transition-all self-center">
+                        <a href="{{ $featuredArticle->public_url }}" class="inline-flex items-center justify-center px-4 py-2 bg-clinic-sky hover:bg-opacity-95 text-white font-extrabold rounded-xl text-xs shadow-md transition-all self-center">
                             Đọc bài viết
                         </a>
                     </div>

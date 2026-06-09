@@ -8,94 +8,33 @@
             ?? $article->excerpt 
             ?? (trim(strip_tags($article->content ?? '')) !== '' ? Str::limit(strip_tags($article->content), 160) : $article->title);
         $seoDesc = trim($rawDesc);
+        
+        $articleImage = $article->thumbnail_image ? asset('storage/' . $article->thumbnail_image) : asset('images/doctor.webp');
+        if (!preg_match('/^https?:\/\//', $articleImage)) {
+            $articleImage = asset($articleImage);
+        }
+
+        $breadcrumbs = [
+            ['name' => 'Trang chủ', 'url' => url('/')],
+            ['name' => $article->category->name, 'url' => route('category.show', ['category_path' => $article->category_path])],
+            ['name' => $article->title, 'url' => $article->public_url]
+        ];
     @endphp
     
-    <meta name="description" content="{{ $seoDesc }}">
-    
-    {{-- Canonical link --}}
-    <link rel="canonical" href="{{ $article->canonical_url ?? url()->current() }}">
+    <x-seo
+        page-type="article"
+        :title="$article->meta_title ?? $article->title . ' | Phòng Khám Đa Khoa Gia Phước'"
+        :description="$seoDesc"
+        :canonical="$article->public_url"
+        :breadcrumbs="$breadcrumbs"
+        :article="$article"
+        :image="$articleImage"
+        :published-at="$article->created_at"
+        :modified-at="$article->updated_at"
+    />
 
     {{-- Robots metadata --}}
     <meta name="robots" content="{{ ($article->robots_index ?? true) ? 'index' : 'noindex' }},{{ ($article->robots_follow ?? true) ? 'follow' : 'nofollow' }}">
-
-    {{-- Open Graph (Facebook) --}}
-    <meta property="og:type" content="article">
-    <meta property="og:title" content="{{ $article->og_title ?? $article->meta_title ?? $article->title }}">
-    <meta property="og:description" content="{{ $article->og_description ?? $seoDesc }}">
-    <meta property="og:url" content="{{ url()->current() }}">
-    @if($article->og_image)
-        <meta property="og:image" content="{{ asset('storage/' . $article->og_image) }}">
-    @elseif($article->thumbnail_image)
-        <meta property="og:image" content="{{ asset('storage/' . $article->thumbnail_image) }}">
-    @endif
-
-    {{-- Twitter --}}
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="{{ $article->twitter_title ?? $article->meta_title ?? $article->title }}">
-    <meta name="twitter:description" content="{{ $article->twitter_description ?? $seoDesc }}">
-    @if($article->twitter_image)
-        <meta name="twitter:image" content="{{ asset('storage/' . $article->twitter_image) }}">
-    @elseif($article->thumbnail_image)
-        <meta name="twitter:image" content="{{ asset('storage/' . $article->thumbnail_image) }}">
-    @endif
-
-    {{-- BreadcrumbList JSON-LD Schema --}}
-    <script type="application/ld+json">
-    {
-      "@@context": "https://schema.org",
-      "@@type": "BreadcrumbList",
-      "itemListElement": [
-        {
-          "@@type": "ListItem",
-          "position": 1,
-          "name": "Trang chủ",
-          "item": "{{ url('/') }}"
-        },
-        {
-          "@@type": "ListItem",
-          "position": 2,
-          "name": "{{ $article->category->name }}",
-          "item": "{{ route('category.show', ['category_path' => $article->category_path]) }}"
-        },
-        {
-          "@@type": "ListItem",
-          "position": 3,
-          "name": "{{ $article->title }}",
-          "item": "{{ url()->current() }}"
-        }
-      ]
-    }
-    </script>
-
-    {{-- BlogPosting JSON-LD Schema (ISO 8601 Dates, Neutral Author) --}}
-    <script type="application/ld+json">
-    {
-      "@@context": "https://schema.org",
-      "@@type": "BlogPosting",
-      "headline": "{{ $article->title }}",
-      "description": "{{ $seoDesc }}",
-      "image": "{{ $article->thumbnail_image ? asset('storage/' . $article->thumbnail_image) : asset('images/doctor.webp') }}",
-      "datePublished": "{{ $article->created_at->toIso8601String() }}",
-      "dateModified": "{{ $article->updated_at->toIso8601String() }}",
-      "author": {
-        "@@type": "Organization",
-        "name": "Ban Biên Tập - Phòng Khám Đa Khoa Gia Phước",
-        "url": "{{ url('/') }}"
-      },
-      "publisher": {
-        "@@type": "Organization",
-        "name": "Phòng Khám Đa Khoa Gia Phước",
-        "logo": {
-          "@@type": "ImageObject",
-          "url": "{{ asset('images/doctor.webp') }}"
-        }
-      },
-      "mainEntityOfPage": {
-        "@@type": "WebPage",
-        "@@id": "{{ url()->current() }}"
-      }
-    }
-    </script>
 @endsection
 
 @section('content')
@@ -409,7 +348,7 @@
                     <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                         @forelse($relatedArticles as $related)
                             <div class="bg-slate-50 rounded-2xl border border-slate-100/60 overflow-hidden flex flex-col group transition-all hover:shadow-sm">
-                                <a href="{{ route('article.show', ['category_path' => $related->category_path, 'slug' => $related->slug]) }}" class="block overflow-hidden aspect-video relative">
+                                <a href="{{ $related->public_url }}" class="block overflow-hidden aspect-video relative">
                                     @if($related->thumbnail_image)
                                         <img src="{{ asset('storage/' . $related->thumbnail_image) }}" alt="{{ $related->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-350" loading="lazy">
                                     @else
@@ -425,7 +364,7 @@
                                 </a>
                                 <div class="p-4 space-y-2 flex-grow flex flex-col justify-between">
                                     <div class="space-y-1">
-                                        <a href="{{ route('article.show', ['category_path' => $related->category_path, 'slug' => $related->slug]) }}" class="block">
+                                        <a href="{{ $related->public_url }}" class="block">
                                             <h4 class="text-sm font-extrabold text-slate-800 line-clamp-2 group-hover:text-clinic-teal transition-colors leading-snug">{{ $related->title }}</h4>
                                         </a>
                                         <p class="text-xs text-slate-500 line-clamp-2 leading-relaxed">
@@ -610,7 +549,7 @@
                     </h3>
                     <div class="space-y-4">
                         @forelse($relatedArticles as $related)
-                            <a href="{{ route('article.show', ['category_path' => $related->category_path, 'slug' => $related->slug]) }}" class="group flex gap-3.5 items-start">
+                            <a href="{{ $related->public_url }}" class="group flex gap-3.5 items-start">
                                 @if($related->thumbnail_image)
                                     <img src="{{ asset('storage/' . $related->thumbnail_image) }}" alt="{{ $related->title }}" class="w-14 h-14 rounded-xl object-cover shrink-0" loading="lazy">
                                 @else

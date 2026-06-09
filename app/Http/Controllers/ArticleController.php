@@ -8,8 +8,20 @@ use App\Models\Article;
 
 class ArticleController extends Controller
 {
-    public function show(string $category_path, string $slug)
+    public function show(string $slug)
     {
+        $reservedSlugs = [
+            'admin', 'login', 'logout', 'register', 'lien-he', 'tim-kiem', 
+            'category', 'categories', 'bai-viet', 'articles', 'nam-khoa', 
+            'phu-khoa', 'ngoai-khoa', 'benh-xa-hoi', 'xet-nghiem', 'vi-cong-dong', 
+            'gioi-thieu', 'chinh-sach-bao-mat', 'dieu-khoan-su-dung', 'sitemap',
+            'sitemap.xml'
+        ];
+
+        if (in_array(strtolower($slug), $reservedSlugs)) {
+            abort(404);
+        }
+
         // Eager load category.parent.parent and approved comments to avoid N+1 queries
         $article = Article::with([
             'category.parent.parent', 
@@ -20,11 +32,6 @@ class ArticleController extends Controller
         ->where('slug', $slug)
         ->where('is_published', true)
         ->firstOrFail();
-
-        // Strict SEO path verification:
-        if ($article->category_path !== $category_path) {
-            abort(404);
-        }
 
         // 1. Query Related Articles: Prioritize same category, fallback to latest, exclude current
         $relatedArticles = collect();
@@ -87,5 +94,14 @@ class ArticleController extends Controller
         }, $article->content);
 
         return view('articles.show', compact('article', 'relatedArticles'));
+    }
+
+    public function redirectOldUrl(string $category_path, string $slug)
+    {
+        $article = Article::where('slug', $slug)
+            ->where('is_published', true)
+            ->firstOrFail();
+
+        return redirect()->to($article->public_url, 301);
     }
 }

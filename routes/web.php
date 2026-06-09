@@ -30,17 +30,26 @@ Route::get('/tim-kiem', [SearchController::class, 'index'])->name('search');
 // 4. SEO Sitemap
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 
+// Old URL format redirect routes (.html) - placed BEFORE category wildcard to prevent hijack
+Route::get('/category/{category_path}/{slug}.html', [ArticleController::class, 'redirectOldUrl'])
+    ->where('category_path', '.*')
+    ->where('slug', '[A-Za-z0-9\-]+');
+
+Route::get('/{category_path}/{slug}.html', [ArticleController::class, 'redirectOldUrl'])
+    ->where('category_path', '.*')
+    ->where('slug', '[A-Za-z0-9\-]+');
+
 // 5. Category Archive (wildcard to capture nested parent/child paths)
 Route::get('/category/{category_path}', [CategoryController::class, 'show'])
     ->where('category_path', '.*')
     ->name('category.show');
 
-// 6. Article Details (wildcard to capture nested category directories and trailing .html)
-Route::get('/{category_path}/{slug}.html', [ArticleController::class, 'show'])
-    ->where('category_path', '.*')
-    ->name('article.show');
-
 // 7. Store Article Comment
 Route::post('/articles/{article}/comments', [ArticleCommentController::class, 'store'])
     ->name('articles.comments.store')
     ->middleware(['web', 'throttle:5,1']);
+
+// 8. Root-level Article Details (placed at the VERY bottom as a fallback)
+Route::get('/{slug}', [ArticleController::class, 'show'])
+    ->where('slug', '^(?!admin|login|logout|register|lien-he|tim-kiem|category|categories|bai-viet|articles|nam-khoa|phu-khoa|ngoai-khoa|benh-xa-hoi|xet-nghiem|vi-cong-dong|gioi-thieu|chinh-sach-bao-mat|dieu-khoan-su-dung|sitemap|sitemap\.xml$)[A-Za-z0-9\-]+')
+    ->name('articles.show');

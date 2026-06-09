@@ -61,4 +61,9 @@ class Article extends Model
     {
         return $this->category ? $this->category->full_path : 'uncategorized';
     }
+
+    public function getPublicUrlAttribute()
+    {
+        return route('articles.show', ['slug' => $this->slug]);
+    }
 }

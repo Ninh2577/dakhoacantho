@@ -1,95 +1,61 @@
-@props(['title', 'description', 'canonical', 'ogType' => 'website', 'breadcrumbs' => [], 'faqs' => []])
+@props([
+    'title',
+    'description',
+    'canonical',
+    'ogType' => 'website',
+    'breadcrumbs' => [],
+    'faqs' => [],
+    'pageType' => 'website',
+    'article' => null,
+    'category' => null,
+    'image' => null,
+    'publishedAt' => null,
+    'modifiedAt' => null,
+])
+
+@php
+    // Resolve absolute URLs
+    $absoluteCanonical = $canonical;
+    if (!preg_match('/^https?:\/\//', $absoluteCanonical)) {
+        $absoluteCanonical = url($absoluteCanonical);
+    }
+    $metaImage = $image ?? asset('images/doctor.webp');
+    if (!preg_match('/^https?:\/\//', $metaImage)) {
+        $metaImage = asset($metaImage);
+    }
+@endphp
 
 <!-- Description & Canonical -->
 <meta name="description" content="{{ $description }}">
-<link rel="canonical" href="{{ $canonical }}">
+<link rel="canonical" href="{{ $absoluteCanonical }}">
 
 <!-- Open Graph / Facebook -->
 <meta property="og:type" content="{{ $ogType }}">
-<meta property="og:url" content="{{ $canonical }}">
+<meta property="og:url" content="{{ $absoluteCanonical }}">
 <meta property="og:title" content="{{ $title }}">
 <meta property="og:description" content="{{ $description }}">
 <meta property="og:site_name" content="Phòng Khám Đa Khoa Gia Phước">
-<meta property="og:image" content="{{ asset('images/doctor.webp') }}">
+<meta property="og:image" content="{{ $metaImage }}">
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:url" content="{{ $canonical }}">
+<meta name="twitter:url" content="{{ $absoluteCanonical }}">
 <meta name="twitter:title" content="{{ $title }}">
 <meta name="twitter:description" content="{{ $description }}">
-<meta name="twitter:image" content="{{ asset('images/doctor.webp') }}">
+<meta name="twitter:image" content="{{ $metaImage }}">
 
-<!-- MedicalClinic / LocalBusiness JSON-LD Schema (Global) -->
-<script type="application/ld+json">
-{
-  "@@context": "https://schema.org",
-  "@type": "MedicalClinic",
-  "name": "Phòng Khám Đa Khoa Gia Phước",
-  "telephone": "0966.332.352",
-  "url": "{{ url('/') }}",
-  "logo": "{{ asset('images/doctor.webp') }}",
-  "address": {
-    "@type": "PostalAddress",
-    "streetAddress": "Số 57 Hùng Vương",
-    "addressLocality": "Ninh Kiều",
-    "addressRegion": "Cần Thơ",
-    "addressCountry": "VN"
-  },
-  "openingHoursSpecification": {
-    "@type": "OpeningHoursSpecification",
-    "dayOfWeek": [
-      "Monday",
-      "Tuesday",
-      "Wednesday",
-      "Thursday",
-      "Friday",
-      "Saturday",
-      "Sunday"
-    ],
-    "opens": "07:30",
-    "closes": "20:00"
-  }
-}
-</script>
+<!-- Unified Schema JSON-LD Graph -->
+<x-seo.schema-jsonld
+    :page-type="$pageType"
+    :title="$title"
+    :description="$description"
+    :url="$absoluteCanonical"
+    :image="$metaImage"
+    :breadcrumbs="$breadcrumbs"
+    :article="$article"
+    :faq-items="$faqs"
+    :category="$category"
+    :published-at="$publishedAt"
+    :modified-at="$modifiedAt"
+/>
 
-<!-- BreadcrumbList JSON-LD Schema -->
-@if(!empty($breadcrumbs))
-<script type="application/ld+json">
-{
-  "@@context": "https://schema.org",
-  "@type": "BreadcrumbList",
-  "itemListElement": [
-    @foreach($breadcrumbs as $index => $crumb)
-    {
-      "@type": "ListItem",
-      "position": {{ $index + 1 }},
-      "name": "{{ $crumb['name'] }}",
-      "item": "{{ $crumb['url'] }}"
-    }{{ $index < count($breadcrumbs) - 1 ? ',' : '' }}
-    @endforeach
-  ]
-}
-</script>
-@endif
-
-<!-- FAQPage JSON-LD Schema -->
-@if(!empty($faqs))
-<script type="application/ld+json">
-{
-  "@@context": "https://schema.org",
-  "@type": "FAQPage",
-  "mainEntity": [
-    @foreach($faqs as $index => $faq)
-    {
-      "@type": "Question",
-      "name": "{{ $faq['q'] }}",
-      "acceptedAnswer": {
-        "@type": "Answer",
-        "text": "{{ $faq['a'] }}"
-      }
-    }{{ $index < count($faqs) - 1 ? ',' : '' }}
-    @endforeach
-  ]
-}
-</script>
-@endif

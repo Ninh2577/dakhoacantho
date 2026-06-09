@@ -2,7 +2,7 @@
 
 <div class="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden flex flex-col group hover:shadow-md hover:border-slate-200 transition-all duration-300">
     <!-- Thumbnail Image -->
-    <a href="{{ url($article->category_path . '/' . $article->slug . '.html') }}" class="block relative aspect-video overflow-hidden bg-slate-100">
+    <a href="{{ $article->public_url }}" class="block relative aspect-video overflow-hidden bg-slate-100">
         @if($article->thumbnail_image)
             <img src="{{ asset('storage/' . $article->thumbnail_image) }}" alt="{{ $article->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async">
         @else
@@ -26,7 +26,7 @@
             </div>
             
             <h3 class="text-base font-extrabold text-slate-900 group-hover:text-clinic-blue leading-snug tracking-tight transition-colors line-clamp-2">
-                <a href="{{ url($article->category_path . '/' . $article->slug . '.html') }}">
+                <a href="{{ $article->public_url }}">
                     {{ $article->title }}
                 </a>
             </h3>
@@ -37,7 +37,7 @@
         </div>
 
         <div class="pt-4 border-t border-slate-50 mt-4 flex items-center justify-end">
-            <a href="{{ url($article->category_path . '/' . $article->slug . '.html') }}" class="inline-flex items-center text-xs font-extrabold text-clinic-teal hover:text-clinic-blue transition-colors">
+            <a href="{{ $article->public_url }}" class="inline-flex items-center text-xs font-extrabold text-clinic-teal hover:text-clinic-blue transition-colors">
                 <span>Chi tiết</span>
                 <svg class="w-4 h-4 ml-1 transform group-hover:translate-x-0.5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
