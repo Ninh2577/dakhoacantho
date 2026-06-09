@@ -71,7 +71,7 @@
                 <div class="absolute inset-10 bg-clinic-blue/10 rounded-full blur-3xl -z-10"></div>
                 
                 <div class="relative max-w-sm sm:max-w-md lg:max-w-none rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-white">
-                    <img src="{{ asset('images/doctor.png') }}" alt="Phòng Khám Đa Khoa Gia Phước" class="w-full h-auto object-cover max-h-[500px]">
+                    <img src="{{ asset('images/doctor.webp') }}" alt="Phòng Khám Đa Khoa Gia Phước" class="w-full h-auto object-cover max-h-[500px]" decoding="async" fetchpriority="high">
                     <div class="absolute bottom-4 left-4 right-4 p-4 bg-white/90 backdrop-blur-md rounded-2xl border border-white/50 shadow-lg flex items-center gap-3">
                         <span class="p-2.5 bg-clinic-teal text-white rounded-lg">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -111,7 +111,7 @@
                 title="Nam khoa" 
                 description="Điều trị yếu sinh lý, xuất tinh sớm và các bệnh lý nam khoa chuyên sâu."
                 slug="nam-khoa"
-                bgImage="{{ asset('images/nam_khoa.png') }}"
+                bgImage="{{ asset('images/nam_khoa.webp') }}"
                 icon='<svg class="w-6 h-6 text-teal-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>'
             />
             <!-- Card 2: Phụ khoa -->
@@ -119,7 +119,7 @@
                 title="Phụ khoa" 
                 description="Chăm sóc sức khỏe phụ nữ toàn diện và tầm soát bệnh lý phụ khoa định kỳ."
                 slug="phu-khoa"
-                bgImage="{{ asset('images/phu_khoa.png') }}"
+                bgImage="{{ asset('images/phu_khoa.webp') }}"
                 icon='<svg class="w-6 h-6 text-teal-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>'
             />
             <!-- Card 3: Bệnh xã hội -->
@@ -127,7 +127,7 @@
                 title="Bệnh xã hội" 
                 description="Xét nghiệm bảo mật tuyệt đối, điều trị dứt điểm sùi mào gà, lậu, giang mai."
                 slug="benh-xa-hoi"
-                bgImage="{{ asset('images/benh_xa_hoi.png') }}"
+                bgImage="{{ asset('images/benh_xa_hoi.webp') }}"
                 icon='<svg class="w-6 h-6 text-teal-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>'
             />
         </div>

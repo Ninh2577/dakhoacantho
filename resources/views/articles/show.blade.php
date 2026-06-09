@@ -74,7 +74,7 @@
       "@@type": "BlogPosting",
       "headline": "{{ $article->title }}",
       "description": "{{ $seoDesc }}",
-      "image": "{{ $article->thumbnail_image ? asset('storage/' . $article->thumbnail_image) : asset('images/doctor.png') }}",
+      "image": "{{ $article->thumbnail_image ? asset('storage/' . $article->thumbnail_image) : asset('images/doctor.webp') }}",
       "datePublished": "{{ $article->created_at->toIso8601String() }}",
       "dateModified": "{{ $article->updated_at->toIso8601String() }}",
       "author": {
@@ -87,7 +87,7 @@
         "name": "Phòng Khám Đa Khoa Gia Phước",
         "logo": {
           "@@type": "ImageObject",
-          "url": "{{ asset('images/doctor.png') }}"
+          "url": "{{ asset('images/doctor.webp') }}"
         }
       },
       "mainEntityOfPage": {

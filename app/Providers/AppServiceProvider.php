@@ -30,12 +30,15 @@ class AppServiceProvider extends ServiceProvider
             return \Illuminate\Support\Facades\Route::post('/dakhoacantho_web/public/livewire/update', $handle);
         });
 
-        View::composer('*', function ($view) {
-            $view->with('mainCategories', Category::where('parent_id', -1)
-                ->where('name', '!=', 'Chưa được phân loại')
-                ->with('children.children')
-                ->orderBy('order')
-                ->get());
+        View::composer('components.header', function ($view) {
+            $mainCategories = \Illuminate\Support\Facades\Cache::remember('public_navigation_categories', now()->addHours(6), function () {
+                return Category::where('parent_id', -1)
+                    ->where('name', '!=', 'Chưa được phân loại')
+                    ->with('children.children')
+                    ->orderBy('order')
+                    ->get();
+            });
+            $view->with('mainCategories', $mainCategories);
         });
     }
 }

@@ -3,7 +3,7 @@
 <div class="relative overflow-hidden rounded-2xl aspect-[4/3] group shadow-md hover:shadow-xl transition-all duration-500">
     <!-- Background Image -->
     <div class="absolute inset-0 bg-slate-900">
-        <img src="{{ $bgImage }}" alt="{{ $title }}" class="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700">
+        <img src="{{ $bgImage }}" alt="{{ $title }}" class="w-full h-full object-cover opacity-60 group-hover:scale-110 transition-transform duration-700" loading="lazy" decoding="async">
     </div>
 
     <!-- Gradient Overlay -->

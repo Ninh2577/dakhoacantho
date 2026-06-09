@@ -27,7 +27,7 @@
         <!-- Background Image with Overlay -->
         <div class="absolute inset-0 z-0">
             <img src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&q=80&w=2000" 
-                 alt="Vì Cộng Đồng" class="w-full h-full object-cover opacity-30 object-center">
+                 alt="Vì Cộng Đồng" class="w-full h-full object-cover opacity-30 object-center" decoding="async" fetchpriority="high">
             <div class="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900/90 to-transparent"></div>
         </div>
 
@@ -90,7 +90,7 @@
                     <!-- Background image -->
                     <div class="absolute inset-0 z-0">
                         <img src="https://images.unsplash.com/photo-1469571486040-7a3081cde312?auto=format&fit=crop&q=80&w=1200" 
-                             alt="Chiến dịch khám bệnh" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-60">
+                             alt="Chiến dịch khám bệnh" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-60" loading="lazy" decoding="async">
                         <div class="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/40 to-transparent"></div>
                     </div>
 
@@ -158,7 +158,7 @@
                 <div class="lg:col-span-5 relative">
                     <div class="rounded-3xl overflow-hidden shadow-xl aspect-[4/5] bg-slate-200">
                         <img src="https://images.unsplash.com/photo-1576765608535-5f04d1e3f289?auto=format&fit=crop&q=80&w=600" 
-                             alt="Human story" class="w-full h-full object-cover">
+                             alt="Human story" class="w-full h-full object-cover" loading="lazy" decoding="async">
                     </div>
                 </div>
 

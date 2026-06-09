@@ -19,7 +19,7 @@ class CategoryController extends Controller
             ->get();
 
         // Fetch all published articles (paginated by 10)
-        $articles = Article::with('category')
+        $articles = Article::with('category.parent.parent')
             ->where('is_published', true)
             ->latest()
             ->paginate(10);
@@ -48,40 +48,43 @@ class CategoryController extends Controller
         $categoryIds = $this->getCategoryAndChildrenIds($selectedCategory);
 
         // Paginate articles belonging to the selected category and all its descendants
-        $articles = Article::with('category')
+        $articles = Article::with('category.parent.parent')
             ->whereIn('category_id', $categoryIds)
             ->where('is_published', true)
             ->latest()
             ->paginate(4);
 
         // Retrieve the first featured article
-        $featuredArticle = Article::with('category')
+        $featuredArticle = Article::with('category.parent.parent')
             ->whereIn('category_id', $categoryIds)
             ->where('is_published', true)
             ->first();
 
-        // Retrieve 9 latest articles belonging to this category hierarchy (with category eager loading)
-        $relatedArticles = Article::with('category')
-            ->whereIn('category_id', $categoryIds)
-            ->where('is_published', true)
-            ->latest()
-            ->take(9)
-            ->get();
-
-        // Fallback: if there are fewer than 9 articles, merge the latest published articles from other categories
-        if ($relatedArticles->count() < 9) {
-            $needed = 9 - $relatedArticles->count();
-            $excludeIds = $relatedArticles->pluck('id')->toArray();
-            
-            $fallbackArticles = Article::with('category')
-                ->whereNotIn('id', $excludeIds)
+        // Retrieve and cache 9 latest related articles for 15 minutes
+        $cacheKey = "category_related_articles_{$selectedCategory->id}";
+        $relatedArticles = \Illuminate\Support\Facades\Cache::remember($cacheKey, now()->addMinutes(15), function () use ($categoryIds) {
+            $articles = Article::with('category.parent.parent')
+                ->whereIn('category_id', $categoryIds)
                 ->where('is_published', true)
                 ->latest()
-                ->take($needed)
+                ->take(9)
                 ->get();
+
+            if ($articles->count() < 9) {
+                $needed = 9 - $articles->count();
+                $excludeIds = $articles->pluck('id')->toArray();
                 
-            $relatedArticles = $relatedArticles->merge($fallbackArticles);
-        }
+                $fallbackArticles = Article::with('category.parent.parent')
+                    ->whereNotIn('id', $excludeIds)
+                    ->where('is_published', true)
+                    ->latest()
+                    ->take($needed)
+                    ->get();
+                    
+                $articles = $articles->merge($fallbackArticles);
+            }
+            return $articles;
+        });
 
         // Check for custom landing page
         $customView = 'categories.landing.' . $selectedCategory->slug;

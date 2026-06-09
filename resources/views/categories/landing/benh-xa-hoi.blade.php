@@ -26,7 +26,7 @@
         <!-- Background Image with Overlay -->
         <div class="absolute inset-0 z-0">
             <img src="https://images.unsplash.com/photo-1504813184591-015556c5c522?auto=format&fit=crop&q=80&w=2000" 
-                 alt="Bệnh Xã Hội" class="w-full h-full object-cover opacity-20 object-center">
+                 alt="Bệnh Xã Hội" class="w-full h-full object-cover opacity-20 object-center" decoding="async" fetchpriority="high">
             <div class="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900/95 to-slate-950/90"></div>
         </div>
 
@@ -248,7 +248,7 @@
                 <div class="lg:col-span-5 relative">
                     <div class="rounded-3xl overflow-hidden shadow-xl aspect-[4/5] bg-slate-200">
                         <img src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=600" 
-                             alt="Doctor Trust" class="w-full h-full object-cover">
+                             alt="Doctor Trust" class="w-full h-full object-cover" loading="lazy" decoding="async">
                     </div>
                     <!-- Overlapping Stat Card -->
                     <div class="absolute -bottom-6 -right-6 bg-gradient-to-br from-clinic-blue to-[#0b4c8c] text-white p-6 rounded-2xl shadow-xl max-w-[280px] border border-white/10">

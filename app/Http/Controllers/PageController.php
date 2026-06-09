@@ -13,16 +13,15 @@ class PageController extends Controller
      */
     public function home()
     {
-        $categories = Category::all();
-        
-        // Eager load category to prevent N+1 queries
-        $articles = Article::with('category')
-            ->where('is_published', true)
-            ->latest()
-            ->take(6)
-            ->get();
+        $articles = \Illuminate\Support\Facades\Cache::remember('home_latest_articles', now()->addMinutes(15), function () {
+            return Article::with('category.parent.parent')
+                ->where('is_published', true)
+                ->latest()
+                ->take(6)
+                ->get();
+        });
 
-        return view('home', compact('categories', 'articles'));
+        return view('home', compact('articles'));
     }
 
     /**

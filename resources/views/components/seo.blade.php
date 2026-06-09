@@ -10,14 +10,14 @@
 <meta property="og:title" content="{{ $title }}">
 <meta property="og:description" content="{{ $description }}">
 <meta property="og:site_name" content="Phòng Khám Đa Khoa Gia Phước">
-<meta property="og:image" content="{{ asset('images/doctor.png') }}">
+<meta property="og:image" content="{{ asset('images/doctor.webp') }}">
 
 <!-- Twitter -->
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:url" content="{{ $canonical }}">
 <meta name="twitter:title" content="{{ $title }}">
 <meta name="twitter:description" content="{{ $description }}">
-<meta name="twitter:image" content="{{ asset('images/doctor.png') }}">
+<meta name="twitter:image" content="{{ asset('images/doctor.webp') }}">
 
 <!-- MedicalClinic / LocalBusiness JSON-LD Schema (Global) -->
 <script type="application/ld+json">
@@ -27,7 +27,7 @@
   "name": "Phòng Khám Đa Khoa Gia Phước",
   "telephone": "0966.332.352",
   "url": "{{ url('/') }}",
-  "logo": "{{ asset('images/doctor.png') }}",
+  "logo": "{{ asset('images/doctor.webp') }}",
   "address": {
     "@type": "PostalAddress",
     "streetAddress": "Số 57 Hùng Vương",
