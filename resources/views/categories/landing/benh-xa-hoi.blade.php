@@ -3,13 +3,17 @@
 @section('title', 'Chuyên Khoa Bệnh Xã Hội - Bảo Mật & Kết Quả Nhanh | Đa Khoa Gia Phước')
 
 @section('meta')
+    @php
+        $category = \App\Models\Category::where('slug', 'benh-xa-hoi')->first();
+        $categoryUrl = $category ? $category->public_url : route('category.show', ['category_path' => 'benh-xa-hoi']);
+    @endphp
     <x-seo 
         title="Chuyên Khoa Bệnh Xã Hội - Bảo Mật & Kết Quả Nhanh | Đa Khoa Gia Phước" 
         description="Xét nghiệm và hỗ trợ tư vấn các bệnh xã hội (sùi mào gà, lậu, giang mai...) tại Đa Khoa Gia Phước. Quy trình kín đáo, bảo mật thông tin tối đa." 
-        canonical="{{ route('category.show', ['category_path' => 'benh-xa-hoi']) }}"
+        canonical="{{ $categoryUrl }}"
         :breadcrumbs="[
             ['name' => 'Trang chủ', 'url' => route('home')],
-            ['name' => 'Bệnh xã hội', 'url' => route('category.show', ['category_path' => 'benh-xa-hoi'])]
+            ['name' => 'Bệnh xã hội', 'url' => $categoryUrl]
         ]"
         :faqs="[
             ['q' => 'Thời gian trả kết quả xét nghiệm bệnh xã hội là bao lâu?', 'a' => 'Thời gian trả kết quả tùy thuộc vào loại xét nghiệm cụ thể. Thông thường các xét nghiệm nhanh sẽ có kết quả sau 2 - 4 giờ.'],

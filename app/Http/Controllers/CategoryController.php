@@ -41,6 +41,11 @@ class CategoryController extends Controller
             abort(404);
         }
 
+        return $this->showResolved($selectedCategory);
+    }
+
+    public function showResolved(Category $selectedCategory)
+    {
         // Retrieve all root categories and their descendants for the category sidebar index
         $categories = Category::where('parent_id', -1)->with('children')->get();
 

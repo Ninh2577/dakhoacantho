@@ -53,3 +53,6 @@ Route::post('/articles/{article}/comments', [ArticleCommentController::class, 's
 Route::get('/{slug}', [ArticleController::class, 'show'])
     ->where('slug', '^(?!admin|login|logout|register|lien-he|tim-kiem|category|categories|bai-viet|articles|nam-khoa|phu-khoa|ngoai-khoa|benh-xa-hoi|xet-nghiem|vi-cong-dong|gioi-thieu|chinh-sach-bao-mat|dieu-khoan-su-dung|sitemap|sitemap\.xml$)[A-Za-z0-9\-]+')
     ->name('articles.show');
+
+// 9. Fallback Dynamic Router catch-all
+Route::fallback([App\Http\Controllers\DynamicRouterController::class, 'resolve']);

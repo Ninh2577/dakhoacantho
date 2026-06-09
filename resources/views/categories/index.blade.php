@@ -3,15 +3,18 @@
 @section('title', 'Tất cả Chuyên khoa | Danh mục Chuyên khoa')
 
 @section('meta')
+    @php
+        $indexBreadcrumbs = [
+            ['name' => 'Trang chủ', 'url' => route('home')],
+            ['name' => 'Chuyên khoa', 'url' => route('categories.index')]
+        ];
+    @endphp
     <x-seo
         page-type="category"
         title="Tất cả Chuyên khoa | Danh mục Chuyên khoa"
         description="Tổng hợp tất cả các danh mục chuyên khoa tại Phòng Khám Đa Khoa Gia Phước Cần Thơ: Nam khoa, Phụ khoa, Bệnh xã hội..."
         :canonical="route('categories.index')"
-        :breadcrumbs="[
-            ['name' => 'Trang chủ', 'url' => route('home')],
-            ['name' => 'Chuyên khoa', 'url' => route('categories.index')]
-        ]"
+        :breadcrumbs="$indexBreadcrumbs"
     />
 @endsection
 
@@ -75,7 +78,7 @@
                         </a>
 
                         @foreach($parentCategories as $category)
-                            <a href="{{ route('category.show', ['category_path' => $category->full_path]) }}" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-bold transition-all text-slate-600 hover:bg-slate-50">
+                            <a href="{{ $category->public_url }}" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-bold transition-all text-slate-600 hover:bg-slate-50">
                                 <span>{{ $category->name }}</span>
                             </a>
                         @endforeach

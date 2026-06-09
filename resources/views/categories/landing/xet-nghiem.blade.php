@@ -3,13 +3,17 @@
 @section('title', 'Xét Nghiệm Chính Xác - Kết Quả Tin Cậy | Đa Khoa Gia Phước')
 
 @section('meta')
+    @php
+        $category = \App\Models\Category::where('slug', 'xet-nghiem')->first();
+        $categoryUrl = $category ? $category->public_url : route('category.show', ['category_path' => 'xet-nghiem']);
+    @endphp
     <x-seo 
         title="Xét Nghiệm Chính Xác - Kết Quả Tin Cậy | Đa Khoa Gia Phước" 
         description="Dịch vụ xét nghiệm tổng quát, tầm soát ung thư, xét nghiệm gen di truyền, xét nghiệm nội tiết tại Đa Khoa Gia Phước Cần Thơ. Quy trình nhanh chóng, kết quả chính xác." 
-        canonical="{{ route('category.show', ['category_path' => 'xet-nghiem']) }}"
+        canonical="{{ $categoryUrl }}"
         :breadcrumbs="[
             ['name' => 'Trang chủ', 'url' => route('home')],
-            ['name' => 'Xét Nghiệm', 'url' => route('category.show', ['category_path' => 'xet-nghiem'])]
+            ['name' => 'Xét Nghiệm', 'url' => $categoryUrl]
         ]"
         :faqs="[
             ['q' => 'Thời gian nhận kết quả xét nghiệm tại Gia Phước là bao lâu?', 'a' => 'Thời gian trả kết quả tùy thuộc vào từng loại xét nghiệm cụ thể. Với các xét nghiệm cơ bản, kết quả sẽ có sau 2 - 4 giờ và có thể nhận kết quả trực tuyến nhanh chóng.'],

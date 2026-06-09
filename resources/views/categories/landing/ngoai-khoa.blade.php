@@ -3,13 +3,17 @@
 @section('title', 'Chuyên Khoa Ngoại Khoa - Quy Trình An Toàn & Chuyên Nghiệp | Đa Khoa Gia Phước')
 
 @section('meta')
+    @php
+        $category = \App\Models\Category::where('slug', 'ngoai-khoa')->first();
+        $categoryUrl = $category ? $category->public_url : route('category.show', ['category_path' => 'ngoai-khoa']);
+    @endphp
     <x-seo 
         title="Chuyên Khoa Ngoại Khoa - Quy Trình An Toàn & Chuyên Nghiệp | Đa Khoa Gia Phước" 
         description="Dịch vụ hỗ trợ tư vấn và thực hiện các tiểu phẫu ngoại khoa (bệnh trĩ, bao quy đầu, tiểu phẫu tổng quát...) tại Đa Khoa Gia Phước Cần Thơ. Quy trình vô trùng đạt chuẩn." 
-        canonical="{{ route('category.show', ['category_path' => 'ngoai-khoa']) }}"
+        canonical="{{ $categoryUrl }}"
         :breadcrumbs="[
             ['name' => 'Trang chủ', 'url' => route('home')],
-            ['name' => 'Ngoại Khoa', 'url' => route('category.show', ['category_path' => 'ngoai-khoa'])]
+            ['name' => 'Ngoại Khoa', 'url' => $categoryUrl]
         ]"
         :faqs="[
             ['q' => 'Thời gian hồi phục sau tiểu phẫu ngoại khoa là bao lâu?', 'a' => 'Thời gian hồi phục tùy thuộc vào loại tiểu phẫu cụ thể và cơ địa từng người. Thông thường với các phương pháp xâm lấn tối thiểu tại Đa Khoa Gia Phước, thời gian hồi phục nhanh chóng và bệnh nhân có thể ra về trong ngày.'],
