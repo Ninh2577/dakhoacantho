@@ -280,7 +280,7 @@
                  <div class="lg:col-span-6 relative">
                      <div class="rounded-3xl overflow-hidden shadow-2xl border-4 border-slate-800 aspect-[4/3] bg-slate-800">
                          <img src="https://images.unsplash.com/photo-1551601651-2a8555f1a136?auto=format&fit=crop&q=80&w=800" 
-                              alt="Thiết bị hiện đại Gia Phước" class="w-full h-full object-cover">
+                              alt="Thiết bị hiện đại Gia Phước" class="w-full h-full object-cover" loading="lazy" decoding="async">
                      </div>
                      <!-- Overlapping Blue badge bottom left -->
                      <div class="absolute -bottom-6 left-6 bg-clinic-blue text-white p-5 rounded-2xl shadow-2xl border border-white/10 max-w-[200px]">
@@ -323,10 +323,10 @@
                 <!-- Right: Visual -->
                 <div class="grid grid-cols-2 gap-4">
                     <div class="rounded-2xl overflow-hidden h-48 bg-slate-100 shadow-sm">
-                        <img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=400" alt="Phòng khám riêng tư" class="w-full h-full object-cover">
+                        <img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=400" alt="Phòng khám riêng tư" class="w-full h-full object-cover" loading="lazy" decoding="async">
                     </div>
                     <div class="rounded-2xl overflow-hidden h-48 bg-slate-100 shadow-sm translate-y-4">
-                        <img src="https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&q=80&w=400" alt="Thiết bị y tế" class="w-full h-full object-cover">
+                        <img src="https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&q=80&w=400" alt="Thiết bị y tế" class="w-full h-full object-cover" loading="lazy" decoding="async">
                     </div>
                 </div>
             </div>

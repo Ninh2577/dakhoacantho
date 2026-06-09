@@ -40,6 +40,23 @@ class Article extends Model
         return $this->hasMany(ArticleComment::class);
     }
 
+    protected static function booted()
+    {
+        static::saved(function ($article) {
+            \Illuminate\Support\Facades\Cache::forget('home_latest_articles');
+            foreach (\App\Models\Category::all() as $cat) {
+                \Illuminate\Support\Facades\Cache::forget("category_related_articles_{$cat->id}");
+            }
+        });
+
+        static::deleted(function ($article) {
+            \Illuminate\Support\Facades\Cache::forget('home_latest_articles');
+            foreach (\App\Models\Category::all() as $cat) {
+                \Illuminate\Support\Facades\Cache::forget("category_related_articles_{$cat->id}");
+            }
+        });
+    }
+
     public function getCategoryPathAttribute()
     {
         return $this->category ? $this->category->full_path : 'uncategorized';

@@ -4,7 +4,7 @@
     <!-- Thumbnail Image -->
     <a href="{{ url($article->category_path . '/' . $article->slug . '.html') }}" class="block relative aspect-video overflow-hidden bg-slate-100">
         @if($article->thumbnail_image)
-            <img src="{{ asset('storage/' . $article->thumbnail_image) }}" alt="{{ $article->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            <img src="{{ asset('storage/' . $article->thumbnail_image) }}" alt="{{ $article->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async">
         @else
             <!-- Placeholder design -->
             <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 text-slate-400">

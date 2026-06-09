@@ -27,7 +27,7 @@
         <!-- Background Image with Overlay -->
         <div class="absolute inset-0 z-0">
             <img src="https://images.unsplash.com/photo-1579684385127-1ef15d508118?auto=format&fit=crop&q=80&w=2000" 
-                 alt="Ngoại Khoa" class="w-full h-full object-cover opacity-30 object-center">
+                 alt="Ngoại Khoa" class="w-full h-full object-cover opacity-30 object-center" decoding="async" fetchpriority="high">
             <div class="absolute inset-0 bg-gradient-to-r from-slate-950 via-slate-900/80 to-transparent"></div>
         </div>
 
@@ -297,21 +297,21 @@
                     <div class="space-y-4">
                         <div class="rounded-3xl overflow-hidden shadow-sm h-64">
                             <img src="https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=600" 
-                                 alt="Corridor" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
+                                 alt="Corridor" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async">
                         </div>
                         <div class="rounded-3xl overflow-hidden shadow-sm h-48">
                             <img src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=600" 
-                                 alt="Equipment" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
+                                 alt="Equipment" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async">
                         </div>
                     </div>
                     <div class="space-y-4 pt-8">
                         <div class="rounded-3xl overflow-hidden shadow-sm h-48">
                             <img src="https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=600" 
-                                 alt="Operating Room" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
+                                 alt="Operating Room" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async">
                         </div>
                         <div class="rounded-3xl overflow-hidden shadow-sm h-64">
                             <img src="https://images.unsplash.com/photo-1586773860418-d37222d8fce3?auto=format&fit=crop&q=80&w=600" 
-                                 alt="Clinic Exterior" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500">
+                                 alt="Clinic Exterior" class="w-full h-full object-cover hover:scale-105 transition-transform duration-500" loading="lazy" decoding="async">
                         </div>
                     </div>
                 </div>

@@ -27,7 +27,7 @@
         <!-- Background Image with Overlay -->
         <div class="absolute inset-0 z-0">
             <img src="https://images.unsplash.com/photo-1664447972888-751765c92c42?auto=format&fit=crop&q=80&w=2000" 
-                 alt="Phòng Lab Xét Nghiệm" class="w-full h-full object-cover object-center">
+                 alt="Phòng Lab Xét Nghiệm" class="w-full h-full object-cover object-center" decoding="async" fetchpriority="high">
             <div class="absolute inset-0 bg-gradient-to-r from-clinic-blue/90 via-clinic-blue/80 to-clinic-sky/40"></div>
         </div>
 
@@ -238,7 +238,7 @@
                 <div class="lg:col-span-6 relative">
                     <div class="rounded-3xl overflow-hidden shadow-2xl border-4 border-white aspect-[4/3] bg-slate-100">
                         <img src="https://images.unsplash.com/photo-1579154767073-4fc018a4788a?auto=format&fit=crop&q=80&w=800" 
-                             alt="Máy xét nghiệm hiện đại Gia Phước" class="w-full h-full object-cover">
+                             alt="Máy xét nghiệm hiện đại Gia Phước" class="w-full h-full object-cover" loading="lazy" decoding="async">
                     </div>
                     <!-- Overlapping Blue badge bottom left -->
                     <div class="absolute -bottom-6 left-6 bg-clinic-blue text-white p-5 rounded-2xl shadow-xl border border-white/10 max-w-[240px]">

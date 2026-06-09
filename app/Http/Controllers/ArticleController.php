@@ -10,9 +10,9 @@ class ArticleController extends Controller
 {
     public function show(string $category_path, string $slug)
     {
-        // Eager load category and approved comments to avoid N+1 queries
+        // Eager load category.parent.parent and approved comments to avoid N+1 queries
         $article = Article::with([
-            'category', 
+            'category.parent.parent', 
             'comments' => function($query) {
                 $query->where('status', 'approved')->latest();
             }
@@ -29,7 +29,7 @@ class ArticleController extends Controller
         // 1. Query Related Articles: Prioritize same category, fallback to latest, exclude current
         $relatedArticles = collect();
         if ($article->category_id) {
-            $relatedArticles = Article::with('category')
+            $relatedArticles = Article::with('category.parent.parent')
                 ->where('category_id', $article->category_id)
                 ->where('id', '!=', $article->id)
                 ->where('is_published', true)
@@ -42,7 +42,7 @@ class ArticleController extends Controller
             $needed = 4 - $relatedArticles->count();
             $excludeIds = $relatedArticles->pluck('id')->push($article->id)->toArray();
             
-            $fallbackArticles = Article::with('category')
+            $fallbackArticles = Article::with('category.parent.parent')
                 ->whereNotIn('id', $excludeIds)
                 ->where('is_published', true)
                 ->latest()
@@ -68,6 +68,23 @@ class ArticleController extends Controller
             $ctaHtml = view('components.article-inline-cta')->render();
             $article->content .= $ctaHtml;
         }
+
+        // 4. Ensure all inline content images have lazy loading and async decoding
+        $article->content = preg_replace_callback('/<img\s+([^>]*)/i', function($matches) {
+            $attributes = $matches[1];
+            
+            // Check if loading attribute already exists
+            if (stripos($attributes, 'loading=') === false) {
+                $attributes .= ' loading="lazy"';
+            }
+            
+            // Check if decoding attribute already exists
+            if (stripos($attributes, 'decoding=') === false) {
+                $attributes .= ' decoding="async"';
+            }
+            
+            return '<img ' . $attributes;
+        }, $article->content);
 
         return view('articles.show', compact('article', 'relatedArticles'));
     }

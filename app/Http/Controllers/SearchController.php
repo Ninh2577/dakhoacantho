@@ -24,7 +24,8 @@ class SearchController extends Controller
         $endDate = $request->input('end_date');
 
         // 2. Build Query using Eloquent when() helper
-        $articles = Article::where('is_published', true)
+        $articles = Article::with('category.parent.parent')
+            ->where('is_published', true)
             ->when($query, function ($qBuilder) use ($query) {
                 // Nested closure isolates search criteria so OR doesn't override is_published
                 $qBuilder->where(function ($subQ) use ($query) {

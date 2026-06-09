@@ -72,7 +72,7 @@
                 <div class="lg:col-span-5 relative flex justify-center">
                     <div class="relative w-full max-w-md aspect-[4/5] rounded-[2rem] overflow-hidden shadow-2xl border-4 border-white/80 bg-rose-100">
                         <img src="https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&q=80&w=800" 
-                             alt="Đội ngũ hỗ trợ Phụ Khoa" class="w-full h-full object-cover">
+                             alt="Đội ngũ hỗ trợ Phụ Khoa" class="w-full h-full object-cover" decoding="async" fetchpriority="high">
                     </div>
                     <!-- Overlapping Security Badge -->
                     <div class="absolute bottom-6 -left-4 md:-left-8 bg-white/90 backdrop-blur-md border border-rose-100 p-4 rounded-2xl shadow-xl max-w-[240px] flex items-start gap-3 transform hover:scale-105 transition-all">
@@ -170,11 +170,11 @@
                 <div class="grid grid-cols-2 gap-4">
                     <div class="rounded-3xl overflow-hidden shadow-lg aspect-square border-4 border-white bg-slate-100 hover:scale-105 transition-transform duration-300">
                         <img src="https://images.unsplash.com/photo-1516549655169-df83a0774514?auto=format&fit=crop&q=80&w=800" 
-                             alt="Siêu âm phụ khoa" class="w-full h-full object-cover">
+                             alt="Siêu âm phụ khoa" class="w-full h-full object-cover" loading="lazy" decoding="async">
                     </div>
                     <div class="rounded-3xl overflow-hidden shadow-lg aspect-square border-4 border-white bg-slate-100 hover:scale-105 transition-transform duration-300 translate-y-6">
                         <img src="https://images.unsplash.com/photo-1579154767073-4fc018a4788a?auto=format&fit=crop&q=80&w=800" 
-                             alt="Nội soi cổ tử cung" class="w-full h-full object-cover">
+                             alt="Nội soi cổ tử cung" class="w-full h-full object-cover" loading="lazy" decoding="async">
                     </div>
                 </div>
 
