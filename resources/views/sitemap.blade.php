@@ -19,7 +19,7 @@
     <!-- Articles -->
     @foreach($articles as $article)
         <url>
-            <loc>{{ url($article->category_path . '/' . $article->slug . '.html') }}</loc>
+            <loc>{{ $article->public_url }}</loc>
             <lastmod>{{ $article->updated_at->toAtomString() }}</lastmod>
             <changefreq>monthly</changefreq>
             <priority>0.6</priority>

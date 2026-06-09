@@ -2,6 +2,19 @@
 
 @section('title', 'Điều Khoản Sử Dụng | Phòng Khám Đa Khoa Gia Phước')
 
+@section('meta')
+    <x-seo
+        page-type="webpage"
+        title="Điều Khoản Sử Dụng | Phòng Khám Đa Khoa Gia Phước"
+        description="Điều khoản sử dụng dịch vụ và thông tin trên website của Phòng Khám Đa Khoa Gia Phước Cần Thơ."
+        :canonical="route('terms.policy')"
+        :breadcrumbs="[
+            ['name' => 'Trang chủ', 'url' => route('home')],
+            ['name' => 'Điều Khoản Sử Dụng', 'url' => route('terms.policy')]
+        ]"
+    />
+@endsection
+
 @section('content')
 <section class="bg-slate-50 py-10 md:py-16">
     <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">

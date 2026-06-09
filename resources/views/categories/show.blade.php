@@ -2,6 +2,21 @@
 
 @section('title', $selectedCategory->name . ' | Danh mục Chuyên khoa')
 
+@section('meta')
+    <x-seo
+        page-type="category"
+        :title="$selectedCategory->name . ' | Danh mục Chuyên khoa'"
+        :description="$selectedCategory->description ?? ('Chuyên khoa ' . $selectedCategory->name . ' tại Phòng Khám Đa Khoa Gia Phước Cần Thơ. Đội ngũ y tế giàu kinh nghiệm, tư vấn riêng tư.')"
+        :canonical="route('category.show', ['category_path' => $selectedCategory->full_path])"
+        :breadcrumbs="[
+            ['name' => 'Trang chủ', 'url' => route('home')],
+            ['name' => 'Chuyên khoa', 'url' => route('categories.index')],
+            ['name' => $selectedCategory->name, 'url' => route('category.show', ['category_path' => $selectedCategory->full_path'])]
+        ]"
+        :category="$selectedCategory"
+    />
+@endsection
+
 @section('content')
 <div class="py-8 md:py-12 bg-slate-50/50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -104,7 +119,7 @@
                                 </span>
                                 
                                 <h2 class="text-xl md:text-2xl font-black text-slate-900 group-hover:text-clinic-blue transition-colors leading-tight">
-                                    <a href="{{ url($featuredArticle->category_path . '/' . $featuredArticle->slug . '.html') }}">
+                                    <a href="{{ $featuredArticle->public_url }}">
                                         {{ $featuredArticle->title }}
                                     </a>
                                 </h2>
@@ -115,7 +130,7 @@
                             </div>
 
                             <div class="flex items-center gap-3 pt-4 border-t border-slate-50">
-                                <a href="{{ url($featuredArticle->category_path . '/' . $featuredArticle->slug . '.html') }}" class="inline-flex items-center justify-center px-6 py-2.5 bg-clinic-blue hover:bg-opacity-95 text-white font-extrabold rounded-xl text-xs shadow-md transition-all">
+                                <a href="{{ $featuredArticle->public_url }}" class="inline-flex items-center justify-center px-6 py-2.5 bg-clinic-blue hover:bg-opacity-95 text-white font-extrabold rounded-xl text-xs shadow-md transition-all">
                                     Xem chi tiết
                                 </a>
                                 <button class="p-2.5 border border-slate-200 hover:bg-slate-50 rounded-xl text-slate-500 transition-all" aria-label="Share">
@@ -152,7 +167,7 @@
                             </p>
                             <span class="block text-[10px] text-slate-400 font-bold">Cậu Lông Team &bull; {{ date('d/m/Y') }}</span>
                         </div>
-                        <a href="{{ url($featuredArticle->category_path . '/' . $featuredArticle->slug . '.html') }}" class="inline-flex items-center justify-center px-4 py-2 bg-clinic-sky hover:bg-opacity-95 text-white font-extrabold rounded-xl text-xs shadow-md transition-all self-center">
+                        <a href="{{ $featuredArticle->public_url }}" class="inline-flex items-center justify-center px-4 py-2 bg-clinic-sky hover:bg-opacity-95 text-white font-extrabold rounded-xl text-xs shadow-md transition-all self-center">
                             Đọc bài viết
                         </a>
                     </div>

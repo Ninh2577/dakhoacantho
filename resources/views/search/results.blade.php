@@ -2,6 +2,19 @@
 
 @section('title', 'Kết quả tìm kiếm cho: "' . ($query ?? '') . '" | Đa Khoa Gia Phước')
 
+@section('meta')
+    <x-seo
+        page-type="search"
+        title="Kết quả tìm kiếm cho: '{{ $query }}' | Đa Khoa Gia Phước"
+        description="Kết quả tìm kiếm bài viết y khoa và thông tin tư vấn sức khỏe theo từ khóa '{{ $query }}' tại Phòng Khám Gia Phước."
+        :canonical="route('search', ['q' => $query])"
+        :breadcrumbs="[
+            ['name' => 'Trang chủ', 'url' => route('home')],
+            ['name' => 'Tìm kiếm', 'url' => route('search', ['q' => $query])]
+        ]"
+    />
+@endsection
+
 @section('content')
 <div class="py-8 md:py-12 bg-slate-50/50 min-h-[60vh]">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">

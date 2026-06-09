@@ -2,6 +2,19 @@
 
 @section('title', 'Chính Sách Bảo Mật | Phòng Khám Đa Khoa Gia Phước')
 
+@section('meta')
+    <x-seo
+        page-type="webpage"
+        title="Chính Sách Bảo Mật | Phòng Khám Đa Khoa Gia Phước"
+        description="Chính sách bảo mật thông tin cá nhân và bệnh án của bệnh nhân tại Phòng Khám Đa Khoa Gia Phước Cần Thơ."
+        :canonical="route('privacy.policy')"
+        :breadcrumbs="[
+            ['name' => 'Trang chủ', 'url' => route('home')],
+            ['name' => 'Chính Sách Bảo Mật', 'url' => route('privacy.policy')]
+        ]"
+    />
+@endsection
+
 @section('content')
 <section class="bg-slate-50 py-10 md:py-16">
     <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">

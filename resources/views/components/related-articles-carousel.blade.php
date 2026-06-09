@@ -15,7 +15,7 @@
             'thumbnail_image' => $article->thumbnail_image ? asset('storage/' . $article->thumbnail_image) : null,
             'category_name' => $article->category->name ?? 'Tin tức',
             'created_at' => $article->created_at->format('d/m/Y'),
-            'link' => route('article.show', ['category_path' => $article->category_path, 'slug' => $article->slug])
+            'link' => $article->public_url
         ];
     })->toArray();
 @endphp
