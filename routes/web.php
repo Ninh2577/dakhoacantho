@@ -95,13 +95,22 @@ Route::get('/db-test', function () {
         try {
             $panel = \Filament\Facades\Filament::getCurrentPanel();
             if (!$panel) {
-                // Get the admin panel manually if not booted in this request context
                 $panel = \Filament\Facades\Filament::getPanel('admin');
             }
             $can_access_panel = $user->canAccessPanel($panel) ? 'YES' : 'NO';
         } catch (\Exception $e) {
             $can_access_panel = 'ERROR: ' . $e->getMessage();
         }
+    }
+
+    $tables = [];
+    try {
+        $dbTables = \Illuminate\Support\Facades\DB::select('SHOW TABLES');
+        $tables = array_map(function($table) {
+            return array_values((array)$table)[0];
+        }, $dbTables);
+    } catch (\Exception $e) {
+        $tables = 'ERROR: ' . $e->getMessage();
     }
 
     return response()->json([
@@ -113,6 +122,7 @@ Route::get('/db-test', function () {
         'password_matches_default_password' => $password_matches ? 'YES' : 'NO',
         'implements_filament_user' => $implements_filament_user ? 'YES' : 'NO',
         'can_access_panel' => $can_access_panel,
+        'database_tables' => $tables,
     ]);
 });
 
@@ -130,6 +140,15 @@ Route::get('/request-test', function () {
         'header_x_forwarded_port' => request()->header('x-forwarded-port'),
         'server_port' => $_SERVER['SERVER_PORT'] ?? null,
         'https_server_var' => $_SERVER['HTTPS'] ?? null,
+    ]);
+});
+
+Route::get('/table-check', function() {
+    $hasPatients = \Illuminate\Support\Facades\Schema::hasTable('patients');
+    $hasConsultations = \Illuminate\Support\Facades\Schema::hasTable('consultations');
+    return response()->json([
+        'has_patients' => $hasPatients ? 'YES' : 'NO',
+        'has_consultations' => $hasConsultations ? 'YES' : 'NO',
     ]);
 });
 
