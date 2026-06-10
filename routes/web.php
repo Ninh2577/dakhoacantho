@@ -129,6 +129,36 @@ Route::get('/request-test', function () {
     ]);
 });
 
+Route::get('/debug-login-run', function() {
+    $user = \App\Models\User::where('email', 'admin@dakhoacantho.com')->first();
+    if (!$user) {
+        return "User not found";
+    }
+    
+    // Log the user in
+    auth()->login($user);
+    
+    // Set a session value
+    session(['test_auth' => 'authenticated_ok']);
+    session()->save();
+    
+    return response()->json([
+        'authenticated' => auth()->check(),
+        'user_id' => auth()->id(),
+        'session_id' => session()->getId(),
+        'session_test_auth' => session('test_auth'),
+    ]);
+});
+
+Route::get('/debug-login-check', function() {
+    return response()->json([
+        'authenticated' => auth()->check(),
+        'user_id' => auth()->id(),
+        'session_id' => session()->getId(),
+        'session_test_auth' => session('test_auth'),
+    ]);
+});
+
 // 1. Home Page
 Route::get('/', [PageController::class, 'home'])->name('home');
 
