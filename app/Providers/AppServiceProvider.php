@@ -22,12 +22,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        \Livewire\Livewire::setScriptRoute(function ($handle) {
-            return \Illuminate\Support\Facades\Route::get('/dakhoacantho_web/public/livewire/livewire.js', $handle);
+        $basePath = rtrim(request()->getBasePath(), '/');
+
+        \Livewire\Livewire::setScriptRoute(function ($handle) use ($basePath) {
+            return \Illuminate\Support\Facades\Route::get($basePath . '/livewire/livewire.js', $handle);
         });
 
-        \Livewire\Livewire::setUpdateRoute(function ($handle) {
-            return \Illuminate\Support\Facades\Route::post('/dakhoacantho_web/public/livewire/update', $handle);
+        \Livewire\Livewire::setUpdateRoute(function ($handle) use ($basePath) {
+            return \Illuminate\Support\Facades\Route::post($basePath . '/livewire/update', $handle);
         });
 
         View::composer('components.header', function ($view) {

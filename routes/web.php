@@ -9,6 +9,109 @@ use App\Http\Controllers\SitemapController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\ArticleCommentController;
 
+// Diagnostic routes
+Route::get('/native-session-test', function () {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    if (!isset($_SESSION['test_count'])) {
+        $_SESSION['test_count'] = 1;
+    } else {
+        $_SESSION['test_count']++;
+    }
+    return response()->json([
+        'engine' => 'Native PHP Session',
+        'session_id' => session_id(),
+        'visit_count' => $_SESSION['test_count'],
+        'save_path' => session_save_path(),
+        'cookies_received' => $_COOKIE,
+    ]);
+});
+
+Route::get('/laravel-session-test', function () {
+    $session = request()->session();
+    $count = $session->get('test_count', 0) + 1;
+    $session->put('test_count', $count);
+    $session->save();
+
+    $sessions_dir = storage_path('framework/sessions');
+    $is_writable = is_writable($sessions_dir);
+    $dir_exists = is_dir($sessions_dir);
+
+    return response()->json([
+        'engine' => 'Laravel Session',
+        'session_driver' => config('session.driver'),
+        'session_id' => $session->getId(),
+        'visit_count' => $count,
+        'cookie_domain' => config('session.domain'),
+        'cookie_secure' => config('session.secure'),
+        'same_site' => config('session.same_site'),
+        'sessions_dir' => $sessions_dir,
+        'sessions_dir_exists' => $dir_exists,
+        'sessions_dir_writable' => $is_writable,
+        'cookies_received' => $_COOKIE,
+    ]);
+});
+
+Route::get('/db-test', function () {
+    $user = \App\Models\User::where('email', 'admin@dakhoacantho.com')->first();
+    
+    if (request()->has('reset')) {
+        if (!$user) {
+            $user = \App\Models\User::create([
+                'name' => 'Admin',
+                'email' => 'admin@dakhoacantho.com',
+                'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                'role' => 'admin',
+            ]);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Admin user created successfully with password "password"!',
+                'user' => $user,
+            ]);
+        } else {
+            $user->password = \Illuminate\Support\Facades\Hash::make('password');
+            $user->save();
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Admin user password reset to "password" successfully!',
+                'user' => $user,
+            ]);
+        }
+    }
+    
+    if (!$user) {
+        return response()->json([
+            'status' => 'error',
+            'message' => 'User admin@dakhoacantho.com does not exist in the database! Go to /db-test?reset=1 to create it.',
+        ]);
+    }
+    
+    $password_matches = \Illuminate\Support\Facades\Hash::check('password', $user->password);
+    
+    return response()->json([
+        'status' => 'success',
+        'user_found' => true,
+        'email' => $user->email,
+        'role' => $user->role,
+        'password_hash' => $user->password,
+        'password_matches_default_password' => $password_matches ? 'YES' : 'NO',
+    ]);
+});
+
+Route::get('/request-test', function () {
+    return response()->json([
+        'url' => request()->url(),
+        'full_url' => request()->fullUrl(),
+        'is_secure' => request()->isSecure(),
+        'header_host' => request()->header('host'),
+        'header_x_forwarded_proto' => request()->header('x-forwarded-proto'),
+        'header_x_forwarded_port' => request()->header('x-forwarded-port'),
+        'server_port' => $_SERVER['SERVER_PORT'] ?? null,
+        'https_server_var' => $_SERVER['HTTPS'] ?? null,
+    ]);
+});
+
 // 1. Home Page
 Route::get('/', [PageController::class, 'home'])->name('home');
 
