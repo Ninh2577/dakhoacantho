@@ -121,6 +121,10 @@ Route::get('/request-test', function () {
         'url' => request()->url(),
         'full_url' => request()->fullUrl(),
         'is_secure' => request()->isSecure(),
+        'base_path' => request()->getBasePath(),
+        'base_url' => request()->getBaseUrl(),
+        'filament_url' => \Filament\Facades\Filament::getUrl(),
+        'intended_url' => session()->get('url.intended'),
         'header_host' => request()->header('host'),
         'header_x_forwarded_proto' => request()->header('x-forwarded-proto'),
         'header_x_forwarded_port' => request()->header('x-forwarded-port'),
@@ -157,6 +161,35 @@ Route::get('/debug-login-check', function() {
         'session_id' => session()->getId(),
         'session_test_auth' => session('test_auth'),
     ]);
+});
+
+Route::get('/debug-logs', function() {
+    $logFile = storage_path('logs/laravel.log');
+    if (!file_exists($logFile)) {
+        return "Log file not found at " . $logFile;
+    }
+    
+    $file = fopen($logFile, 'r');
+    if (!$file) {
+        return "Cannot open log file";
+    }
+    
+    fseek($file, 0, SEEK_END);
+    $pos = ftell($file);
+    $lineCount = 0;
+    while ($pos > 0 && $lineCount < 100) {
+        $pos--;
+        fseek($file, $pos);
+        $char = fgetc($file);
+        if ($char === "\n") {
+            $lineCount++;
+        }
+    }
+    
+    $output = fread($file, 1048576); // Read up to 1MB from that position
+    fclose($file);
+    
+    return response($output, 200, ['Content-Type' => 'text/plain']);
 });
 
 // 1. Home Page
