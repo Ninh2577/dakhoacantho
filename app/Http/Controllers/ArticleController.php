@@ -26,6 +26,14 @@ class ArticleController extends Controller
             ->where('is_published', true)
             ->firstOrFail();
 
+        $routingService = app(\App\Services\UrlRoutingService::class);
+        $currentPath = $routingService->normalizePath(request()->path());
+        $newPath = $routingService->normalizePath($article->url_path);
+
+        if ($currentPath !== $newPath) {
+            return redirect()->to($article->public_url, 301);
+        }
+
         return $this->showResolved($article);
     }
 
@@ -103,6 +111,14 @@ class ArticleController extends Controller
         $article = Article::where('slug', $slug)
             ->where('is_published', true)
             ->firstOrFail();
+
+        $routingService = app(\App\Services\UrlRoutingService::class);
+        $currentPath = $routingService->normalizePath(request()->path());
+        $newPath = $routingService->normalizePath($article->url_path);
+
+        if ($currentPath === $newPath) {
+            return $this->showResolved($article);
+        }
 
         return redirect()->to($article->public_url, 301);
     }
