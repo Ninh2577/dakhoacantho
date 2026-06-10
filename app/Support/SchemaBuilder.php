@@ -148,7 +148,7 @@ class SchemaBuilder
         $pageTypeLower = strtolower($options['pageType'] ?? '');
         if (($pageTypeLower === 'article' || $pageTypeLower === 'article detail') && !empty($options['article'])) {
             $article = $options['article'];
-            $articleUrl = route('articles.show', ['slug' => $article->slug]);
+            $articleUrl = $article->public_url;
 
             $pubDate = $options['publishedAt'] ?? $article->created_at;
             $modDate = $options['modifiedAt'] ?? $article->updated_at;
