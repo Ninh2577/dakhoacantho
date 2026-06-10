@@ -143,15 +143,6 @@ Route::get('/request-test', function () {
     ]);
 });
 
-Route::get('/table-check', function() {
-    $hasPatients = \Illuminate\Support\Facades\Schema::hasTable('patients');
-    $hasConsultations = \Illuminate\Support\Facades\Schema::hasTable('consultations');
-    return response()->json([
-        'has_patients' => $hasPatients ? 'YES' : 'NO',
-        'has_consultations' => $hasConsultations ? 'YES' : 'NO',
-    ]);
-});
-
 Route::get('/debug-login-run', function() {
     $user = \App\Models\User::where('email', 'admin@dakhoacantho.com')->first();
     if (!$user) {

@@ -29,7 +29,8 @@ class AppServiceProvider extends ServiceProvider
         });
 
         \Livewire\Livewire::setUpdateRoute(function ($handle) use ($basePath) {
-            return \Illuminate\Support\Facades\Route::post($basePath . '/livewire/update', $handle);
+            return \Illuminate\Support\Facades\Route::post($basePath . '/livewire/update', $handle)
+                ->middleware('web');
         });
 
         View::composer('components.header', function ($view) {
