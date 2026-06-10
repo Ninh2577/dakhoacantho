@@ -89,6 +89,21 @@ Route::get('/db-test', function () {
     
     $password_matches = \Illuminate\Support\Facades\Hash::check('password', $user->password);
     
+    $implements_filament_user = $user instanceof \Filament\Models\Contracts\FilamentUser;
+    $can_access_panel = 'N/A';
+    if ($implements_filament_user) {
+        try {
+            $panel = \Filament\Facades\Filament::getCurrentPanel();
+            if (!$panel) {
+                // Get the admin panel manually if not booted in this request context
+                $panel = \Filament\Facades\Filament::getPanel('admin');
+            }
+            $can_access_panel = $user->canAccessPanel($panel) ? 'YES' : 'NO';
+        } catch (\Exception $e) {
+            $can_access_panel = 'ERROR: ' . $e->getMessage();
+        }
+    }
+
     return response()->json([
         'status' => 'success',
         'user_found' => true,
@@ -96,6 +111,8 @@ Route::get('/db-test', function () {
         'role' => $user->role,
         'password_hash' => $user->password,
         'password_matches_default_password' => $password_matches ? 'YES' : 'NO',
+        'implements_filament_user' => $implements_filament_user ? 'YES' : 'NO',
+        'can_access_panel' => $can_access_panel,
     ]);
 });
 
