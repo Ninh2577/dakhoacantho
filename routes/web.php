@@ -169,27 +169,17 @@ Route::get('/debug-logs', function() {
         return "Log file not found at " . $logFile;
     }
     
-    $file = fopen($logFile, 'r');
-    if (!$file) {
-        return "Cannot open log file";
-    }
-    
-    fseek($file, 0, SEEK_END);
-    $pos = ftell($file);
-    $lineCount = 0;
-    while ($pos > 0 && $lineCount < 100) {
-        $pos--;
-        fseek($file, $pos);
-        $char = fgetc($file);
-        if ($char === "\n") {
-            $lineCount++;
+    $lines = file($logFile);
+    $output = [];
+    // Look at last 1000 lines, keep error messages and timestamps
+    $recentLines = array_slice($lines, -1000);
+    foreach ($recentLines as $line) {
+        if (strpos($line, 'ERROR:') !== false || strpos($line, 'Exception') !== false || preg_match('/^\[202\d-/', $line)) {
+            $output[] = $line;
         }
     }
     
-    $output = fread($file, 1048576); // Read up to 1MB from that position
-    fclose($file);
-    
-    return response($output, 200, ['Content-Type' => 'text/plain']);
+    return response(implode("", $output), 200, ['Content-Type' => 'text/plain']);
 });
 
 // 1. Home Page
