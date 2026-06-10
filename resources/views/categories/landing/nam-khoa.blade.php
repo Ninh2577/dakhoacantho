@@ -3,13 +3,17 @@
 @section('title', 'Chuyên Khoa Nam Khoa - Tư Vấn Uy Tín & Riêng Tư | Đa Khoa Gia Phước')
 
 @section('meta')
+    @php
+        $category = \App\Models\Category::where('slug', 'nam-khoa')->first();
+        $categoryUrl = $category ? $category->public_url : route('category.show', ['category_path' => 'nam-khoa']);
+    @endphp
     <x-seo 
         title="Chuyên Khoa Nam Khoa - Tư Vấn Uy Tín & Riêng Tư | Đa Khoa Gia Phước" 
         description="Hỗ trợ tư vấn và xét nghiệm nam khoa (bao quy đầu, tinh hoàn, yếu sinh lý...) tại Đa Khoa Gia Phước Cần Thơ. Quy trình riêng tư, bảo mật thông tin." 
-        canonical="{{ route('category.show', ['category_path' => 'nam-khoa']) }}"
+        canonical="{{ $categoryUrl }}"
         :breadcrumbs="[
             ['name' => 'Trang chủ', 'url' => route('home')],
-            ['name' => 'Nam khoa', 'url' => route('category.show', ['category_path' => 'nam-khoa'])]
+            ['name' => 'Nam khoa', 'url' => $categoryUrl]
         ]"
         :faqs="[
             ['q' => 'Khi nào nam giới nên chủ động đi khám nam khoa?', 'a' => 'Nam giới nên đi khám khi xuất hiện các triệu chứng lạ ở bao quy đầu, đau nhức tinh hoàn, giảm ham muốn, xuất tinh sớm hoặc tiểu buốt.'],

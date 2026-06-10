@@ -3,16 +3,22 @@
 @section('title', $selectedCategory->name . ' | Danh mục Chuyên khoa')
 
 @section('meta')
-    <x-seo
-        page-type="category"
-        :title="$selectedCategory->name . ' | Danh mục Chuyên khoa'"
-        :description="$selectedCategory->description ?? ('Chuyên khoa ' . $selectedCategory->name . ' tại Phòng Khám Đa Khoa Gia Phước Cần Thơ. Đội ngũ y tế giàu kinh nghiệm, tư vấn riêng tư.')"
-        :canonical="route('category.show', ['category_path' => $selectedCategory->full_path])"
-        :breadcrumbs="[
+    @php
+        $categoryName = $selectedCategory->name ?? 'Danh mục Chuyên khoa';
+        $categoryDescription = $selectedCategory->description ?? ('Chuyên khoa ' . $categoryName . ' tại Phòng Khám Đa Khoa Gia Phước Cần Thơ. Đội ngũ y tế giàu kinh nghiệm, tư vấn riêng tư.');
+        $categoryCanonical = $selectedCategory->public_url;
+        $categoryBreadcrumbs = [
             ['name' => 'Trang chủ', 'url' => route('home')],
             ['name' => 'Chuyên khoa', 'url' => route('categories.index')],
-            ['name' => $selectedCategory->name, 'url' => route('category.show', ['category_path' => $selectedCategory->full_path'])]
-        ]"
+            ['name' => $categoryName, 'url' => $categoryCanonical]
+        ];
+    @endphp
+    <x-seo
+        page-type="category"
+        :title="$categoryName . ' | Danh mục Chuyên khoa'"
+        :description="$categoryDescription"
+        :canonical="$categoryCanonical"
+        :breadcrumbs="$categoryBreadcrumbs"
         :category="$selectedCategory"
     />
 @endsection
@@ -63,7 +69,7 @@
                     
                     <div class="space-y-1">
                         @foreach($categories as $category)
-                            <a href="{{ route('category.show', ['category_path' => $category->full_path]) }}" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-bold transition-all {{ $selectedCategory->id === $category->id ? 'bg-clinic-blue text-white' : 'text-slate-600 hover:bg-slate-50' }}">
+                            <a href="{{ $category->public_url }}" class="flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-bold transition-all {{ $selectedCategory->id === $category->id ? 'bg-clinic-blue text-white' : 'text-slate-600 hover:bg-slate-50' }}">
                                 <span>{{ $category->name }}</span>
                                 @if($selectedCategory->id === $category->id)
                                     <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

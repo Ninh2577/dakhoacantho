@@ -42,6 +42,12 @@ class Article extends Model
 
     protected static function booted()
     {
+        static::saving(function ($article) {
+            $pattern = \App\Models\Setting::get('url_pattern_article') ?: '{slug}';
+            $service = app(\App\Services\UrlRoutingService::class);
+            $article->url_path = $service->compileArticlePath($article, $pattern);
+        });
+
         static::saved(function ($article) {
             \Illuminate\Support\Facades\Cache::forget('home_latest_articles');
             foreach (\App\Models\Category::all() as $cat) {
@@ -64,6 +70,7 @@ class Article extends Model
 
     public function getPublicUrlAttribute()
     {
-        return route('articles.show', ['slug' => $this->slug]);
+        $path = $this->url_path ?: $this->slug;
+        return url(ltrim($path, '/'));
     }
 }

@@ -30,12 +30,56 @@ class Category extends Model
         });
     }
 
+    public function getPublicUrlAttribute()
+    {
+        $path = $this->url_path ?: 'category/' . $this->full_path;
+        return url(ltrim($path, '/'));
+    }
+
+    public function allDescendants()
+    {
+        $descendants = collect();
+        foreach ($this->children as $child) {
+            $descendants->push($child);
+            $descendants = $descendants->merge($child->allDescendants());
+        }
+        return $descendants;
+    }
+
     protected static function booted()
     {
-        static::saved(function () {
+        static::saving(function ($category) {
+            $pattern = \App\Models\Setting::get('url_pattern_category') ?: 'category/{categories}';
+            $service = app(\App\Services\UrlRoutingService::class);
+            $category->url_path = $service->compileCategoryPath($category, $pattern);
+        });
+
+        static::saved(function ($category) {
             \Illuminate\Support\Facades\Cache::forget('public_navigation_categories');
             foreach (self::all() as $cat) {
                 \Illuminate\Support\Facades\Cache::forget("category_full_path_{$cat->id}");
+            }
+
+            if ($category->wasChanged('slug') || $category->wasChanged('parent_id')) {
+                $service = app(\App\Services\UrlRoutingService::class);
+                $patternCat = \App\Models\Setting::get('url_pattern_category') ?: 'category/{categories}';
+                
+                // Recompile descendant categories path quietly to prevent loop
+                foreach ($category->allDescendants() as $descendant) {
+                    $newPath = $service->compileCategoryPath($descendant, $patternCat);
+                    $descendant->url_path = $newPath;
+                    $descendant->saveQuietly();
+                }
+
+                // Recompile all articles under this category hierarchy quietly
+                $patternArt = \App\Models\Setting::get('url_pattern_article') ?: '{slug}';
+                $categoryIds = array_merge([$category->id], $category->allDescendants()->pluck('id')->toArray());
+                $articles = \App\Models\Article::whereIn('category_id', $categoryIds)->get();
+                foreach ($articles as $article) {
+                    $newPath = $service->compileArticlePath($article, $patternArt);
+                    $article->url_path = $newPath;
+                    $article->saveQuietly();
+                }
             }
         });
 

@@ -3,13 +3,17 @@
 @section('title', 'Chuyên Khoa Phụ Khoa - Tư Vấn Uy Tín & Kín Đáo | Đa Khoa Gia Phước')
 
 @section('meta')
+    @php
+        $category = \App\Models\Category::where('slug', 'phu-khoa')->first();
+        $categoryUrl = $category ? $category->public_url : route('category.show', ['category_path' => 'phu-khoa']);
+    @endphp
     <x-seo 
         title="Chuyên Khoa Phụ Khoa - Tư Vấn Uy Tín & Kín Đáo | Đa Khoa Gia Phước" 
         description="Dịch vụ hỗ trợ tư vấn phụ khoa định kỳ, viêm nhiễm phụ khoa, kế hoạch hóa gia đình tại Đa Khoa Gia Phước Cần Thơ. Quy trình riêng tư, bảo mật." 
-        canonical="{{ route('category.show', ['category_path' => 'phu-khoa']) }}"
+        canonical="{{ $categoryUrl }}"
         :breadcrumbs="[
             ['name' => 'Trang chủ', 'url' => route('home')],
-            ['name' => 'Phụ Khoa', 'url' => route('category.show', ['category_path' => 'phu-khoa'])]
+            ['name' => 'Phụ Khoa', 'url' => $categoryUrl]
         ]"
         :faqs="[
             ['q' => 'Khi nào chị em phụ nữ cần chủ động đi khám phụ khoa?', 'a' => 'Chị em phụ nữ nên chủ động đi khám phụ khoa định kỳ từ 3 - 6 tháng hoặc ngay khi xuất hiện các triệu chứng bất thường như khí hư bất thường, ngứa ngáy vùng kín, đau bụng dưới âm ỉ hoặc rối loạn kinh nguyệt.'],

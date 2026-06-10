@@ -3,13 +3,17 @@
 @section('title', 'Vì Cộng Đồng - Trách Nhiệm Xã Hội & Giáo Dục Sức Khỏe | Đa Khoa Gia Phước')
 
 @section('meta')
+    @php
+        $category = \App\Models\Category::where('slug', 'vi-cong-dong')->first();
+        $categoryUrl = $category ? $category->public_url : route('category.show', ['category_path' => 'vi-cong-dong']);
+    @endphp
     <x-seo 
         title="Vì Cộng Đồng - Trách Nhiệm Xã Hội & Giáo Dục Sức Khỏe | Đa Khoa Gia Phước" 
         description="Hoạt động trách nhiệm xã hội, giáo dục sức khỏe học đường và lan tỏa thông tin phòng ngừa bệnh truyền nhiễm tại địa phương của Đa Khoa Gia Phước Cần Thơ." 
-        canonical="{{ route('category.show', ['category_path' => 'vi-cong-dong']) }}"
+        canonical="{{ $categoryUrl }}"
         :breadcrumbs="[
             ['name' => 'Trang chủ', 'url' => route('home')],
-            ['name' => 'Vì Cộng Đồng', 'url' => route('category.show', ['category_path' => 'vi-cong-dong'])]
+            ['name' => 'Vì Cộng Đồng', 'url' => $categoryUrl]
         ]"
         :faqs="[
             ['q' => 'Các hoạt động cộng đồng của Đa Khoa Gia Phước là gì?', 'a' => 'Đa Khoa Gia Phước chủ yếu tập trung vào giáo dục sức khỏe cộng đồng, nâng cao nhận thức phòng chống bệnh truyền nhiễm, phổ biến các kiến thức y học và hướng dẫn giữ gìn vệ sinh học đường tại địa phương.'],

@@ -22,16 +22,30 @@ class ArticleController extends Controller
             abort(404);
         }
 
+        $article = Article::where('slug', $slug)
+            ->where('is_published', true)
+            ->firstOrFail();
+
+        $routingService = app(\App\Services\UrlRoutingService::class);
+        $currentPath = $routingService->normalizePath(request()->path());
+        $newPath = $routingService->normalizePath($article->url_path);
+
+        if ($currentPath !== $newPath) {
+            return redirect()->to($article->public_url, 301);
+        }
+
+        return $this->showResolved($article);
+    }
+
+    public function showResolved(Article $article)
+    {
         // Eager load category.parent.parent and approved comments to avoid N+1 queries
-        $article = Article::with([
+        $article->load([
             'category.parent.parent', 
             'comments' => function($query) {
                 $query->where('status', 'approved')->latest();
             }
-        ])
-        ->where('slug', $slug)
-        ->where('is_published', true)
-        ->firstOrFail();
+        ]);
 
         // 1. Query Related Articles: Prioritize same category, fallback to latest, exclude current
         $relatedArticles = collect();
@@ -63,7 +77,6 @@ class ArticleController extends Controller
         $article->content = str_replace('/storage/uploads/', asset('storage/uploads') . '/', $article->content);
 
         // 3. Safe server-side Inline CTA injection after the second paragraph (approx 35% of content)
-        // This is a pure string split and merge, preventing XML/DOM parser crashes on malformed WYSIWYG HTML.
         $paragraphs = explode('</p>', $article->content);
         if (count($paragraphs) > 3) {
             $ctaHtml = view('components.article-inline-cta')->render();
@@ -80,12 +93,9 @@ class ArticleController extends Controller
         $article->content = preg_replace_callback('/<img\s+([^>]*)/i', function($matches) {
             $attributes = $matches[1];
             
-            // Check if loading attribute already exists
             if (stripos($attributes, 'loading=') === false) {
                 $attributes .= ' loading="lazy"';
             }
-            
-            // Check if decoding attribute already exists
             if (stripos($attributes, 'decoding=') === false) {
                 $attributes .= ' decoding="async"';
             }
@@ -101,6 +111,14 @@ class ArticleController extends Controller
         $article = Article::where('slug', $slug)
             ->where('is_published', true)
             ->firstOrFail();
+
+        $routingService = app(\App\Services\UrlRoutingService::class);
+        $currentPath = $routingService->normalizePath(request()->path());
+        $newPath = $routingService->normalizePath($article->url_path);
+
+        if ($currentPath === $newPath) {
+            return $this->showResolved($article);
+        }
 
         return redirect()->to($article->public_url, 301);
     }

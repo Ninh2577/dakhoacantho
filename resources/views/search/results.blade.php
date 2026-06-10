@@ -3,15 +3,19 @@
 @section('title', 'Kết quả tìm kiếm cho: "' . ($query ?? '') . '" | Đa Khoa Gia Phước')
 
 @section('meta')
+    @php
+        $searchCanonical = route('search', ['q' => $query]);
+        $searchBreadcrumbs = [
+            ['name' => 'Trang chủ', 'url' => route('home')],
+            ['name' => 'Tìm kiếm', 'url' => $searchCanonical]
+        ];
+    @endphp
     <x-seo
         page-type="search"
         title="Kết quả tìm kiếm cho: '{{ $query }}' | Đa Khoa Gia Phước"
         description="Kết quả tìm kiếm bài viết y khoa và thông tin tư vấn sức khỏe theo từ khóa '{{ $query }}' tại Phòng Khám Gia Phước."
-        :canonical="route('search', ['q' => $query])"
-        :breadcrumbs="[
-            ['name' => 'Trang chủ', 'url' => route('home')],
-            ['name' => 'Tìm kiếm', 'url' => route('search', ['q' => $query])]
-        ]"
+        :canonical="$searchCanonical"
+        :breadcrumbs="$searchBreadcrumbs"
     />
 @endsection
 

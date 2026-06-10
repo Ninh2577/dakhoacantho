@@ -41,6 +41,19 @@ class CategoryController extends Controller
             abort(404);
         }
 
+        $routingService = app(\App\Services\UrlRoutingService::class);
+        $currentPath = $routingService->normalizePath(request()->path());
+        $newPath = $routingService->normalizePath($selectedCategory->url_path);
+
+        if ($currentPath !== $newPath) {
+            return redirect()->to($selectedCategory->public_url, 301);
+        }
+
+        return $this->showResolved($selectedCategory);
+    }
+
+    public function showResolved(Category $selectedCategory)
+    {
         // Retrieve all root categories and their descendants for the category sidebar index
         $categories = Category::where('parent_id', -1)->with('children')->get();
 
