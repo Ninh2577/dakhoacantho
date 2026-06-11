@@ -31,14 +31,14 @@
         },
         
         initEditor() {
-            let id = 'tinymce-content-{{ $getId() }}';
-            let oldEditor = tinymce.get(id);
+            let id = this.$refs.editor.id;
+            let oldEditor = id ? tinymce.get(id) : null;
             if (oldEditor) {
                 oldEditor.remove();
             }
 
             tinymce.init({
-                selector: '#' + id,
+                target: this.$refs.editor,
                 height: 500,
                 min_height: 450,
                 branding: false,
