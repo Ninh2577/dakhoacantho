@@ -100,14 +100,13 @@ class ArticleResource extends Resource
                                 ),
                         ])->compact(),
 
-                        // TinyMCE Editor
-                        Section::make('Nội dung bài viết')->schema([
-                            ViewField::make('content')
-                                ->label('Nội dung bài viết')
-                                ->view('filament.components.tinymce-editor')
-                                ->required()
-                                ->columnSpanFull(),
-                        ]),
+                        // TinyMCE Editor (rendered directly without card section container)
+                        ViewField::make('content')
+                            ->label('Nội dung bài viết')
+                            ->hiddenLabel()
+                            ->view('filament.components.tinymce-editor')
+                            ->required()
+                            ->columnSpanFull(),
 
                         // Excerpt
                         Section::make('Tóm tắt bài viết')->schema([

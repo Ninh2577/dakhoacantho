@@ -2,6 +2,8 @@
     x-data="{
         state: $wire.entangle('{{ $getStatePath() }}'),
         editorInstanceId: null,
+        activeTab: 'visual',
+        rawHtml: '',
         init() {
             // Load TinyMCE from public community CDN if not already loaded
             if (typeof tinymce === 'undefined') {
@@ -16,7 +18,8 @@
 
             // Watch for external Livewire state changes to update the editor content
             this.$watch('state', (newVal) => {
-                if (this.editorInstanceId) {
+                this.rawHtml = newVal || '';
+                if (this.editorInstanceId && this.activeTab === 'visual') {
                     let editor = tinymce.get(this.editorInstanceId);
                     if (editor && editor.initialized && !editor.hasFocus() && newVal !== editor.getContent()) {
                         editor.setContent(newVal || '');
@@ -89,11 +92,14 @@
                     // Load initial value
                     editor.on('init', () => {
                         editor.setContent(this.state || '');
+                        this.rawHtml = this.state || '';
                     });
 
                     // Debounced state sync on typing
                     let debouncedUpdate = this.debounce(() => {
-                        this.state = editor.getContent();
+                        let content = editor.getContent();
+                        this.state = content;
+                        this.rawHtml = content;
                     }, 300);
 
                     editor.on('change keyup undo redo', () => {
@@ -101,12 +107,16 @@
                     });
 
                     editor.on('blur', () => {
-                        this.state = editor.getContent();
+                        let content = editor.getContent();
+                        this.state = content;
+                        this.rawHtml = content;
                     });
 
                     // Form submit sync fallback
                     editor.on('submit', () => {
-                        this.state = editor.getContent();
+                        let content = editor.getContent();
+                        this.state = content;
+                        this.rawHtml = content;
                     });
 
                     // Bind to parent form submit to immediately sync state before Livewire submits
@@ -114,12 +124,39 @@
                         let form = this.$el.closest('form');
                         if (form) {
                             form.addEventListener('submit', () => {
-                                this.state = editor.getContent();
+                                if (this.activeTab === 'text') {
+                                    this.state = this.rawHtml;
+                                } else {
+                                    this.state = editor.getContent();
+                                }
                             });
                         }
                     });
                 }
             });
+        },
+        switchTab(tab) {
+            if (this.activeTab === tab) return;
+            
+            if (tab === 'text') {
+                if (this.editorInstanceId) {
+                    let editor = tinymce.get(this.editorInstanceId);
+                    if (editor) {
+                        this.rawHtml = editor.getContent();
+                        this.state = this.rawHtml;
+                    }
+                }
+                this.activeTab = 'text';
+            } else {
+                if (this.editorInstanceId) {
+                    let editor = tinymce.get(this.editorInstanceId);
+                    if (editor) {
+                        editor.setContent(this.rawHtml || '');
+                        this.state = this.rawHtml;
+                    }
+                }
+                this.activeTab = 'visual';
+            }
         },
         destroy() {
             // Clean up TinyMCE instance when leaving the page (essential for Filament SPA navigation)
@@ -144,8 +181,45 @@
     x-init="init()"
     x-on:destroy="destroy()"
     wire:ignore
-    class="w-full border border-slate-300 rounded-lg overflow-hidden"
-    style="border-color: #dbeafe;"
+    class="w-full border border-slate-300 rounded-lg overflow-hidden flex flex-col"
+    style="border-color: #cbd5e1;"
 >
-    <textarea x-ref="editor" class="w-full" style="visibility: hidden; height: 500px; display: block;"></textarea>
+    <!-- Tab Switcher (WordPress style) -->
+    <div class="flex justify-end bg-slate-50 border-b border-slate-200 px-4 pt-2 gap-1 select-none">
+        <button 
+            type="button" 
+            @click="switchTab('visual')"
+            :class="activeTab === 'visual' ? 'bg-white border-t border-x border-slate-300 text-slate-800 font-extrabold -mb-px' : 'text-slate-500 hover:text-slate-800'"
+            class="px-4 py-1.5 text-xs rounded-t-md transition border-transparent border-t border-x"
+        >
+            Trực quan (Visual)
+        </button>
+        <button 
+            type="button" 
+            @click="switchTab('text')"
+            :class="activeTab === 'text' ? 'bg-white border-t border-x border-slate-300 text-slate-800 font-extrabold -mb-px' : 'text-slate-500 hover:text-slate-800'"
+            class="px-4 py-1.5 text-xs rounded-t-md transition border-transparent border-t border-x"
+        >
+            Văn bản (Text)
+        </button>
+    </div>
+
+    <!-- Editor Wrapper -->
+    <div class="relative w-full flex-grow">
+        <!-- Visual Editor Container -->
+        <div x-show="activeTab === 'visual'" class="w-full">
+            <textarea x-ref="editor" class="w-full" style="visibility: hidden; height: 500px; display: block;"></textarea>
+        </div>
+        
+        <!-- Text (HTML Raw) Editor Container -->
+        <div x-show="activeTab === 'text'" class="w-full bg-slate-950">
+            <textarea 
+                x-model="rawHtml"
+                @input="state = rawHtml"
+                class="w-full font-mono p-4 text-sm bg-slate-950 text-slate-200 focus:outline-none focus:ring-0 border-0"
+                style="height: 500px; min-height: 450px; font-family: Consolas, Monaco, monospace; line-height: 1.6; resize: vertical;"
+                placeholder="Nhập mã HTML vào đây..."
+            ></textarea>
+        </div>
+    </div>
 </div>
