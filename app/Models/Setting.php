@@ -8,13 +8,27 @@ class Setting extends Model
 {
     protected $fillable = ['key', 'value'];
 
+    protected static function booted()
+    {
+        static::saved(function () {
+            \Illuminate\Support\Facades\Cache::forget('dakhoacantho:settings:all');
+        });
+        static::deleted(function () {
+            \Illuminate\Support\Facades\Cache::forget('dakhoacantho:settings:all');
+        });
+    }
+
     /**
      * Get a setting value by key, with JSON decode and safe fallback.
      */
     public static function get(string $key, mixed $default = null): mixed
     {
         try {
-            $record = static::where('key', $key)->first();
+            $settings = \Illuminate\Support\Facades\Cache::remember('dakhoacantho:settings:all', now()->addHours(24), function () {
+                return static::all()->keyBy('key');
+            });
+
+            $record = $settings->get($key);
             if (! $record || $record->value === null) {
                 return $default;
             }
@@ -41,6 +55,7 @@ class Setting extends Model
                 : json_encode($value, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
 
             static::updateOrCreate(['key' => $key], ['value' => $encoded]);
+            \Illuminate\Support\Facades\Cache::forget('dakhoacantho:settings:all');
         } catch (\Throwable) {
             // Silently fail — never crash admin on settings write
         }

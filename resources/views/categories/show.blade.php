@@ -107,7 +107,7 @@
                         <!-- Image Column -->
                         <div class="md:col-span-5 relative aspect-video md:aspect-auto overflow-hidden bg-slate-100">
                             @if($featuredArticle->thumbnail_image)
-                                <img src="{{ asset('storage/' . $featuredArticle->thumbnail_image) }}" alt="{{ $featuredArticle->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+                                <img src="{{ asset('storage/' . $featuredArticle->thumbnail_image) }}" alt="{{ $featuredArticle->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" decoding="async">
                             @else
                                 <div class="w-full h-full flex items-center justify-center bg-gradient-to-br from-slate-100 to-slate-200 text-slate-400">
                                     <svg class="w-12 h-12 stroke-current" fill="none" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">

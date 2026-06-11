@@ -49,30 +49,61 @@ class ArticleController extends Controller
             }
         ]);
 
-        // 1. Query Related Articles: Prioritize same category, fallback to latest, exclude current
-        $relatedArticles = collect();
-        if ($article->category_id) {
-            $relatedArticles = Article::with('category.parent.parent')
-                ->where('category_id', $article->category_id)
-                ->where('id', '!=', $article->id)
-                ->where('is_published', true)
-                ->latest()
-                ->take(4)
-                ->get();
-        }
+        // 1. Query Related Articles: Prioritize same category, fallback to latest, exclude current (cached for 15 minutes for published posts)
+        $cacheKey = "dakhoacantho:articles:related:{$article->id}";
+        if ($article->is_published && $article->id > 0) {
+            $relatedArticles = \Illuminate\Support\Facades\Cache::remember($cacheKey, now()->addMinutes(15), function () use ($article) {
+                $related = collect();
+                if ($article->category_id) {
+                    $related = Article::with('category.parent.parent')
+                        ->where('category_id', $article->category_id)
+                        ->where('id', '!=', $article->id)
+                        ->where('is_published', true)
+                        ->latest()
+                        ->take(4)
+                        ->get();
+                }
 
-        if ($relatedArticles->count() < 4) {
-            $needed = 4 - $relatedArticles->count();
-            $excludeIds = $relatedArticles->pluck('id')->push($article->id)->toArray();
-            
-            $fallbackArticles = Article::with('category.parent.parent')
-                ->whereNotIn('id', $excludeIds)
-                ->where('is_published', true)
-                ->latest()
-                ->take($needed)
-                ->get();
+                if ($related->count() < 4) {
+                    $needed = 4 - $related->count();
+                    $excludeIds = $related->pluck('id')->push($article->id)->toArray();
+                    
+                    $fallbackArticles = Article::with('category.parent.parent')
+                        ->whereNotIn('id', $excludeIds)
+                        ->where('is_published', true)
+                        ->latest()
+                        ->take($needed)
+                        ->get();
 
-            $relatedArticles = $relatedArticles->merge($fallbackArticles);
+                    $related = $related->merge($fallbackArticles);
+                }
+                return $related;
+            });
+        } else {
+            $relatedArticles = collect();
+            if ($article->category_id) {
+                $relatedArticles = Article::with('category.parent.parent')
+                    ->where('category_id', $article->category_id)
+                    ->where('id', '!=', $article->id)
+                    ->where('is_published', true)
+                    ->latest()
+                    ->take(4)
+                    ->get();
+            }
+
+            if ($relatedArticles->count() < 4) {
+                $needed = 4 - $relatedArticles->count();
+                $excludeIds = $relatedArticles->pluck('id')->push($article->id)->toArray();
+                
+                $fallbackArticles = Article::with('category.parent.parent')
+                    ->whereNotIn('id', $excludeIds)
+                    ->where('is_published', true)
+                    ->latest()
+                    ->take($needed)
+                    ->get();
+
+                $relatedArticles = $relatedArticles->merge($fallbackArticles);
+            }
         }
 
         // 2. Dynamically replace storage uploads path to support local subdirectories (XAMPP) and production domain root

@@ -83,6 +83,11 @@ class Article extends Model
 
         static::saved(function ($article) {
             \Illuminate\Support\Facades\Cache::forget('home_latest_articles');
+            \Illuminate\Support\Facades\Cache::forget("dakhoacantho:articles:related:{$article->id}");
+            \Illuminate\Support\Facades\Cache::forget('dakhoacantho:sitemap:xml:' . parse_url(config('app.url'), PHP_URL_HOST));
+            if (request()->getHost()) {
+                \Illuminate\Support\Facades\Cache::forget('dakhoacantho:sitemap:xml:' . request()->getHost());
+            }
             foreach (\App\Models\Category::all() as $cat) {
                 \Illuminate\Support\Facades\Cache::forget("category_related_articles_{$cat->id}");
             }
@@ -90,6 +95,11 @@ class Article extends Model
 
         static::deleted(function ($article) {
             \Illuminate\Support\Facades\Cache::forget('home_latest_articles');
+            \Illuminate\Support\Facades\Cache::forget("dakhoacantho:articles:related:{$article->id}");
+            \Illuminate\Support\Facades\Cache::forget('dakhoacantho:sitemap:xml:' . parse_url(config('app.url'), PHP_URL_HOST));
+            if (request()->getHost()) {
+                \Illuminate\Support\Facades\Cache::forget('dakhoacantho:sitemap:xml:' . request()->getHost());
+            }
             foreach (\App\Models\Category::all() as $cat) {
                 \Illuminate\Support\Facades\Cache::forget("category_related_articles_{$cat->id}");
             }

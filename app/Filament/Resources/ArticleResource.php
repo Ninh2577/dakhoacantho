@@ -438,6 +438,11 @@ class ArticleResource extends Resource
             ]);
     }
 
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return parent::getEloquentQuery()->with(['category']);
+    }
+
     public static function getRelations(): array
     {
         return [];

@@ -18,9 +18,10 @@ class DynamicRouterController extends Controller
         $routingService = app(UrlRoutingService::class);
         $path = $routingService->normalizePath($path);
 
-        // Immediately abort on empty path (home is handled by separate route)
+        // When path is empty (root URL via subdirectory XAMPP/cPanel setup),
+        // delegate to the home page controller instead of aborting.
         if (empty($path)) {
-            abort(404);
+            return app(PageController::class)->home();
         }
 
         // Immediately bypass reserved system paths

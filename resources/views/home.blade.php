@@ -145,7 +145,7 @@
                     <p class="text-xs md:text-sm text-slate-500 leading-normal">Chẩn đoán trĩ nội, trĩ ngoại và rò hậu môn bằng phương pháp HCPT hiện đại, giảm thiểu xâm lấn.</p>
                 </div>
             </div>
-            <a href="{{ ($cat = \App\Models\Category::where('slug', 'nam-khoa')->first()) ? $cat->public_url : route('category.show', ['category_path' => 'nam-khoa']) }}" class="inline-flex items-center text-xs font-extrabold text-clinic-teal hover:underline">
+            <a href="{{ ($cat = \App\Models\Category::findBySlug('nam-khoa')) ? $cat->public_url : route('category.show', ['category_path' => 'nam-khoa']) }}" class="inline-flex items-center text-xs font-extrabold text-clinic-teal hover:underline">
                 <span>Tìm hiểu quy trình điều trị</span>
                 <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
@@ -248,7 +248,7 @@
                     Cập nhật những thông tin mới nhất về sức khỏe và các lời khuyên từ đội ngũ tư vấn sức khỏe.
                 </p>
             </div>
-            <a href="{{ ($cat = \App\Models\Category::where('slug', 'nam-khoa')->first()) ? $cat->public_url : route('category.show', ['category_path' => 'nam-khoa']) }}" class="inline-flex items-center px-4 py-2 border border-slate-200 hover:bg-slate-50 text-xs font-extrabold text-slate-700 rounded-xl transition-all shadow-sm">
+            <a href="{{ ($cat = \App\Models\Category::findBySlug('nam-khoa')) ? $cat->public_url : route('category.show', ['category_path' => 'nam-khoa']) }}" class="inline-flex items-center px-4 py-2 border border-slate-200 hover:bg-slate-50 text-xs font-extrabold text-slate-700 rounded-xl transition-all shadow-sm">
                 Xem tất cả chuyên khoa
             </a>
         </div>

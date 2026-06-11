@@ -18,10 +18,12 @@
         'xet-nghiem' => 'Xét nghiệm',
     ];
 
-    $serviceCategories = \App\Models\Category::query()
-        ->whereIn('slug', array_keys($serviceLabels))
-        ->get()
-        ->keyBy('slug');
+    $serviceCategories = \Illuminate\Support\Facades\Cache::remember('dakhoacantho:footer:categories', now()->addHours(24), function () use ($serviceLabels) {
+        return \App\Models\Category::query()
+            ->whereIn('slug', array_keys($serviceLabels))
+            ->get()
+            ->keyBy('slug');
+    });
 
     $serviceLinks = collect($serviceLabels)
         ->map(function ($label, $slug) use ($serviceCategories) {

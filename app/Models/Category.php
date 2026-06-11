@@ -46,6 +46,14 @@ class Category extends Model
         return $descendants;
     }
 
+    public static function findBySlug(string $slug): ?Category
+    {
+        $categories = \Illuminate\Support\Facades\Cache::remember('dakhoacantho:categories:by_slug', now()->addHours(24), function () {
+            return self::all()->keyBy('slug');
+        });
+        return $categories->get($slug);
+    }
+
     protected static function booted()
     {
         static::saving(function ($category) {
@@ -56,6 +64,12 @@ class Category extends Model
 
         static::saved(function ($category) {
             \Illuminate\Support\Facades\Cache::forget('public_navigation_categories');
+            \Illuminate\Support\Facades\Cache::forget('dakhoacantho:categories:by_slug');
+            \Illuminate\Support\Facades\Cache::forget('dakhoacantho:footer:categories');
+            \Illuminate\Support\Facades\Cache::forget('dakhoacantho:sitemap:xml:' . parse_url(config('app.url'), PHP_URL_HOST));
+            if (request()->getHost()) {
+                \Illuminate\Support\Facades\Cache::forget('dakhoacantho:sitemap:xml:' . request()->getHost());
+            }
             foreach (self::all() as $cat) {
                 \Illuminate\Support\Facades\Cache::forget("category_full_path_{$cat->id}");
             }
@@ -85,6 +99,12 @@ class Category extends Model
 
         static::deleted(function () {
             \Illuminate\Support\Facades\Cache::forget('public_navigation_categories');
+            \Illuminate\Support\Facades\Cache::forget('dakhoacantho:categories:by_slug');
+            \Illuminate\Support\Facades\Cache::forget('dakhoacantho:footer:categories');
+            \Illuminate\Support\Facades\Cache::forget('dakhoacantho:sitemap:xml:' . parse_url(config('app.url'), PHP_URL_HOST));
+            if (request()->getHost()) {
+                \Illuminate\Support\Facades\Cache::forget('dakhoacantho:sitemap:xml:' . request()->getHost());
+            }
             foreach (self::all() as $cat) {
                 \Illuminate\Support\Facades\Cache::forget("category_full_path_{$cat->id}");
             }

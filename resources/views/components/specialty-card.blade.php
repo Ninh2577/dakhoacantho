@@ -2,7 +2,7 @@
 
 @php
     if (!$url) {
-        $category = \App\Models\Category::where('slug', $slug)->first();
+        $category = \App\Models\Category::findBySlug($slug);
         $url = $category ? $category->public_url : route('category.show', ['category_path' => $slug]);
     }
 @endphp

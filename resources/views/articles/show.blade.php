@@ -244,7 +244,7 @@
                     <!-- Featured Thumbnail -->
                     @if($article->thumbnail_image)
                         <div class="px-6 md:px-10 pt-8">
-                            <img src="{{ asset('storage/' . $article->thumbnail_image) }}" alt="{{ $article->title }}" class="w-full h-auto max-h-[450px] object-cover rounded-2xl shadow-sm">
+                            <img src="{{ asset('storage/' . $article->thumbnail_image) }}" alt="{{ $article->title }}" class="w-full h-auto max-h-[450px] object-cover rounded-2xl shadow-sm" decoding="async" fetchpriority="high">
                         </div>
                     @endif
 
@@ -375,7 +375,7 @@
                             <div class="bg-slate-50 rounded-2xl border border-slate-100/60 overflow-hidden flex flex-col group transition-all hover:shadow-sm">
                                 <a href="{{ $related->public_url }}" class="block overflow-hidden aspect-video relative">
                                     @if($related->thumbnail_image)
-                                        <img src="{{ asset('storage/' . $related->thumbnail_image) }}" alt="{{ $related->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-350" loading="lazy">
+                                        <img src="{{ asset('storage/' . $related->thumbnail_image) }}" alt="{{ $related->title }}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-350" loading="lazy" decoding="async">
                                     @else
                                         <div class="w-full h-full bg-slate-200 flex items-center justify-center">
                                             <svg class="w-8 h-8 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -576,7 +576,7 @@
                         @forelse($relatedArticles as $related)
                             <a href="{{ $related->public_url }}" class="group flex gap-3.5 items-start">
                                 @if($related->thumbnail_image)
-                                    <img src="{{ asset('storage/' . $related->thumbnail_image) }}" alt="{{ $related->title }}" class="w-14 h-14 rounded-xl object-cover shrink-0" loading="lazy">
+                                    <img src="{{ asset('storage/' . $related->thumbnail_image) }}" alt="{{ $related->title }}" class="w-14 h-14 rounded-xl object-cover shrink-0" loading="lazy" decoding="async">
                                 @else
                                     <div class="w-14 h-14 rounded-xl bg-slate-100 flex items-center justify-center shrink-0 border border-slate-100">
                                         <svg class="w-5 h-5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
