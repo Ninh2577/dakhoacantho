@@ -538,7 +538,7 @@ document.addEventListener('alpine:init', () => {
             let isKeywordFirst150Good = hasKeyword && first150Words.includes(kwLower);
 
             // D. Links & Images
-            let hasThumbnail = !!this.$wire.get('data.thumbnail_image');
+            let hasThumbnail = !!this.$wire.get('data.thumbnail_image') || !!this.$wire.get('data.featured_image');
             let imgMatches       = contentVal.match(/<img[^>]+>/ig) || [];
             let totalContentImgs = imgMatches.length;
             let hasContentImage = totalContentImgs > 0;

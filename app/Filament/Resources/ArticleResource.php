@@ -36,6 +36,7 @@ class ArticleResource extends Resource
     {
         return $form
             ->schema([
+                Forms\Components\Hidden::make('_prev_title')->dehydrated(false),
                 Grid::make(3)->schema([
 
                     // =========================================================
@@ -51,17 +52,22 @@ class ArticleResource extends Resource
                                 ->required()
                                 ->maxLength(255)
                                 ->live(onBlur: true)
-                                ->extraInputAttributes(['style' => 'font-size:1.5rem;font-weight:700;padding:0.75rem 1rem;height:auto;line-height:1.3;'])
-                                ->afterStateUpdated(function (Forms\Set $set, Forms\Get $get, ?string $state) {
-                                    $currentSlug = $get('slug') ?? '';
+                                ->extraInputAttributes(['style' => 'font-size:1.8rem;font-weight:700;padding:0.75rem 1rem;height:auto;line-height:1.3;'])
+                                ->afterStateHydrated(function (Forms\Set $set, ?string $state) {
+                                    $set('_prev_title', $state);
+                                })
+                                ->afterStateUpdated(function (Forms\Set $set, Forms\Get $get, ?string $state, ?\App\Models\Article $record) {
+                                    $currentSlug = $get('slug');
                                     $prevTitle    = $get('_prev_title') ?? '';
                                     $prevAutoSlug = Str::slug($prevTitle);
                                     if (empty($currentSlug) || $currentSlug === $prevAutoSlug) {
-                                        $set('slug', Str::slug($state ?? ''));
+                                        $ignoreId = $record?->id;
+                                        $set('slug', static::generateUniqueSlug($state ?? '', $ignoreId));
                                     }
                                     if (empty($get('meta_title'))) {
                                         $set('meta_title', mb_substr($state ?? '', 0, 60));
                                     }
+                                    $set('_prev_title', $state);
                                 }),
 
                             TextInput::make('slug')
@@ -74,10 +80,22 @@ class ArticleResource extends Resource
                                 ->prefix(fn () => rtrim(config('app.url'), '/') . '/')
                                 ->suffix('.html')
                                 ->helperText('Không dấu, viết thường, ngăn cách bởi dấu gạch ngang.')
+                                ->afterStateUpdated(function (Forms\Set $set, ?string $state) {
+                                    if (!empty($state)) {
+                                        $set('slug', Str::slug($state));
+                                    }
+                                })
                                 ->hintAction(
                                     Forms\Components\Actions\Action::make('copySlug')
                                         ->icon('heroicon-m-clipboard')
                                         ->tooltip('Sao chép URL')
+                                        ->extraAttributes([
+                                            'x-on:click' => '
+                                                const url = "' . rtrim(config('app.url'), "/") . '/" + $wire.get("data.slug") + ".html";
+                                                window.navigator.clipboard.writeText(url);
+                                                alert("Đã sao chép URL bài viết vào clipboard: " + url);
+                                            '
+                                        ])
                                         ->action(fn () => null)
                                 ),
                         ])->compact(),
@@ -95,13 +113,13 @@ class ArticleResource extends Resource
                         Section::make('Tóm tắt bài viết')->schema([
                             Textarea::make('excerpt')
                                 ->label('Tóm tắt ngắn (Excerpt)')
-                                ->placeholder('Tóm tắt ngắn về bài viết (150-200 ký tự, dùng cho SEO và preview)...')
+                                ->placeholder('Nhập tóm tắt ngắn của bài viết...')
                                 ->rows(3)
                                 ->maxLength(500)
                                 ->live(debounce: 500)
-                                ->helperText('Nếu để trống, hệ thống tự lấy từ nội dung bài viết.')
+                                ->helperText('Dùng làm mô tả ngắn cho bài viết (SEO description fallback).')
                                 ->columnSpanFull(),
-                        ])->collapsed(),
+                        ]),
 
                     ]),
 
@@ -117,6 +135,10 @@ class ArticleResource extends Resource
 
                         // --- Publish Card ---
                         Section::make('Xuất bản')->schema([
+                            Forms\Components\Placeholder::make('current_status')
+                                ->label('Trạng thái')
+                                ->content(fn ($record) => ($record?->is_published) ? 'Đã xuất bản' : 'Bản nháp'),
+
                             Toggle::make('is_published')
                                 ->label('Công khai bài viết')
                                 ->helperText('Bật để hiển thị bài viết trên website.')
@@ -132,14 +154,36 @@ class ArticleResource extends Resource
                                 ->seconds(false)
                                 ->visible(fn (Forms\Get $get) => (bool) $get('is_published')),
                             Forms\Components\Actions::make([
-                                Forms\Components\Actions\Action::make('preview_article')
-                                    ->label('Xem trước bài viết')
+                                Forms\Components\Actions\Action::make('preview_in_card')
+                                    ->label('Xem trước')
                                     ->icon('heroicon-o-eye')
                                     ->color('info')
                                     ->url(fn ($record) => $record?->public_url)
                                     ->openUrlInNewTab()
-                                    ->extraAttributes(['class' => 'w-full justify-center']),
-                            ])->hidden(fn ($record) => $record === null),
+                                    ->visible(fn ($record) => $record !== null),
+                                Forms\Components\Actions\Action::make('save_draft_in_card')
+                                    ->label('Lưu nháp')
+                                    ->color('gray')
+                                    ->action(function ($livewire) {
+                                        $livewire->data['is_published'] = false;
+                                        if ($livewire instanceof \Filament\Resources\Pages\CreateRecord) {
+                                            $livewire->create();
+                                        } else {
+                                            $livewire->save();
+                                        }
+                                    }),
+                                Forms\Components\Actions\Action::make('publish_in_card')
+                                    ->label(fn ($record) => ($record?->is_published) ? 'Cập nhật' : 'Xuất bản')
+                                    ->color('primary')
+                                    ->action(function ($livewire) {
+                                        $livewire->data['is_published'] = true;
+                                        if ($livewire instanceof \Filament\Resources\Pages\CreateRecord) {
+                                            $livewire->create();
+                                        } else {
+                                            $livewire->save();
+                                        }
+                                    }),
+                            ])->fullWidth(),
                         ]),
 
                         // --- Category Card ---
@@ -155,10 +199,10 @@ class ArticleResource extends Resource
 
                         // --- Thumbnail Card ---
                         Section::make('Ảnh đại diện')->schema([
-                            FileUpload::make('thumbnail_image')
-                                ->label('Ảnh đại diện (Thumbnail)')
+                            FileUpload::make('featured_image')
+                                ->label('Ảnh đại diện')
                                 ->image()
-                                ->directory('articles/thumbnails')
+                                ->directory('articles/featured')
                                 ->disk('public')
                                 ->imagePreviewHeight('160')
                                 ->panelAspectRatio('16:9')
@@ -303,7 +347,7 @@ class ArticleResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('thumbnail_image')
+                Tables\Columns\ImageColumn::make('featured_image')
                     ->label('Ảnh')
                     ->disk('public'),
                 Tables\Columns\TextColumn::make('title')
@@ -401,5 +445,30 @@ class ArticleResource extends Resource
             'create' => Pages\CreateArticle::route('/create'),
             'edit'   => Pages\EditArticle::route('/{record}/edit'),
         ];
+    }
+
+    public static function generateUniqueSlug(string $title, ?int $ignoreId = null): string
+    {
+        $slug = Str::slug($title);
+        if (empty($slug)) {
+            $slug = 'bai-viet';
+        }
+
+        $originalSlug = $slug;
+        $count = 2;
+
+        while (true) {
+            $query = \App\Models\Article::where('slug', $slug);
+            if ($ignoreId) {
+                $query->where('id', '!=', $ignoreId);
+            }
+            if (!$query->exists()) {
+                break;
+            }
+            $slug = $originalSlug . '-' . $count;
+            $count++;
+        }
+
+        return $slug;
     }
 }

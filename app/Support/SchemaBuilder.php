@@ -168,7 +168,8 @@ class SchemaBuilder
             // Image fallback
             $articleImage = $options['image'];
             if (empty($articleImage)) {
-                $articleImage = $article->thumbnail_image ? asset('storage/' . $article->thumbnail_image) : $logoUrl;
+                $imagePath = $article->featured_image ?: $article->thumbnail_image;
+                $articleImage = $imagePath ? asset('storage/' . $imagePath) : $logoUrl;
             }
 
             // Normalize schema type

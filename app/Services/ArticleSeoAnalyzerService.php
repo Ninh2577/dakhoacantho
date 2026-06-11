@@ -21,7 +21,7 @@ class ArticleSeoAnalyzerService
         $seoSlug = trim($article->seo_slug ?? '');
         $content = trim($article->content ?? '');
         $excerpt = trim($article->excerpt ?? '');
-        $thumbnail = trim($article->thumbnail_image ?? '');
+        $thumbnail = trim($article->featured_image ?: ($article->thumbnail_image ?? ''));
         $canonical = trim($article->canonical_url ?? '');
         $schemaType = trim($article->schema_type ?? 'Article');
         

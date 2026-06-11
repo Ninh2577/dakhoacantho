@@ -22,9 +22,11 @@ class ArticleController extends Controller
             abort(404);
         }
 
-        $article = Article::where('slug', $slug)
-            ->where('is_published', true)
-            ->firstOrFail();
+        $query = Article::where('slug', $slug);
+        if (!auth()->check() || auth()->user()->role !== 'admin') {
+            $query->where('is_published', true);
+        }
+        $article = $query->firstOrFail();
 
         $routingService = app(\App\Services\UrlRoutingService::class);
         $currentPath = $routingService->normalizePath(request()->path());
@@ -108,9 +110,11 @@ class ArticleController extends Controller
 
     public function redirectOldUrl(string $category_path, string $slug)
     {
-        $article = Article::where('slug', $slug)
-            ->where('is_published', true)
-            ->firstOrFail();
+        $query = Article::where('slug', $slug);
+        if (!auth()->check() || auth()->user()->role !== 'admin') {
+            $query->where('is_published', true);
+        }
+        $article = $query->firstOrFail();
 
         $routingService = app(\App\Services\UrlRoutingService::class);
         $currentPath = $routingService->normalizePath(request()->path());
