@@ -90,11 +90,11 @@ class ArticleResource extends Resource
                                         ->icon('heroicon-m-clipboard')
                                         ->tooltip('Sao chép URL')
                                         ->extraAttributes([
-                                            'x-on:click' => '
-                                                const url = "' . rtrim(config('app.url'), "/") . '/" + $wire.get("data.slug") + ".html";
+                                            'x-on:click' => "
+                                                const url = `" . rtrim(config('app.url'), "/") . "/` + \$wire.get(`data.slug`) + `.html`;
                                                 window.navigator.clipboard.writeText(url);
-                                                alert("Đã sao chép URL bài viết vào clipboard: " + url);
-                                            '
+                                                alert(`Đã sao chép URL bài viết vào clipboard: ` + url);
+                                            "
                                         ])
                                         ->action(fn () => null)
                                 ),

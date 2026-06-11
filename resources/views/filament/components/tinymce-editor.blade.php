@@ -3,33 +3,42 @@
         state: $wire.entangle('{{ $getStatePath() }}'),
         editorInstanceId: null,
         activeTab: 'visual',
-        rawHtml: '',
+        
         init() {
-            // Load TinyMCE from public community CDN if not already loaded
-            if (typeof tinymce === 'undefined') {
-                let script = document.createElement('script');
-                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js';
-                script.referrerpolicy = 'origin';
-                script.onload = () => this.initEditor();
-                document.head.appendChild(script);
-            } else {
-                this.initEditor();
-            }
+            this.$nextTick(() => {
+                if (typeof tinymce === 'undefined') {
+                    let script = document.createElement('script');
+                    script.src = 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js';
+                    script.referrerpolicy = 'origin';
+                    script.onload = () => this.initEditor();
+                    document.head.appendChild(script);
+                } else {
+                    this.initEditor();
+                }
+            });
 
             // Watch for external Livewire state changes to update the editor content
             this.$watch('state', (newVal) => {
-                this.rawHtml = newVal || '';
-                if (this.editorInstanceId && this.activeTab === 'visual') {
+                if (this.editorInstanceId) {
                     let editor = tinymce.get(this.editorInstanceId);
-                    if (editor && editor.initialized && !editor.hasFocus() && newVal !== editor.getContent()) {
-                        editor.setContent(newVal || '');
+                    if (editor && editor.initialized) {
+                        if (this.activeTab === 'visual' && !editor.hasFocus() && newVal !== editor.getContent()) {
+                            editor.setContent(newVal || '');
+                        }
                     }
                 }
             });
         },
+        
         initEditor() {
+            let id = 'tinymce-content-{{ $getId() }}';
+            let oldEditor = tinymce.get(id);
+            if (oldEditor) {
+                oldEditor.remove();
+            }
+
             tinymce.init({
-                target: this.$refs.editor,
+                selector: '#' + id,
                 height: 500,
                 min_height: 450,
                 branding: false,
@@ -92,31 +101,28 @@
                     // Load initial value
                     editor.on('init', () => {
                         editor.setContent(this.state || '');
-                        this.rawHtml = this.state || '';
+                        // Guarantee contenteditable is enabled
+                        try {
+                            editor.getBody().setAttribute('contenteditable', 'true');
+                        } catch (e) {}
                     });
 
                     // Debounced state sync on typing
                     let debouncedUpdate = this.debounce(() => {
-                        let content = editor.getContent();
-                        this.state = content;
-                        this.rawHtml = content;
+                        this.state = editor.getContent();
                     }, 300);
 
-                    editor.on('change keyup undo redo', () => {
+                    editor.on('change keyup undo redo input', () => {
                         debouncedUpdate();
                     });
 
                     editor.on('blur', () => {
-                        let content = editor.getContent();
-                        this.state = content;
-                        this.rawHtml = content;
+                        this.state = editor.getContent();
                     });
 
                     // Form submit sync fallback
                     editor.on('submit', () => {
-                        let content = editor.getContent();
-                        this.state = content;
-                        this.rawHtml = content;
+                        this.state = editor.getContent();
                     });
 
                     // Bind to parent form submit to immediately sync state before Livewire submits
@@ -124,10 +130,10 @@
                         let form = this.$el.closest('form');
                         if (form) {
                             form.addEventListener('submit', () => {
-                                if (this.activeTab === 'text') {
-                                    this.state = this.rawHtml;
-                                } else {
+                                if (this.activeTab === 'visual') {
                                     this.state = editor.getContent();
+                                } else {
+                                    this.state = this.$refs.editor.value;
                                 }
                             });
                         }
@@ -135,29 +141,34 @@
                 }
             });
         },
+        
         switchTab(tab) {
             if (this.activeTab === tab) return;
             
+            let editor = this.editorInstanceId ? tinymce.get(this.editorInstanceId) : null;
+            
             if (tab === 'text') {
-                if (this.editorInstanceId) {
-                    let editor = tinymce.get(this.editorInstanceId);
-                    if (editor) {
-                        this.rawHtml = editor.getContent();
-                        this.state = this.rawHtml;
-                    }
+                if (editor) {
+                    editor.save(); // Sync content to textarea
+                    this.state = editor.getContent();
+                    editor.hide(); // Hide visual editor and show styled textarea
                 }
                 this.activeTab = 'text';
             } else {
-                if (this.editorInstanceId) {
-                    let editor = tinymce.get(this.editorInstanceId);
-                    if (editor) {
-                        editor.setContent(this.rawHtml || '');
-                        this.state = this.rawHtml;
-                    }
+                if (editor) {
+                    editor.show(); // Hide textarea and show visual editor
+                    editor.setContent(this.state || '');
+                    try {
+                        editor.getBody().setAttribute('contenteditable', 'true');
+                    } catch (e) {}
+                    setTimeout(() => {
+                        editor.focus();
+                    }, 100);
                 }
                 this.activeTab = 'visual';
             }
         },
+        
         destroy() {
             // Clean up TinyMCE instance when leaving the page (essential for Filament SPA navigation)
             if (this.editorInstanceId) {
@@ -167,6 +178,7 @@
                 }
             }
         },
+        
         debounce(func, wait) {
             let timeout;
             return function () {
@@ -206,20 +218,15 @@
 
     <!-- Editor Wrapper -->
     <div class="relative w-full flex-grow">
-        <!-- Visual Editor Container -->
-        <div x-show="activeTab === 'visual'" class="w-full">
-            <textarea x-ref="editor" class="w-full" style="visibility: hidden; height: 500px; display: block;"></textarea>
-        </div>
-        
-        <!-- Text (HTML Raw) Editor Container -->
-        <div x-show="activeTab === 'text'" class="w-full bg-slate-950">
-            <textarea 
-                x-model="rawHtml"
-                @input="state = rawHtml"
-                class="w-full font-mono p-4 text-sm bg-slate-950 text-slate-200 focus:outline-none focus:ring-0 border-0"
-                style="height: 500px; min-height: 450px; font-family: Consolas, Monaco, monospace; line-height: 1.6; resize: vertical;"
-                placeholder="Nhập mã HTML vào đây..."
-            ></textarea>
-        </div>
+        <!-- Single Textarea that gets enhanced by TinyMCE -->
+        <textarea 
+            id="tinymce-content-{{ $getId() }}"
+            x-ref="editor" 
+            x-model.lazy="state"
+            @input="state = $el.value"
+            class="w-full font-mono p-4 text-sm bg-slate-950 text-slate-200 focus:outline-none focus:ring-0 border-0"
+            style="height: 500px; min-height: 450px; font-family: Consolas, Monaco, monospace; line-height: 1.6; resize: vertical; display: block;"
+            placeholder="Nhập nội dung bài viết..."
+        ></textarea>
     </div>
 </div>
