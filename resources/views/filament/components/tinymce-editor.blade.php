@@ -18,7 +18,7 @@
             this.$watch('state', (newVal) => {
                 if (this.editorInstanceId) {
                     let editor = tinymce.get(this.editorInstanceId);
-                    if (editor && editor.initialized && newVal !== editor.getContent()) {
+                    if (editor && editor.initialized && !editor.hasFocus() && newVal !== editor.getContent()) {
                         editor.setContent(newVal || '');
                     }
                 }
@@ -36,8 +36,10 @@
                 remove_script_host: false,
                 menubar: 'file edit view insert format tools table',
                 plugins: 'advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table help wordcount directionality emoticons codesample',
-                toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | blockquote | link image media table | removeformat code preview fullscreen',
-                content_style: 'body { font-family: Inter, Arial, sans-serif; font-size: 16px; line-height: 1.7; color: #334155; }',
+                toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | blockquote | link image media table | removeformat searchreplace code preview fullscreen',
+                toolbar_sticky: true,
+                toolbar_sticky_offset: 60,
+                content_style: 'body { font-family: Arial, sans-serif; font-size: 16px; line-height: 1.7; color: #334155; }',
                 
                 // Admin image upload integration
                 images_upload_url: '{{ route('admin.tinymce.upload-image') }}',
@@ -98,9 +100,23 @@
                         debouncedUpdate();
                     });
 
+                    editor.on('blur', () => {
+                        this.state = editor.getContent();
+                    });
+
                     // Form submit sync fallback
                     editor.on('submit', () => {
                         this.state = editor.getContent();
+                    });
+
+                    // Bind to parent form submit to immediately sync state before Livewire submits
+                    this.$nextTick(() => {
+                        let form = this.$el.closest('form');
+                        if (form) {
+                            form.addEventListener('submit', () => {
+                                this.state = editor.getContent();
+                            });
+                        }
                     });
                 }
             });

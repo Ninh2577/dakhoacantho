@@ -13,6 +13,7 @@ class Article extends Model
         'content',
         'excerpt',
         'thumbnail_image',
+        'featured_image',
         'meta_title',
         'meta_description',
         'is_published',
@@ -61,6 +62,17 @@ class Article extends Model
                 $article->published_at = now();
             }
             // Do NOT reset published_at if already published
+
+            // Sync thumbnail_image and featured_image
+            if ($article->isDirty('featured_image') && !$article->isDirty('thumbnail_image')) {
+                $article->thumbnail_image = $article->featured_image;
+            } elseif ($article->isDirty('thumbnail_image') && !$article->isDirty('featured_image')) {
+                $article->featured_image = $article->thumbnail_image;
+            } elseif (empty($article->featured_image) && !empty($article->thumbnail_image)) {
+                $article->featured_image = $article->thumbnail_image;
+            } elseif (empty($article->thumbnail_image) && !empty($article->featured_image)) {
+                $article->thumbnail_image = $article->featured_image;
+            }
 
             $pattern = \App\Models\Setting::get('url_pattern_article') ?: '{slug}';
             $service = app(\App\Services\UrlRoutingService::class);

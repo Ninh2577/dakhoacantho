@@ -20,6 +20,35 @@ class CreateArticle extends CreateRecord
         return $this->getResource()::getUrl('index');
     }
 
+    protected function getHeaderActions(): array
+    {
+        return [
+            Actions\Action::make('save_draft')
+                ->label('Lưu nháp')
+                ->color('gray')
+                ->action(function () {
+                    $this->data['is_published'] = false;
+                    $this->create();
+                }),
+            Actions\Action::make('publish')
+                ->label('Xuất bản')
+                ->color('primary')
+                ->action(function () {
+                    $this->data['is_published'] = true;
+                    $this->create();
+                }),
+        ];
+    }
+
+    protected function getFormActions(): array
+    {
+        return [
+            $this->getCreateFormAction()->label('Tạo bài viết'),
+            $this->getCreateAnotherFormAction()->label('Tạo và thêm bài khác'),
+            $this->getCancelFormAction()->label('Hủy'),
+        ];
+    }
+
     protected function mutateFormDataBeforeCreate(array $data): array
     {
         $article = new \App\Models\Article($data);

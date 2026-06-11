@@ -24,7 +24,29 @@ class EditArticle extends EditRecord
                 ->color('info')
                 ->url(fn ($record): string => $record->public_url)
                 ->openUrlInNewTab(),
+            Actions\Action::make('save_draft')
+                ->label('Lưu nháp')
+                ->color('gray')
+                ->action(function () {
+                    $this->data['is_published'] = false;
+                    $this->save();
+                }),
+            Actions\Action::make('publish')
+                ->label($this->record->is_published ? 'Cập nhật' : 'Xuất bản')
+                ->color('primary')
+                ->action(function () {
+                    $this->data['is_published'] = true;
+                    $this->save();
+                }),
             Actions\DeleteAction::make()->label('Xóa'),
+        ];
+    }
+
+    protected function getFormActions(): array
+    {
+        return [
+            $this->getSaveFormAction()->label('Cập nhật'),
+            $this->getCancelFormAction()->label('Hủy'),
         ];
     }
 

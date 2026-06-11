@@ -40,234 +40,303 @@ class ArticleSeoAnalyzerService
 
         // Group definitions
         $basicGroup = ['name' => 'SEO cơ bản', 'checks' => []];
+        $titleMetaGroup = ['name' => 'Tiêu đề & Thẻ Meta', 'checks' => []];
         $contentGroup = ['name' => 'Nội dung', 'checks' => []];
-        $imageGroup = ['name' => 'Hình ảnh', 'checks' => []];
-        $linkGroup = ['name' => 'Liên kết', 'checks' => []];
-        $socialGroup = ['name' => 'Mạng xã hội (Social SEO)', 'checks' => []];
-        $advancedGroup = ['name' => 'Nâng cao', 'checks' => []];
-
-        // 1. Focus Keyword (10 pts)
-        if ($keyword !== '') {
-            $score += 10;
-            $basicGroup['checks'][] = [
-                'key' => 'focus_keyword',
-                'label' => 'Từ khóa chính (Focus Keyword)',
-                'status' => 'pass',
-                'message' => 'Đã cấu hình từ khóa chính: "' . $keyword . '"'
-            ];
-        } else {
-            $basicGroup['checks'][] = [
-                'key' => 'focus_keyword',
-                'label' => 'Từ khóa chính (Focus Keyword)',
-                'status' => 'fail',
-                'message' => 'Vui lòng nhập từ khóa chính để kích hoạt phân tích.'
-            ];
-        }
+        $linkImageGroup = ['name' => 'Liên kết & Hình ảnh', 'checks' => []];
+        $technicalGroup = ['name' => 'Kỹ thuật', 'checks' => []];
 
         if ($keyword !== '') {
             $kwLower = mb_strtolower($keyword);
 
-            // 2. Meta Title (15 pts)
-            $titleLength = mb_strlen($metaTitle);
-            $titleLenPass = ($titleLength >= 50 && $titleLength <= 60);
-            $titleKwPass = mb_strpos(mb_strtolower($metaTitle), $kwLower) !== false;
+            // ==========================================
+            // A. SEO CƠ BẢN — 30 điểm
+            // ==========================================
             
-            $score += ($titleLenPass ? 7.5 : 0) + ($titleKwPass ? 7.5 : 0);
+            // 1. Có từ khóa chính (5 điểm)
+            $score += 5;
             $basicGroup['checks'][] = [
-                'key' => 'meta_title_length',
-                'label' => 'Độ dài Meta Title',
-                'status' => $titleLenPass ? 'pass' : 'fail',
-                'message' => "Độ dài Meta Title tốt nhất là 50-60 ký tự. Hiện tại: $titleLength ký tự."
+                'key' => 'focus_keyword',
+                'label' => 'Từ khóa chính',
+                'status' => 'pass',
+                'message' => 'Đã cấu hình từ khóa chính: "' . $keyword . '"',
+                'points' => 5
             ];
+
+            // 2. Từ khóa chính có trong tiêu đề bài viết (H1) (5 điểm)
+            $titleKwPass = mb_strpos(mb_strtolower($title), $kwLower) !== false;
+            if ($titleKwPass) {
+                $score += 5;
+            }
             $basicGroup['checks'][] = [
-                'key' => 'meta_title_keyword',
-                'label' => 'Từ khóa trong Meta Title',
+                'key' => 'keyword_in_title',
+                'label' => 'Từ khóa chính trong H1',
                 'status' => $titleKwPass ? 'pass' : 'fail',
-                'message' => $titleKwPass ? 'Từ khóa xuất hiện trong Meta Title.' : 'Từ khóa chính không tìm thấy trong Meta Title.'
+                'message' => $titleKwPass ? 'Từ khóa chính xuất hiện trong Tiêu đề bài viết.' : 'Tiêu đề bài viết không chứa từ khóa chính.',
+                'points' => 5
             ];
 
-            // 3. Meta Description (15 pts)
-            $descLength = mb_strlen($metaDesc);
-            $descLenPass = ($descLength >= 150 && $descLength <= 160);
+            // 3. Từ khóa chính có trong SEO Title (meta_title) (5 điểm)
+            $seoTitleKwPass = mb_strpos(mb_strtolower($metaTitle), $kwLower) !== false;
+            if ($seoTitleKwPass) {
+                $score += 5;
+            }
+            $basicGroup['checks'][] = [
+                'key' => 'keyword_in_seo_title',
+                'label' => 'Từ khóa chính trong SEO Title',
+                'status' => $seoTitleKwPass ? 'pass' : 'fail',
+                'message' => $seoTitleKwPass ? 'Từ khóa chính xuất hiện trong SEO Title.' : 'SEO Title không chứa từ khóa chính.',
+                'points' => 5
+            ];
+
+            // 4. Từ khóa chính có trong Meta Description (5 điểm)
             $descKwPass = mb_strpos(mb_strtolower($metaDesc), $kwLower) !== false;
-            
-            $score += ($descLenPass ? 7.5 : 0) + ($descKwPass ? 7.5 : 0);
+            if ($descKwPass) {
+                $score += 5;
+            }
             $basicGroup['checks'][] = [
-                'key' => 'meta_desc_length',
-                'label' => 'Độ dài Meta Description',
-                'status' => $descLenPass ? 'pass' : 'fail',
-                'message' => "Độ dài Meta Description tốt nhất là 150-160 ký tự. Hiện tại: $descLength ký tự."
-            ];
-            $basicGroup['checks'][] = [
-                'key' => 'meta_desc_keyword',
-                'label' => 'Từ khóa trong Meta Description',
+                'key' => 'keyword_in_meta_description',
+                'label' => 'Từ khóa chính trong Meta Description',
                 'status' => $descKwPass ? 'pass' : 'fail',
-                'message' => $descKwPass ? 'Từ khóa xuất hiện trong Meta Description.' : 'Từ khóa chính không tìm thấy trong Meta Description.'
+                'message' => $descKwPass ? 'Từ khóa chính xuất hiện trong Meta Description.' : 'Meta Description không chứa từ khóa chính.',
+                'points' => 5
             ];
 
-            // Duplicate Meta Title Check
-            $titleQuery = Article::where('meta_title', $metaTitle);
-            if ($article && $article->exists) {
-                $titleQuery->where('id', '!=', $article->id);
-            }
-            $isTitleDuplicate = ($metaTitle !== '') && $titleQuery->exists();
-            $basicGroup['checks'][] = [
-                'key' => 'meta_title_duplicate',
-                'label' => 'Trùng lặp Meta Title',
-                'status' => $isTitleDuplicate ? 'warning' : 'pass',
-                'message' => $isTitleDuplicate ? 'Cảnh báo: Meta Title trùng với bài viết khác trên hệ thống.' : 'Meta Title là độc nhất.'
-            ];
-
-            // Duplicate Meta Description Check
-            $descQuery = Article::where('meta_description', $metaDesc);
-            if ($article && $article->exists) {
-                $descQuery->where('id', '!=', $article->id);
-            }
-            $isDescDuplicate = ($metaDesc !== '') && $descQuery->exists();
-            $basicGroup['checks'][] = [
-                'key' => 'meta_description_duplicate',
-                'label' => 'Trùng lặp Meta Description',
-                'status' => $isDescDuplicate ? 'warning' : 'pass',
-                'message' => $isDescDuplicate ? 'Cảnh báo: Meta Description trùng với bài viết khác trên hệ thống.' : 'Meta Description là độc nhất.'
-            ];
-
-            // 4. Slug / SEO Slug SEO (10 pts)
+            // 5. Từ khóa chính có trong Slug (5 điểm)
             $targetSlug = $seoSlug !== '' ? $seoSlug : $slug;
             $slugKw = str_replace(' ', '-', $kwLower);
-            // Quick clean slug keyword check
             $cleanSlugKw = $this->removeVietnameseSign($slugKw);
             $cleanTargetSlug = $this->removeVietnameseSign($targetSlug);
-            
             $slugKwPass = mb_strpos(mb_strtolower($cleanTargetSlug), mb_strtolower($cleanSlugKw)) !== false;
-            $slugFriendly = (mb_strlen($targetSlug) <= 50 && preg_match('/^[a-z0-9\-]+$/i', $targetSlug));
-            
-            $score += ($slugKwPass ? 5 : 0) + ($slugFriendly ? 5 : 0);
-            $basicGroup['checks'][] = [
-                'key' => 'slug_keyword',
-                'label' => 'Từ khóa trong URL Slug',
-                'status' => $slugKwPass ? 'pass' : 'fail',
-                'message' => $slugKwPass ? 'Từ khóa xuất hiện trong URL.' : 'Từ khóa chính không tìm thấy trong URL.'
-            ];
-            $basicGroup['checks'][] = [
-                'key' => 'slug_friendly',
-                'label' => 'Cấu trúc Slug URL',
-                'status' => $slugFriendly ? 'pass' : 'fail',
-                'message' => $slugFriendly ? 'Slug ngắn và chuẩn hóa ký tự.' : 'Slug chứa ký tự lạ hoặc dài hơn 50 ký tự.'
-            ];
-
-            // 5. Keyword Placement & Content checks (15 pts)
-            $titleKwPass = mb_strpos(mb_strtolower($title), $kwLower) !== false;
-            $contentLen = mb_strlen($content);
-            $first10PercentLimit = (int) ($contentLen * 0.1);
-            $first10PercentContent = mb_substr($content, 0, max($first10PercentLimit, 200));
-            $contentFirst10Pass = mb_strpos(mb_strtolower($first10PercentContent), $kwLower) !== false;
-            
-            $score += ($contentFirst10Pass ? 5 : 0) + ($titleKwPass ? 5 : 0);
-            $contentGroup['checks'][] = [
-                'key' => 'title_keyword',
-                'label' => 'Từ khóa trong Tiêu đề bài viết',
-                'status' => $titleKwPass ? 'pass' : 'fail',
-                'message' => $titleKwPass ? 'Từ khóa xuất hiện trong tiêu đề H1.' : 'Không tìm thấy từ khóa trong tiêu đề H1.'
-            ];
-            $contentGroup['checks'][] = [
-                'key' => 'content_first_10_keyword',
-                'label' => 'Từ khóa xuất hiện ở đoạn đầu',
-                'status' => $contentFirst10Pass ? 'pass' : 'fail',
-                'message' => $contentFirst10Pass ? 'Đoạn đầu bài viết chứa từ khóa chính.' : 'Đoạn đầu bài viết không chứa từ khóa.'
-            ];
-
-            // Keyword density check (5 pts)
-            $keywordCount = mb_substr_count(mb_strtolower($cleanContent), $kwLower);
-            $density = $wordCount > 0 ? ($keywordCount / $wordCount) * 100 : 0;
-            
-            $densityStatus = 'warning';
-            $densityMsg = "Mật độ từ khóa chính: " . number_format($density, 2) . "% ($keywordCount lần). ";
-            if ($density >= 0.5 && $density <= 2.5) {
+            if ($slugKwPass) {
                 $score += 5;
-                $densityStatus = 'pass';
-                $densityMsg .= "Đạt mật độ khuyên dùng (0.5% - 2.5%).";
-            } elseif ($density < 0.5) {
-                $densityMsg .= "Từ khóa xuất hiện hơi ít (Khuyên dùng: > 0.5%).";
-            } else {
-                $densityMsg .= "Mật độ từ khóa hơi cao, nguy cơ nhồi nhét (Khuyên dùng: < 2.5%).";
             }
-            $contentGroup['checks'][] = [
-                'key' => 'keyword_density',
-                'label' => 'Mật độ từ khóa chính (Keyword Density)',
-                'status' => $densityStatus,
-                'message' => $densityMsg
+            $basicGroup['checks'][] = [
+                'key' => 'keyword_in_slug',
+                'label' => 'Từ khóa chính trong Slug URL',
+                'status' => $slugKwPass ? 'pass' : 'fail',
+                'message' => $slugKwPass ? 'Từ khóa chính xuất hiện trong URL.' : 'URL không chứa từ khóa chính.',
+                'points' => 5
             ];
 
-            // 6. Content Length & Heading (15 pts)
-            $wordCountPass = ($wordCount >= 600);
-            $hasH2 = preg_match('/<h2[^>]*>/i', $content);
-            $hasH3 = preg_match('/<h3[^>]*>/i', $content);
-            $headingPass = $hasH2; // has at least H2
-            
-            $score += ($wordCountPass ? 7.5 : 0) + ($headingPass ? 7.5 : 0);
+            // 6. Có canonical URL hợp lệ hoặc tự canonical về URL bài viết (5 điểm)
+            // Vì mặc định nếu để trống nó sẽ tự canonical về URL bài viết (luôn hợp lệ), ta chấm pass
+            $score += 5;
+            $basicGroup['checks'][] = [
+                'key' => 'canonical_check',
+                'label' => 'Thẻ Canonical',
+                'status' => 'pass',
+                'message' => $canonical !== '' ? 'Đã thiết lập Canonical URL: ' . $canonical : 'Tự động Canonical về URL bài viết.',
+                'points' => 5
+            ];
+
+
+            // ==========================================
+            // B. TIÊU ĐỀ & META — 20 điểm
+            // ==========================================
+
+            // 1. Tiêu đề bài viết dài 40-70 ký tự (5 điểm)
+            $titleLength = mb_strlen($title);
+            $titleLenPass = ($titleLength >= 40 && $titleLength <= 70);
+            if ($titleLenPass) {
+                $score += 5;
+            }
+            $titleMetaGroup['checks'][] = [
+                'key' => 'title_length',
+                'label' => 'Độ dài Tiêu đề bài viết',
+                'status' => $titleLenPass ? 'pass' : 'fail',
+                'message' => "Độ dài Tiêu đề bài viết nên từ 40-70 ký tự. Hiện tại: $titleLength ký tự.",
+                'points' => 5
+            ];
+
+            // 2. SEO Title (meta_title) dài 50-60 ký tự (5 điểm)
+            $seoTitleLength = mb_strlen($metaTitle);
+            $seoTitleLenPass = ($seoTitleLength >= 50 && $seoTitleLength <= 60);
+            if ($seoTitleLenPass) {
+                $score += 5;
+            }
+            $titleMetaGroup['checks'][] = [
+                'key' => 'seo_title_length',
+                'label' => 'Độ dài SEO Title',
+                'status' => $seoTitleLenPass ? 'pass' : 'fail',
+                'message' => "Độ dài SEO Title tốt nhất là 50-60 ký tự. Hiện tại: $seoTitleLength ký tự.",
+                'points' => 5
+            ];
+
+            // 3. Meta Description dài 140-160 ký tự (5 điểm)
+            $descLength = mb_strlen($metaDesc);
+            $descLenPass = ($descLength >= 140 && $descLength <= 160);
+            if ($descLenPass) {
+                $score += 5;
+            }
+            $titleMetaGroup['checks'][] = [
+                'key' => 'meta_description_length',
+                'label' => 'Độ dài Meta Description',
+                'status' => $descLenPass ? 'pass' : 'fail',
+                'message' => "Độ dài Meta Description tốt nhất là 140-160 ký tự. Hiện tại: $descLength ký tự.",
+                'points' => 5
+            ];
+
+            // 4. Meta Description có CTA/lợi ích rõ ràng (5 điểm)
+            $ctaWords = ['ngay', 'nhanh chóng', 'an toàn', 'uy tín', 'hiệu quả', 'chi tiết', 'cam kết', 'tư vấn', 'miễn phí', 'liên hệ', 'click', 'xem'];
+            $hasCta = false;
+            foreach ($ctaWords as $word) {
+                if (mb_strpos(mb_strtolower($metaDesc), $word) !== false) {
+                    $hasCta = true;
+                    break;
+                }
+            }
+            if ($hasCta) {
+                $score += 5;
+            }
+            $titleMetaGroup['checks'][] = [
+                'key' => 'meta_description_cta',
+                'label' => 'Từ kêu gọi hành động (CTA) / Lợi ích',
+                'status' => $hasCta ? 'pass' : 'fail',
+                'message' => $hasCta ? 'Thẻ Meta Description chứa từ kêu gọi hành động hoặc lợi ích.' : 'Nên thêm các từ kích thích click (ví dụ: ngay, nhanh chóng, an toàn, uy tín, liên hệ, miễn phí...).',
+                'points' => 5
+            ];
+
+
+            // ==========================================
+            // C. NỘI DUNG — 25 điểm
+            // ==========================================
+
+            // 1. Nội dung tối thiểu 800 từ (5 điểm)
+            $wordCountPass = ($wordCount >= 800);
+            if ($wordCountPass) {
+                $score += 5;
+            }
             $contentGroup['checks'][] = [
                 'key' => 'content_length',
                 'label' => 'Độ dài bài viết',
                 'status' => $wordCountPass ? 'pass' : 'fail',
-                'message' => "Bài viết có $wordCount từ (Khuyên dùng: từ 600 từ trở lên)."
-            ];
-            $contentGroup['checks'][] = [
-                'key' => 'content_h2',
-                'label' => 'Sử dụng thẻ Heading H2',
-                'status' => $hasH2 ? 'pass' : 'fail',
-                'message' => $hasH2 ? 'Tìm thấy thẻ H2.' : 'Vui lòng bổ sung thẻ H2 để phân chia bố cục rõ ràng.'
+                'message' => "Độ dài khuyên dùng từ 800 từ trở lên. Hiện tại: $wordCount từ.",
+                'points' => 5
             ];
 
-            // 7. Image + Alt (10 pts)
+            // 2. Có ít nhất một H2 (5 điểm)
+            $hasH2 = preg_match('/<h2[^>]*>/i', $content);
+            if ($hasH2) {
+                $score += 5;
+            }
+            $contentGroup['checks'][] = [
+                'key' => 'has_h2',
+                'label' => 'Sử dụng thẻ Heading H2',
+                'status' => $hasH2 ? 'pass' : 'fail',
+                'message' => $hasH2 ? 'Bài viết có chứa tiêu đề phụ H2.' : 'Vui lòng bổ sung ít nhất một tiêu đề phụ H2.',
+                'points' => 5
+            ];
+
+            // 3. Có 2-6 H2/H3 hợp lý (5 điểm)
+            preg_match_all('/<h2[^>]*>/i', $content, $h2Tags);
+            preg_match_all('/<h3[^>]*>/i', $content, $h3Tags);
+            $totalHeadings = count($h2Tags[0] ?? []) + count($h3Tags[0] ?? []);
+            $headingsPass = ($totalHeadings >= 2 && $totalHeadings <= 6);
+            if ($headingsPass) {
+                $score += 5;
+            }
+            $contentGroup['checks'][] = [
+                'key' => 'headings_structure',
+                'label' => 'Số lượng Heading H2 & H3',
+                'status' => $headingsPass ? 'pass' : 'fail',
+                'message' => "Nên có từ 2-6 thẻ H2/H3 trong bài viết. Hiện tại: $totalHeadings thẻ H2/H3.",
+                'points' => 5
+            ];
+
+            // 4. Mật độ từ khóa chính khoảng 0.5% - 2.5% (5 điểm)
+            $keywordCount = mb_substr_count(mb_strtolower($cleanContent), $kwLower);
+            $density = $wordCount > 0 ? ($keywordCount / $wordCount) * 100 : 0;
+            $densityPass = ($density >= 0.5 && $density <= 2.5);
+            if ($densityPass) {
+                $score += 5;
+            }
+            $contentGroup['checks'][] = [
+                'key' => 'keyword_density',
+                'label' => 'Mật độ từ khóa chính',
+                'status' => $densityPass ? 'pass' : 'warning',
+                'message' => "Mật độ khuyên dùng là 0.5% - 2.5%. Hiện tại: " . number_format($density, 2) . "% ($keywordCount lần).",
+                'points' => 5
+            ];
+
+            // 5. Từ khóa xuất hiện trong 150 từ đầu (5 điểm)
+            $first150Content = implode(' ', array_slice($words, 0, 150));
+            $first150Pass = mb_strpos(mb_strtolower($first150Content), $kwLower) !== false;
+            if ($first150Pass) {
+                $score += 5;
+            }
+            $contentGroup['checks'][] = [
+                'key' => 'keyword_in_first_150_words',
+                'label' => 'Từ khóa ở đoạn mở đầu',
+                'status' => $first150Pass ? 'pass' : 'fail',
+                'message' => $first150Pass ? 'Từ khóa chính xuất hiện trong 150 từ đầu tiên.' : 'Từ khóa chính không được tìm thấy trong 150 từ đầu tiên.',
+                'points' => 5
+            ];
+
+
+            // ==========================================
+            // D. LIÊN KẾT & HÌNH ẢNH — 15 điểm
+            // ==========================================
+
+            // 1. Có ảnh đại diện (3 điểm)
             $hasThumbnail = ($thumbnail !== '');
-            // Content images analyzer
-            preg_match_all('/<img[^>]+>/i', $content, $imgTags);
-            $totalContentImgs = count($imgTags[0] ?? []);
-            
+            if ($hasThumbnail) {
+                $score += 3;
+            }
+            $linkImageGroup['checks'][] = [
+                'key' => 'has_thumbnail',
+                'label' => 'Ảnh đại diện (Thumbnail)',
+                'status' => $hasThumbnail ? 'pass' : 'fail',
+                'message' => $hasThumbnail ? 'Đã cài đặt ảnh đại diện.' : 'Chưa cài đặt ảnh đại diện cho bài viết.',
+                'points' => 3
+            ];
+
+            // 2. Có ít nhất 1 ảnh trong nội dung (3 điểm)
+            preg_match_all('/<img[^>]+>/i', $content, $contentImgs);
+            $totalContentImgs = count($contentImgs[0] ?? []);
+            $hasContentImg = ($totalContentImgs > 0);
+            if ($hasContentImg) {
+                $score += 3;
+            }
+            $linkImageGroup['checks'][] = [
+                'key' => 'has_content_image',
+                'label' => 'Ảnh trong nội dung',
+                'status' => $hasContentImg ? 'pass' : 'fail',
+                'message' => $hasContentImg ? "Bài viết có $totalContentImgs ảnh trong nội dung." : 'Nên có ít nhất 1 ảnh minh họa trong phần nội dung.',
+                'points' => 3
+            ];
+
+            // 3. Ảnh có alt (3 điểm)
             $hasAltOnImages = false;
             $missingAltCount = 0;
             if ($totalContentImgs > 0) {
-                foreach ($imgTags[0] as $imgTag) {
+                foreach ($contentImgs[0] as $imgTag) {
                     if (!preg_match('/alt=["\'][^"\']+["\']/i', $imgTag)) {
                         $missingAltCount++;
                     }
                 }
                 $hasAltOnImages = ($missingAltCount === 0);
-            }
-
-            // Image checklist status logic
-            $imageStatus = 'fail';
-            $imageMsg = '';
-            if ($hasThumbnail && $totalContentImgs > 0 && $hasAltOnImages) {
-                $score += 10;
-                $imageStatus = 'pass';
-                $imageMsg = 'Đã có thumbnail & ảnh trong nội dung kèm Alt đầy đủ.';
-            } elseif ($hasThumbnail) {
-                $score += 5;
-                $imageStatus = 'warning';
-                $imageMsg = 'Có thumbnail. ';
-                if ($totalContentImgs > 0 && !$hasAltOnImages) {
-                    $imageMsg .= "Cảnh báo: Có $missingAltCount ảnh trong nội dung thiếu thuộc tính Alt.";
-                } else {
-                    $imageMsg .= 'Gợi ý: Bổ sung thêm ảnh kèm Alt trong nội dung.';
-                }
             } else {
-                $imageMsg = 'Thiếu ảnh đại diện (Thumbnail) và ảnh trong nội dung.';
+                // If there are no images at all, they fail this check as well
+                $hasAltOnImages = false;
             }
-
-            $imageGroup['checks'][] = [
-                'key' => 'image_alt_check',
-                'label' => 'Tối ưu hình ảnh & Thuộc tính Alt',
-                'status' => $imageStatus,
-                'message' => $imageMsg
+            
+            if ($totalContentImgs > 0 && $hasAltOnImages) {
+                $score += 3;
+            }
+            $linkImageGroup['checks'][] = [
+                'key' => 'images_alt',
+                'label' => 'Thuộc tính Alt của hình ảnh',
+                'status' => ($totalContentImgs > 0 && $hasAltOnImages) ? 'pass' : 'warning',
+                'message' => ($totalContentImgs > 0 && $hasAltOnImages) ? 'Tất cả hình ảnh nội dung đều có Alt tag.' : ($totalContentImgs > 0 ? "Có $missingAltCount hình ảnh bị thiếu thuộc tính Alt." : 'Không có hình ảnh nội dung nào để kiểm tra Alt tag.'),
+                'points' => 3
             ];
 
-            // 8. Links (5 pts)
+            // 4. Có ít nhất 1 internal link (3 điểm)
             $hasInternalLink = false;
             $hasExternalLink = false;
-            preg_match_all('/href=["\']([^"\']+)["\']/i', $content, $matches);
-            if (!empty($matches[1])) {
-                foreach ($matches[1] as $href) {
+            preg_match_all('/href=["\']([^"\']+)["\']/i', $content, $linksMatches);
+            if (!empty($linksMatches[1])) {
+                foreach ($linksMatches[1] as $href) {
                     if (str_starts_with($href, '/') || str_contains($href, request()->getHost())) {
                         $hasInternalLink = true;
                     } else if (str_starts_with($href, 'http') || str_starts_with($href, 'https')) {
@@ -275,77 +344,132 @@ class ArticleSeoAnalyzerService
                     }
                 }
             }
-            $score += ($hasInternalLink ? 2.5 : 0) + ($hasExternalLink ? 2.5 : 0);
-            $linkGroup['checks'][] = [
+            if ($hasInternalLink) {
+                $score += 3;
+            }
+            $linkImageGroup['checks'][] = [
                 'key' => 'internal_link',
                 'label' => 'Liên kết nội bộ (Internal Link)',
                 'status' => $hasInternalLink ? 'pass' : 'fail',
-                'message' => $hasInternalLink ? 'Đã thêm liên kết nội bộ.' : 'Khuyên dùng: Bổ sung link liên kết nội bộ dẫn tới các trang chuyên khoa liên quan.'
+                'message' => $hasInternalLink ? 'Bài viết chứa liên kết nội bộ.' : 'Cần thêm ít nhất 1 liên kết nội bộ hướng tới bài viết/trang khác của phòng khám.',
+                'points' => 3
             ];
-            $linkGroup['checks'][] = [
+
+            // 5. Có ít nhất 1 external link (3 điểm)
+            if ($hasExternalLink) {
+                $score += 3;
+            }
+            $linkImageGroup['checks'][] = [
                 'key' => 'external_link',
                 'label' => 'Liên kết ngoài (External Link)',
                 'status' => $hasExternalLink ? 'pass' : 'fail',
-                'message' => $hasExternalLink ? 'Đã thêm liên kết ngoài.' : 'Khuyên dùng: Bổ sung liên kết ngoài uy tín để tăng độ tin cậy của bài viết.'
+                'message' => $hasExternalLink ? 'Bài viết chứa liên kết ngoài.' : 'Cần thêm ít nhất 1 liên kết ngoài hướng tới trang web uy tín để kiểm chứng dữ liệu.',
+                'points' => 3
             ];
 
-            // 9. Social SEO (5 pts)
-            $socialPass = ($ogTitle !== '' && $ogDesc !== '' && $ogImage !== '' && $twitterTitle !== '' && $twitterDesc !== '' && $twitterImage !== '');
-            $score += $socialPass ? 5 : 0;
-            $socialGroup['checks'][] = [
-                'key' => 'social_meta',
-                'label' => 'Thông tin mạng xã hội',
-                'status' => $socialPass ? 'pass' : 'warning',
-                'message' => $socialPass ? 'Thông tin Open Graph & Twitter đầy đủ.' : 'Gợi ý: Cấu hình đầy đủ tiêu đề, mô tả và hình ảnh chia sẻ mạng xã hội.'
+
+            // ==========================================
+            // E. KỸ THUẬT — 10 điểm
+            // ==========================================
+
+            // 1. Slug ngắn, dưới 80 ký tự (3 điểm)
+            $slugLen = mb_strlen($targetSlug);
+            $slugLenPass = ($slugLen < 80);
+            if ($slugLenPass) {
+                $score += 3;
+            }
+            $technicalGroup['checks'][] = [
+                'key' => 'slug_length',
+                'label' => 'Độ dài Slug URL',
+                'status' => $slugLenPass ? 'pass' : 'fail',
+                'message' => "Slug nên ngắn gọn dưới 80 ký tự. Hiện tại: $slugLen ký tự.",
+                'points' => 3
             ];
 
-            // 10. Advanced (No specific score points, but checklist output)
-            $hasCanonical = ($canonical !== '');
-            $advancedGroup['checks'][] = [
-                'key'     => 'canonical_check',
-                'label'   => 'Thẻ Canonical',
-                'status'  => $hasCanonical ? 'pass' : 'warning',
-                'message' => $hasCanonical ? "Canonical URL: $canonical" : 'Chưa cấu hình (Hệ thống sẽ tự động dùng link bài viết hiện tại làm canonical).'
+            // 2. Không trùng SEO title với bài khác (2 điểm)
+            $titleQuery = Article::where('meta_title', $metaTitle);
+            if ($article && $article->exists) {
+                $titleQuery->where('id', '!=', $article->id);
+            }
+            $isTitleDuplicate = ($metaTitle !== '') && $titleQuery->exists();
+            if (!$isTitleDuplicate) {
+                $score += 2;
+            }
+            $technicalGroup['checks'][] = [
+                'key' => 'unique_seo_title',
+                'label' => 'Độc nhất SEO Title',
+                'status' => $isTitleDuplicate ? 'fail' : 'pass',
+                'message' => $isTitleDuplicate ? 'Cảnh báo: SEO Title đã bị trùng với bài viết khác.' : 'SEO Title là độc nhất, không bị trùng lặp.',
+                'points' => 2
             ];
-            $advancedGroup['checks'][] = [
-                'key'     => 'robots_meta',
-                'label'   => 'Robots Meta',
-                'status'  => 'pass',
-                'message' => 'Lập chỉ mục: ' . ($article->robots_index ?? true ? 'Index' : 'Noindex') . ', Liên kết: ' . ($article->robots_follow ?? true ? 'Follow' : 'Nofollow')
+
+            // 3. Không trùng meta description với bài khác (2 điểm)
+            $descQuery = Article::where('meta_description', $metaDesc);
+            if ($article && $article->exists) {
+                $descQuery->where('id', '!=', $article->id);
+            }
+            $isDescDuplicate = ($metaDesc !== '') && $descQuery->exists();
+            if (!$isDescDuplicate) {
+                $score += 2;
+            }
+            $technicalGroup['checks'][] = [
+                'key' => 'unique_meta_description',
+                'label' => 'Độc nhất Meta Description',
+                'status' => $isDescDuplicate ? 'fail' : 'pass',
+                'message' => $isDescDuplicate ? 'Cảnh báo: Meta Description bị trùng lặp với bài viết khác.' : 'Meta Description là độc nhất, không bị trùng lặp.',
+                'points' => 2
             ];
-            // Excerpt check
-            $advancedGroup['checks'][] = [
-                'key'     => 'excerpt_check',
-                'label'   => 'Tóm tắt bài viết (Excerpt)',
-                'status'  => $excerpt !== '' ? 'pass' : 'warning',
-                'message' => $excerpt !== '' ? 'Đã có tóm tắt bài viết.' : 'Nên thêm tóm tắt ngắn để tăng CTR và hiển thị trên snippet.'
-            ];
-            // Schema type check
+
+            // 4. Có schema type phù hợp (khác None) (3 điểm)
             $hasSchema = !in_array(strtolower($schemaType), ['none', '']);
-            $advancedGroup['checks'][] = [
-                'key'     => 'schema_type_check',
-                'label'   => 'Loại Schema JSON-LD',
-                'status'  => $hasSchema ? 'pass' : 'warning',
-                'message' => $hasSchema ? "Đang dùng Schema: $schemaType" : 'Chưa chọn Schema JSON-LD. Nên chọn Article, BlogPosting hoặc MedicalWebPage.'
+            if ($hasSchema) {
+                $score += 3;
+            }
+            $technicalGroup['checks'][] = [
+                'key' => 'schema_type_check',
+                'label' => 'Chọn cấu hình Schema JSON-LD',
+                'status' => $hasSchema ? 'pass' : 'fail',
+                'message' => $hasSchema ? "Đang sử dụng loại Schema: $schemaType" : 'Bạn chưa cấu hình Schema JSON-LD (nên chọn Article/MedicalWebPage).',
+                'points' => 3
             ];
 
         } else {
-            // Default blank checks
-            $basicGroup['checks'][] = ['key' => 'meta_title_length', 'label' => 'Độ dài Meta Title', 'status' => 'fail', 'message' => 'Chưa cấu hình Meta Title.'];
-            $basicGroup['checks'][] = ['key' => 'meta_desc_length', 'label' => 'Độ dài Meta Description', 'status' => 'fail', 'message' => 'Chưa cấu hình Meta Description.'];
-            $contentGroup['checks'][] = ['key' => 'content_length', 'label' => 'Độ dài bài viết', 'status' => 'fail', 'message' => 'Vui lòng bổ sung nội dung bài viết.'];
-            $imageGroup['checks'][] = ['key' => 'image_alt_check', 'label' => 'Tối ưu hình ảnh & Alt', 'status' => 'fail', 'message' => 'Không tìm thấy ảnh đại diện và Alt tags.'];
-            $linkGroup['checks'][] = ['key' => 'internal_link', 'label' => 'Liên kết nội bộ (Internal Link)', 'status' => 'fail', 'message' => 'Không có liên kết nội bộ nào.'];
-            $linkGroup['checks'][] = ['key' => 'external_link', 'label' => 'Liên kết ngoài (External Link)', 'status' => 'fail', 'message' => 'Không có liên kết ngoài nào.'];
-            $socialGroup['checks'][] = ['key' => 'social_meta', 'label' => 'Thông tin mạng xã hội', 'status' => 'warning', 'message' => 'Chưa có cấu hình Social metadata.'];
-            $advancedGroup['checks'][] = ['key' => 'canonical_check', 'label' => 'Thẻ Canonical', 'status' => 'warning', 'message' => 'Chưa cấu hình thẻ Canonical.'];
+            // Default checks if focus keyword is empty
+            $basicGroup['checks'][] = ['key' => 'focus_keyword', 'label' => 'Từ khóa chính', 'status' => 'fail', 'message' => 'Vui lòng nhập từ khóa chính để bắt đầu phân tích.'];
+            $basicGroup['checks'][] = ['key' => 'keyword_in_title', 'label' => 'Từ khóa chính trong H1', 'status' => 'fail', 'message' => 'Chưa cấu hình từ khóa chính.'];
+            $basicGroup['checks'][] = ['key' => 'keyword_in_seo_title', 'label' => 'Từ khóa chính trong SEO Title', 'status' => 'fail', 'message' => 'Chưa cấu hình từ khóa chính.'];
+            $basicGroup['checks'][] = ['key' => 'keyword_in_meta_description', 'label' => 'Từ khóa chính trong Meta Description', 'status' => 'fail', 'message' => 'Chưa cấu hình từ khóa chính.'];
+            $basicGroup['checks'][] = ['key' => 'keyword_in_slug', 'label' => 'Từ khóa chính trong Slug URL', 'status' => 'fail', 'message' => 'Chưa cấu hình từ khóa chính.'];
+            $basicGroup['checks'][] = ['key' => 'canonical_check', 'label' => 'Thẻ Canonical', 'status' => 'warning', 'message' => 'Chưa cấu hình thẻ Canonical.'];
+
+            $titleMetaGroup['checks'][] = ['key' => 'title_length', 'label' => 'Độ dài Tiêu đề bài viết', 'status' => 'fail', 'message' => 'Hãy viết tiêu đề từ 40-70 ký tự.'];
+            $titleMetaGroup['checks'][] = ['key' => 'seo_title_length', 'label' => 'Độ dài SEO Title', 'status' => 'fail', 'message' => 'Hãy viết Meta Title từ 50-60 ký tự.'];
+            $titleMetaGroup['checks'][] = ['key' => 'meta_description_length', 'label' => 'Độ dài Meta Description', 'status' => 'fail', 'message' => 'Hãy viết Meta Description từ 140-160 ký tự.'];
+            $titleMetaGroup['checks'][] = ['key' => 'meta_description_cta', 'label' => 'Kêu gọi hành động (CTA)', 'status' => 'fail', 'message' => 'Meta Description cần chứa từ kích thích click.'];
+
+            $contentGroup['checks'][] = ['key' => 'content_length', 'label' => 'Độ dài bài viết', 'status' => 'fail', 'message' => 'Nội dung bài viết quá ngắn.'];
+            $contentGroup['checks'][] = ['key' => 'has_h2', 'label' => 'Sử dụng thẻ Heading H2', 'status' => 'fail', 'message' => 'Nội dung cần chứa tiêu đề phụ H2.'];
+            $contentGroup['checks'][] = ['key' => 'headings_structure', 'label' => 'Số lượng Heading H2 & H3', 'status' => 'fail', 'message' => 'Nên có 2-6 tiêu đề phụ H2/H3.'];
+            $contentGroup['checks'][] = ['key' => 'keyword_density', 'label' => 'Mật độ từ khóa chính', 'status' => 'fail', 'message' => 'Chưa thể tính toán mật độ từ khóa.'];
+            $contentGroup['checks'][] = ['key' => 'keyword_in_first_150_words', 'label' => 'Từ khóa ở đoạn mở đầu', 'status' => 'fail', 'message' => 'Chưa có từ khóa chính.'];
+
+            $linkImageGroup['checks'][] = ['key' => 'has_thumbnail', 'label' => 'Ảnh đại diện (Thumbnail)', 'status' => 'fail', 'message' => 'Chưa cài đặt ảnh đại diện.'];
+            $linkImageGroup['checks'][] = ['key' => 'has_content_image', 'label' => 'Ảnh trong nội dung', 'status' => 'fail', 'message' => 'Chưa có hình ảnh nào trong nội dung.'];
+            $linkImageGroup['checks'][] = ['key' => 'images_alt', 'label' => 'Thuộc tính Alt của hình ảnh', 'status' => 'fail', 'message' => 'Chưa có thuộc tính Alt cho ảnh.'];
+            $linkImageGroup['checks'][] = ['key' => 'internal_link', 'label' => 'Liên kết nội bộ (Internal Link)', 'status' => 'fail', 'message' => 'Chưa có liên kết nội bộ.'];
+            $linkImageGroup['checks'][] = ['key' => 'external_link', 'label' => 'Liên kết ngoài (External Link)', 'status' => 'fail', 'message' => 'Chưa có liên kết ngoài.'];
+
+            $technicalGroup['checks'][] = ['key' => 'slug_length', 'label' => 'Độ dài Slug URL', 'status' => 'fail', 'message' => 'Hãy điền đường dẫn slug ngắn dưới 80 ký tự.'];
+            $technicalGroup['checks'][] = ['key' => 'unique_seo_title', 'label' => 'Độc nhất SEO Title', 'status' => 'fail', 'message' => 'Chưa kiểm tra được trùng lặp.'];
+            $technicalGroup['checks'][] = ['key' => 'unique_meta_description', 'label' => 'Độc nhất Meta Description', 'status' => 'fail', 'message' => 'Chưa kiểm tra được trùng lặp.'];
+            $technicalGroup['checks'][] = ['key' => 'schema_type_check', 'label' => 'Chọn cấu hình Schema JSON-LD', 'status' => 'fail', 'message' => 'Hãy chọn một Schema type phù hợp.'];
         }
 
-        // Clamp score to 100 max
-        $score = (int) round(min($score, 100));
+        // Clamp score to 100 max, 0 min
+        $score = (int) round(min(max($score, 0), 100));
 
         $level = 'bad';
-        if ($score >= 80) {
+        if ($score >= 75) {
             $level = 'good';
         } elseif ($score >= 50) {
             $level = 'average';
@@ -356,11 +480,10 @@ class ArticleSeoAnalyzerService
             'level' => $level,
             'groups' => [
                 $basicGroup,
+                $titleMetaGroup,
                 $contentGroup,
-                $imageGroup,
-                $linkGroup,
-                $socialGroup,
-                $advancedGroup
+                $linkImageGroup,
+                $technicalGroup
             ]
         ];
     }
