@@ -9,10 +9,23 @@
             ?? (trim(strip_tags($article->content ?? '')) !== '' ? Str::limit(strip_tags($article->content), 160) : $article->title);
         $seoDesc = trim($rawDesc);
         
+        // OG image: use og_image if set, else thumbnail, else default
         $articleImage = $article->thumbnail_image ? asset('storage/' . $article->thumbnail_image) : asset('images/doctor.webp');
         if (!preg_match('/^https?:\/\//', $articleImage)) {
             $articleImage = asset($articleImage);
         }
+        $ogImage  = $article->og_image      ? asset('storage/' . $article->og_image)      : $articleImage;
+        $twImage  = $article->twitter_image ? asset('storage/' . $article->twitter_image) : $articleImage;
+
+        $seoTitle   = $article->meta_title ?? ($article->title . ' | Phòng Khám Đa Khoa Gia Phước');
+        $ogTitle    = $article->og_title      ?: $seoTitle;
+        $ogDesc     = $article->og_description ?: $seoDesc;
+        $twTitle    = $article->twitter_title  ?: $seoTitle;
+        $twDesc     = $article->twitter_description ?: $seoDesc;
+        $schemaType = $article->schema_type ?? 'Article';
+
+        // published_at: use published_at if set, fallback to created_at
+        $publishedAt = $article->published_at ?? $article->created_at;
 
         $breadcrumbs = [
             ['name' => 'Trang chủ', 'url' => url('/')],
@@ -23,14 +36,21 @@
     
     <x-seo
         page-type="article"
-        :title="$article->meta_title ?? $article->title . ' | Phòng Khám Đa Khoa Gia Phước'"
+        :title="$seoTitle"
         :description="$seoDesc"
         :canonical="$article->public_url"
         :breadcrumbs="$breadcrumbs"
         :article="$article"
         :image="$articleImage"
-        :published-at="$article->created_at"
+        :published-at="$publishedAt"
         :modified-at="$article->updated_at"
+        :og-title="$ogTitle"
+        :og-description="$ogDesc"
+        :og-image="$ogImage"
+        :twitter-title="$twTitle"
+        :twitter-description="$twDesc"
+        :twitter-image="$twImage"
+        :schema-type="$schemaType"
     />
 
     {{-- Robots metadata --}}

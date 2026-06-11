@@ -11,10 +11,14 @@ class Article extends Model
         'title',
         'slug',
         'content',
+        'excerpt',
         'thumbnail_image',
         'meta_title',
         'meta_description',
         'is_published',
+        'published_at',
+        'schema_type',
+        'schema_json',
         'focus_keyword',
         'seo_slug',
         'canonical_url',
@@ -30,6 +34,15 @@ class Article extends Model
         'seo_checks',
     ];
 
+    protected $casts = [
+        'is_published'  => 'boolean',
+        'robots_index'  => 'boolean',
+        'robots_follow' => 'boolean',
+        'published_at'  => 'datetime',
+        'schema_json'   => 'array',
+        'seo_checks'    => 'array',
+    ];
+
     public function category()
     {
         return $this->belongsTo(Category::class);
@@ -43,6 +56,12 @@ class Article extends Model
     protected static function booted()
     {
         static::saving(function ($article) {
+            // Auto-set published_at on first publish
+            if ($article->is_published && empty($article->published_at)) {
+                $article->published_at = now();
+            }
+            // Do NOT reset published_at if already published
+
             $pattern = \App\Models\Setting::get('url_pattern_article') ?: '{slug}';
             $service = app(\App\Services\UrlRoutingService::class);
             $article->url_path = $service->compileArticlePath($article, $pattern);

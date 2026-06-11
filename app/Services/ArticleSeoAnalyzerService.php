@@ -20,8 +20,10 @@ class ArticleSeoAnalyzerService
         $slug = trim($article->slug ?? '');
         $seoSlug = trim($article->seo_slug ?? '');
         $content = trim($article->content ?? '');
+        $excerpt = trim($article->excerpt ?? '');
         $thumbnail = trim($article->thumbnail_image ?? '');
         $canonical = trim($article->canonical_url ?? '');
+        $schemaType = trim($article->schema_type ?? 'Article');
         
         $ogTitle = trim($article->og_title ?? '');
         $ogDesc = trim($article->og_description ?? '');
@@ -300,16 +302,31 @@ class ArticleSeoAnalyzerService
             // 10. Advanced (No specific score points, but checklist output)
             $hasCanonical = ($canonical !== '');
             $advancedGroup['checks'][] = [
-                'key' => 'canonical_check',
-                'label' => 'Thẻ Canonical',
-                'status' => $hasCanonical ? 'pass' : 'warning',
+                'key'     => 'canonical_check',
+                'label'   => 'Thẻ Canonical',
+                'status'  => $hasCanonical ? 'pass' : 'warning',
                 'message' => $hasCanonical ? "Canonical URL: $canonical" : 'Chưa cấu hình (Hệ thống sẽ tự động dùng link bài viết hiện tại làm canonical).'
             ];
             $advancedGroup['checks'][] = [
-                'key' => 'robots_meta',
-                'label' => 'Robots Meta',
-                'status' => 'pass',
+                'key'     => 'robots_meta',
+                'label'   => 'Robots Meta',
+                'status'  => 'pass',
                 'message' => 'Lập chỉ mục: ' . ($article->robots_index ?? true ? 'Index' : 'Noindex') . ', Liên kết: ' . ($article->robots_follow ?? true ? 'Follow' : 'Nofollow')
+            ];
+            // Excerpt check
+            $advancedGroup['checks'][] = [
+                'key'     => 'excerpt_check',
+                'label'   => 'Tóm tắt bài viết (Excerpt)',
+                'status'  => $excerpt !== '' ? 'pass' : 'warning',
+                'message' => $excerpt !== '' ? 'Đã có tóm tắt bài viết.' : 'Nên thêm tóm tắt ngắn để tăng CTR và hiển thị trên snippet.'
+            ];
+            // Schema type check
+            $hasSchema = !in_array(strtolower($schemaType), ['none', '']);
+            $advancedGroup['checks'][] = [
+                'key'     => 'schema_type_check',
+                'label'   => 'Loại Schema JSON-LD',
+                'status'  => $hasSchema ? 'pass' : 'warning',
+                'message' => $hasSchema ? "Đang dùng Schema: $schemaType" : 'Chưa chọn Schema JSON-LD. Nên chọn Article, BlogPosting hoặc MedicalWebPage.'
             ];
 
         } else {

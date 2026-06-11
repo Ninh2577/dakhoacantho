@@ -192,6 +192,11 @@ Route::get('/debug-logs', function() {
     return response(implode("", $output), 200, ['Content-Type' => 'text/plain']);
 });
 
+// TinyMCE admin image upload route
+Route::post('/admin/tinymce/upload-image', [\App\Http\Controllers\Admin\TinyMCEUploadController::class, 'upload'])
+    ->name('admin.tinymce.upload-image')
+    ->middleware(['web', 'auth']);
+
 // 1. Home Page
 Route::get('/', [PageController::class, 'home'])->name('home');
 

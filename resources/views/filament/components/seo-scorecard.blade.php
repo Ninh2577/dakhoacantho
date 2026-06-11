@@ -1,16 +1,56 @@
-<div x-data="seoScorecard()"
+<div x-data="seoScorecard({
+    title: $wire.entangle('data.meta_title'),
+    mainTitle: $wire.entangle('data.title'),
+    description: $wire.entangle('data.meta_description'),
+    keyword: $wire.entangle('data.focus_keyword'),
+    content: $wire.entangle('data.content'),
+    slug: $wire.entangle('data.slug'),
+    seoSlug: $wire.entangle('data.seo_slug'),
+    canonical: $wire.entangle('data.canonical_url'),
+    robotsIndex: $wire.entangle('data.robots_index'),
+    robotsFollow: $wire.entangle('data.robots_follow'),
+    isPublished: $wire.entangle('data.is_published'),
+    ogTitle: $wire.entangle('data.og_title'),
+    ogDesc: $wire.entangle('data.og_description'),
+    ogImage: $wire.entangle('data.og_image'),
+    twitterTitle: $wire.entangle('data.twitter_title'),
+    twitterDesc: $wire.entangle('data.twitter_description'),
+    twitterImage: $wire.entangle('data.twitter_image'),
+    serverChecksRaw: $wire.entangle('data.seo_checks')
+})"
     class="rounded-xl border p-4 shadow-sm transition duration-300 flex flex-col gap-4 bg-white"
     :class="scoreColor">
 
-    <!-- Score Header & Publish warnings -->
+    <!-- Score Header with circular progress -->
     <div>
         <div class="flex items-center justify-between pb-3 border-b border-slate-100">
             <h3 class="font-extrabold text-sm text-slate-800 uppercase tracking-wider">Điểm SEO bài viết</h3>
-            <div class="flex items-center gap-1.5">
-                <span class="text-3xl font-black" x-text="score"></span>
-                <span class="text-slate-400 text-sm">/ 100</span>
+
+            <!-- SVG Circular Score -->
+            <div class="relative flex items-center justify-center" style="width:72px;height:72px;">
+                <svg width="72" height="72" viewBox="0 0 72 72" class="-rotate-90">
+                    <circle cx="36" cy="36" r="30" fill="none" stroke="#e2e8f0" stroke-width="6"/>
+                    <circle cx="36" cy="36" r="30" fill="none"
+                        :stroke="score >= 80 ? '#10b981' : (score >= 50 ? '#f59e0b' : '#ef4444')"
+                        stroke-width="6"
+                        stroke-linecap="round"
+                        :stroke-dasharray="188.5"
+                        :stroke-dashoffset="188.5 - (188.5 * score / 100)"
+                        style="transition:stroke-dashoffset 0.5s ease;"
+                    />
+                </svg>
+                <div class="absolute flex flex-col items-center leading-none">
+                    <span class="text-lg font-black" x-text="score" :style="'color:' + (score >= 80 ? '#10b981' : (score >= 50 ? '#f59e0b' : '#ef4444'))"></span>
+                    <span class="text-[9px] text-slate-400 font-semibold">/100</span>
+                </div>
             </div>
         </div>
+
+        <!-- Grade label -->
+        <div class="mt-2 text-center text-xs font-bold"
+             :class="score >= 80 ? 'text-emerald-600' : (score >= 50 ? 'text-amber-600' : 'text-rose-600')"
+             x-text="score >= 90 ? '🌟 Rất tốt' : (score >= 75 ? '✅ Tốt' : (score >= 50 ? '⚠️ Cần cải thiện' : '❌ Kém'))"
+        ></div>
 
         <!-- Publish Warning Banner -->
         <template x-if="publishState">
@@ -43,17 +83,37 @@
                 <span x-show="!checks.hasKeyword" class="text-rose-500 text-sm">❌</span>
                 <span>Từ khóa chính: <span x-text="keyword && typeof keyword === 'string' ? '«' + keyword + '»' : (keyword ? '«' + String(keyword) + '»' : 'Chưa nhập')"></span></span>
             </li>
-            <!-- Meta Title length -->
-            <li class="flex items-start gap-2">
-                <span x-show="checks.isTitleLengthGood" class="text-emerald-500 text-sm">✔️</span>
-                <span x-show="!checks.isTitleLengthGood" class="text-rose-500 text-sm">❌</span>
-                <span>Độ dài Meta Title (50-60 ký tự) - <span class="font-bold" x-text="checks.titleLength"></span> ký tự</span>
+            <!-- Meta Title length with counter bar -->
+            <li class="flex flex-col gap-1">
+                <div class="flex items-start gap-2">
+                    <span x-show="checks.isTitleLengthGood" class="text-emerald-500 text-sm shrink-0">✔️</span>
+                    <span x-show="!checks.isTitleLengthGood" class="text-rose-500 text-sm shrink-0">❌</span>
+                    <span>Meta Title: <span class="font-bold" x-text="checks.titleLength"></span>/60 ký tự
+                        <span x-show="checks.isTitleLengthGood" class="text-emerald-600">(Tốt)</span>
+                        <span x-show="!checks.isTitleLengthGood && checks.titleLength > 0" class="text-amber-600">(50-60 là tối ưu)</span>
+                    </span>
+                </div>
+                <div class="ml-6 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                    <div class="h-full rounded-full transition-all duration-300"
+                         :style="'width:' + Math.min(checks.titleLength/60*100,100) + '%;background-color:' + (checks.isTitleLengthGood ? '#10b981' : (checks.titleLength > 60 ? '#ef4444' : '#f59e0b'))"
+                    ></div>
+                </div>
             </li>
-            <!-- Meta Description length -->
-            <li class="flex items-start gap-2">
-                <span x-show="checks.isDescLengthGood" class="text-emerald-500 text-sm">✔️</span>
-                <span x-show="!checks.isDescLengthGood" class="text-rose-500 text-sm">❌</span>
-                <span>Độ dài Meta Description (150-160 ký tự) - <span class="font-bold" x-text="checks.descLength"></span> ký tự</span>
+            <!-- Meta Description length with counter bar -->
+            <li class="flex flex-col gap-1">
+                <div class="flex items-start gap-2">
+                    <span x-show="checks.isDescLengthGood" class="text-emerald-500 text-sm shrink-0">✔️</span>
+                    <span x-show="!checks.isDescLengthGood" class="text-rose-500 text-sm shrink-0">❌</span>
+                    <span>Meta Description: <span class="font-bold" x-text="checks.descLength"></span>/160 ký tự
+                        <span x-show="checks.isDescLengthGood" class="text-emerald-600">(Tốt)</span>
+                        <span x-show="!checks.isDescLengthGood && checks.descLength > 0" class="text-amber-600">(140-160 là tối ưu)</span>
+                    </span>
+                </div>
+                <div class="ml-6 h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                    <div class="h-full rounded-full transition-all duration-300"
+                         :style="'width:' + Math.min(checks.descLength/160*100,100) + '%;background-color:' + (checks.isDescLengthGood ? '#10b981' : (checks.descLength > 160 ? '#ef4444' : '#f59e0b'))"
+                    ></div>
+                </div>
             </li>
             <!-- Keyword in Meta Title -->
             <li class="flex items-start gap-2">
@@ -155,7 +215,7 @@
         <!-- Google Search Snippet Card -->
         <div x-show="previewType === 'google'" class="p-3 bg-white border border-slate-200 rounded-lg space-y-1 text-left">
             <div class="text-[10px] text-slate-500 flex items-center gap-1">
-                <span>https://dakhoacantho.vn</span>
+                <span>{{ rtrim(config('app.url'), '/') }}</span>
                 <span>&rsaquo;</span>
                 <span x-text="seoSlug || slug || 'url-bai-viet'"></span>
             </div>
@@ -168,17 +228,17 @@
         <!-- Facebook Feed Share Card -->
         <div x-show="previewType === 'facebook'" class="bg-white border border-slate-200 rounded-lg overflow-hidden text-left shadow-sm">
             <div class="bg-slate-100 aspect-[1.91/1] flex items-center justify-center relative">
-                <template x-if="ogImage">
-                    <img :src="'/storage/' + ogImage" class="w-full h-full object-cover">
+                <template x-if="getImageUrl(ogImage)">
+                    <img :src="getImageUrl(ogImage)" class="w-full h-full object-cover">
                 </template>
-                <template x-if="!ogImage">
+                <template x-if="!getImageUrl(ogImage)">
                     <div class="p-4 text-center text-xs text-slate-400 font-bold uppercase tracking-wider">
                         Chưa chọn ảnh Open Graph
                     </div>
                 </template>
             </div>
             <div class="p-3 bg-[#f2f3f5] border-t border-slate-200">
-                <div class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">DAKHOACANTHO.VN</div>
+                <div class="text-[10px] text-slate-500 uppercase tracking-wider font-semibold">{{ strtoupper(parse_url(config('app.url'), PHP_URL_HOST) ?? 'DAKHOACANTHO.VN') }}</div>
                 <h4 class="font-bold text-xs text-slate-900 mt-1 line-clamp-1" x-text="ogTitle || title || mainTitle || 'Tiêu đề Facebook...'"></h4>
                 <p class="text-[10px] text-slate-500 mt-1 line-clamp-2" x-text="ogDesc || description || 'Mô tả ngắn Facebook...'"></p>
             </div>
@@ -187,17 +247,17 @@
         <!-- Twitter Card -->
         <div x-show="previewType === 'twitter'" class="bg-white border border-slate-200 rounded-xl overflow-hidden text-left shadow-sm">
             <div class="bg-slate-100 aspect-[2/1] flex items-center justify-center relative">
-                <template x-if="twitterImage">
-                    <img :src="'/storage/' + twitterImage" class="w-full h-full object-cover">
+                <template x-if="getImageUrl(twitterImage)">
+                    <img :src="getImageUrl(twitterImage)" class="w-full h-full object-cover">
                 </template>
-                <template x-if="!twitterImage">
+                <template x-if="!getImageUrl(twitterImage)">
                     <div class="p-4 text-center text-xs text-slate-400 font-bold uppercase tracking-wider">
                         Chưa chọn ảnh Twitter
                     </div>
                 </template>
             </div>
             <div class="p-3">
-                <div class="text-[10px] text-slate-400">dakhoacantho.vn</div>
+                <div class="text-[10px] text-slate-400">{{ parse_url(config('app.url'), PHP_URL_HOST) ?? 'dakhoacantho.vn' }}</div>
                 <h4 class="font-bold text-xs text-slate-900 mt-0.5 line-clamp-1" x-text="twitterTitle || title || mainTitle || 'Tiêu đề Twitter...'"></h4>
                 <p class="text-[10px] text-slate-500 mt-1 line-clamp-2" x-text="twitterDesc || description || 'Mô tả Twitter...'"></p>
             </div>
@@ -230,53 +290,95 @@
 
 <script>
 document.addEventListener('alpine:init', () => {
-    Alpine.data('seoScorecard', () => ({
-        // Reactive state — populated via entangle in init()
-        title: null,
-        mainTitle: null,
-        description: null,
-        keyword: null,
-        content: null,
-        slug: null,
-        seoSlug: null,
-        canonical: null,
-        robotsIndex: true,
-        robotsFollow: true,
-        isPublished: false,
-        ogTitle: null,
-        ogDesc: null,
-        ogImage: null,
-        twitterTitle: null,
-        twitterDesc: null,
-        twitterImage: null,
-        serverChecksRaw: null,
+    Alpine.data('seoScorecard', (config) => ({
+        // Reactive state - bound from constructor config
+        title: config.title,
+        mainTitle: config.mainTitle,
+        description: config.description,
+        keyword: config.keyword,
+        content: config.content,
+        slug: config.slug,
+        seoSlug: config.seoSlug,
+        canonical: config.canonical,
+        robotsIndex: config.robotsIndex,
+        robotsFollow: config.robotsFollow,
+        isPublished: config.isPublished,
+        ogTitle: config.ogTitle,
+        ogDesc: config.ogDesc,
+        ogImage: config.ogImage,
+        twitterTitle: config.twitterTitle,
+        twitterDesc: config.twitterDesc,
+        twitterImage: config.twitterImage,
+        serverChecksRaw: config.serverChecksRaw,
 
         // UI state
         activeTab: 'basic',
         previewType: 'google',
 
         init() {
-            this.title        = this.$wire.entangle('data.meta_title').live;
-            this.mainTitle    = this.$wire.entangle('data.title').live;
-            this.description  = this.$wire.entangle('data.meta_description').live;
-            this.keyword      = this.$wire.entangle('data.focus_keyword').live;
-            this.content      = this.$wire.entangle('data.content').live;
-            this.slug         = this.$wire.entangle('data.slug').live;
-            this.seoSlug      = this.$wire.entangle('data.seo_slug').live;
-            this.canonical    = this.$wire.entangle('data.canonical_url').live;
-            this.robotsIndex  = this.$wire.entangle('data.robots_index').live;
-            this.robotsFollow = this.$wire.entangle('data.robots_follow').live;
-            this.isPublished  = this.$wire.entangle('data.is_published').live;
-            this.ogTitle      = this.$wire.entangle('data.og_title').live;
-            this.ogDesc       = this.$wire.entangle('data.og_description').live;
-            this.ogImage      = this.$wire.entangle('data.og_image').live;
-            this.twitterTitle = this.$wire.entangle('data.twitter_title').live;
-            this.twitterDesc  = this.$wire.entangle('data.twitter_description').live;
-            this.twitterImage = this.$wire.entangle('data.twitter_image').live;
-            this.serverChecksRaw = this.$wire.entangle('data.seo_checks').live;
+            // Reactive state bound via constructor config parameter
         },
 
         // --- Helpers ---
+        toStr(val) {
+            if (!val) return '';
+            if (typeof val === 'string') return val;
+            if (typeof val === 'object') {
+                if (Array.isArray(val)) {
+                    return val.length > 0 ? this.toStr(val[0]) : '';
+                }
+                // Tiptap JSON: {type:'doc', content:[...]}
+                if (val.type === 'doc' && Array.isArray(val.content)) {
+                    return this.tiptapToText(val);
+                }
+                // Check if Generic Object
+                let str = String(val);
+                if (str === '[object Object]') {
+                    return '';
+                }
+                return str;
+            }
+            return String(val);
+        },
+
+        getImageUrl(img) {
+            let path = this.toStr(img);
+            if (!path) return '';
+            if (path.startsWith('http://') || path.startsWith('https://')) {
+                return path;
+            }
+            return '/storage/' + path.replace(/^\/+/, '');
+        },
+
+        // Extract plain text from Tiptap JSON doc
+        tiptapToText(node) {
+            if (!node) return '';
+            if (node.type === 'text') return node.text || '';
+            if (Array.isArray(node.content)) {
+                return node.content.map(n => this.tiptapToText(n)).join(' ');
+            }
+            return '';
+        },
+
+        // Extract HTML-like string from Tiptap JSON for regex checks
+        tiptapToHtml(node) {
+            if (!node) return '';
+            if (typeof node === 'string') return node;
+            if (typeof node !== 'object') return '';
+            if (node.type === 'doc' && Array.isArray(node.content)) {
+                return node.content.map(child => {
+                    let tag = child.type === 'heading'
+                        ? 'h' + (child.attrs?.level || 2)
+                        : (child.type === 'paragraph' ? 'p' : child.type);
+                    let inner = Array.isArray(child.content)
+                        ? child.content.map(n => this.tiptapToText(n)).join('')
+                        : '';
+                    return '<' + tag + '>' + inner + '</' + tag + '>';
+                }).join('');
+            }
+            return '';
+        },
+
         removeAccents(str) {
             if (!str) return '';
             var unicode = {
@@ -332,12 +434,22 @@ document.addEventListener('alpine:init', () => {
         },
 
         get checks() {
-            let keywordVal  = (this.keyword     || '').trim();
-            let titleVal    = (this.title       || '').trim();
-            let mainTitleVal = (this.mainTitle  || '').trim();
-            let descVal     = (this.description || '').trim();
-            let slugVal     = (this.seoSlug || this.slug || '').trim();
-            let contentVal  = (this.content     || '').trim();
+            // Safe conversions: handle Tiptap JSON objects and null values
+            let keywordVal   = this.toStr(this.keyword).trim();
+            let titleVal     = this.toStr(this.title).trim();
+            let mainTitleVal = this.toStr(this.mainTitle).trim();
+            let descVal      = this.toStr(this.description).trim();
+            let slugVal      = this.toStr(this.seoSlug || this.slug).trim();
+
+            // Handle Tiptap JSON content
+            let rawContent  = this.content;
+            let contentHtml = '';
+            if (rawContent && typeof rawContent === 'object' && rawContent.type === 'doc') {
+                contentHtml = this.tiptapToHtml(rawContent);
+            } else if (typeof rawContent === 'string') {
+                contentHtml = rawContent;
+            }
+            let contentVal = contentHtml;
 
             let kwLower = keywordVal.toLowerCase();
 
@@ -414,12 +526,12 @@ document.addEventListener('alpine:init', () => {
             });
 
             // Social SEO complete check
-            let hasOgTitle      = !!(this.ogTitle     || '').trim();
-            let hasOgDesc       = !!(this.ogDesc      || '').trim();
-            let hasOgImg        = !!(this.ogImage);
-            let hasTwitterTitle = !!(this.twitterTitle|| '').trim();
-            let hasTwitterDesc  = !!(this.twitterDesc || '').trim();
-            let hasTwitterImg   = !!(this.twitterImage);
+            let hasOgTitle      = !!this.toStr(this.ogTitle).trim();
+            let hasOgDesc       = !!this.toStr(this.ogDesc).trim();
+            let hasOgImg        = !!this.toStr(this.ogImage);
+            let hasTwitterTitle = !!this.toStr(this.twitterTitle).trim();
+            let hasTwitterDesc  = !!this.toStr(this.twitterDesc).trim();
+            let hasTwitterImg   = !!this.toStr(this.twitterImage);
             let isSocialComplete = hasOgTitle && hasOgDesc && hasOgImg && hasTwitterTitle && hasTwitterDesc && hasTwitterImg;
 
             return {

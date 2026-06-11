@@ -18,6 +18,12 @@ class EditArticle extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            Actions\Action::make('preview')
+                ->label('Xem trước')
+                ->icon('heroicon-o-eye')
+                ->color('info')
+                ->url(fn ($record): string => $record->public_url)
+                ->openUrlInNewTab(),
             Actions\DeleteAction::make()->label('Xóa'),
         ];
     }

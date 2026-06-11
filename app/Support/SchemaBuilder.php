@@ -143,15 +143,20 @@ class SchemaBuilder
             }
         }
 
-        // 5. BlogPosting Node (Only on article detail pages)
+        // 5. Article Node (Article/BlogPosting/MedicalWebPage, based on schema_type)
         $blogPosting = null;
         $pageTypeLower = strtolower($options['pageType'] ?? '');
-        if (($pageTypeLower === 'article' || $pageTypeLower === 'article detail') && !empty($options['article'])) {
+        $schemaType    = $options['schemaType'] ?? ($options['article']->schema_type ?? 'Article');
+
+        if (($pageTypeLower === 'article' || $pageTypeLower === 'article detail')
+            && !empty($options['article'])
+            && strtolower((string) $schemaType) !== 'none'
+        ) {
             $article = $options['article'];
             $articleUrl = $article->public_url;
 
-            $pubDate = $options['publishedAt'] ?? $article->created_at;
-            $modDate = $options['modifiedAt'] ?? $article->updated_at;
+            $pubDate = $options['publishedAt'] ?? $article->published_at ?? $article->created_at;
+            $modDate = $options['modifiedAt']  ?? $article->updated_at;
 
             if ($pubDate instanceof \DateTimeInterface) {
                 $pubDate = $pubDate->format('c'); // ISO 8601
@@ -166,31 +171,46 @@ class SchemaBuilder
                 $articleImage = $article->thumbnail_image ? asset('storage/' . $article->thumbnail_image) : $logoUrl;
             }
 
+            // Normalize schema type
+            $allowedTypes = ['Article', 'BlogPosting', 'MedicalWebPage'];
+            $resolvedType = in_array($schemaType, $allowedTypes) ? $schemaType : 'Article';
+
             $blogPosting = [
-                '@context' => 'https://schema.org',
-                '@type' => 'BlogPosting',
-                '@id' => $articleUrl . '#article',
+                '@context'       => 'https://schema.org',
+                '@type'          => $resolvedType,
+                '@id'            => $articleUrl . '#article',
                 'mainEntityOfPage' => [
                     '@id' => $articleUrl . '#webpage',
                 ],
-                'headline' => $article->title,
-                'description' => $options['description'] ?? $article->meta_description ?? Str::limit(strip_tags($article->content), 150),
-                'image' => $articleImage,
-                'datePublished' => $pubDate,
-                'dateModified' => $modDate,
-                'author' => [
+                'headline'       => $article->title,
+                'description'    => $options['description'] ?? $article->meta_description ?? Str::limit(strip_tags($article->content), 150),
+                'image'          => $articleImage,
+                'datePublished'  => $pubDate,
+                'dateModified'   => $modDate,
+                'author'         => [
                     '@type' => 'Organization',
-                    'name' => 'Ban Biên Tập - Phòng Khám Đa Khoa Gia Phước',
-                    'url' => $siteUrl,
+                    'name'  => 'Ban Biên Tập - Phòng Khám Đa Khoa Gia Phước',
+                    'url'   => $siteUrl,
                 ],
-                'publisher' => [
+                'publisher'      => [
                     '@id' => $siteUrl . '/#organization',
                 ],
-                'inLanguage' => 'vi-VN',
+                'inLanguage'     => 'vi-VN',
             ];
 
             if ($article->category) {
                 $blogPosting['articleSection'] = $article->category->name;
+            }
+
+            // MedicalWebPage extra fields
+            if ($resolvedType === 'MedicalWebPage') {
+                $blogPosting['medicalAudience'] = [
+                    '@type' => 'MedicalAudience',
+                    'audienceType' => 'Patient',
+                ];
+                $blogPosting['about'] = [
+                    '@id' => $siteUrl . '/#organization',
+                ];
             }
         }
 

@@ -10,21 +10,23 @@
     'category' => null,
     'publishedAt' => null,
     'modifiedAt' => null,
+    'schemaType' => 'Article',
 ])
 
 @php
     $schema = App\Support\SchemaBuilder::build([
-        'pageType' => $pageType,
-        'title' => $title,
+        'pageType'    => $pageType,
+        'title'       => $title,
         'description' => $description,
-        'url' => $url,
-        'image' => $image,
+        'url'         => $url,
+        'image'       => $image,
         'breadcrumbs' => $breadcrumbs,
-        'faqItems' => $faqItems,
-        'article' => $article,
-        'category' => $category,
+        'faqItems'    => $faqItems,
+        'article'     => $article,
+        'category'    => $category,
         'publishedAt' => $publishedAt,
-        'modifiedAt' => $modifiedAt,
+        'modifiedAt'  => $modifiedAt,
+        'schemaType'  => $schemaType,
     ]);
 @endphp
 
