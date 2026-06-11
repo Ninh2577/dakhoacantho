@@ -329,8 +329,12 @@
 </div>
 
 <script>
-document.addEventListener('alpine:init', () => {
-    Alpine.data('seoScorecard', (config) => ({
+// Register immediately if Alpine is ready, or defer to alpine:init if not.
+// Filament SPA navigation may load this script AFTER alpine:init has already fired.
+(function() {
+    function registerSeoScorecard() {
+        if (typeof Alpine === 'undefined') return;
+        Alpine.data('seoScorecard', (config) => ({
         // Reactive state - bound from constructor config
         title: config.title,
         mainTitle: config.mainTitle,
@@ -638,5 +642,13 @@ document.addEventListener('alpine:init', () => {
             return { text: 'Cảnh báo mạnh: Điểm SEO quá thấp! Hãy tối ưu thêm trước khi xuất bản.', bg: 'bg-rose-600 text-white animate-pulse', icon: '🚨' };
         }
     }));
-});
+    }
+
+    // Try registering immediately (Alpine already initialized via Filament SPA navigation)
+    if (typeof Alpine !== 'undefined') {
+        registerSeoScorecard();
+    }
+    // Also listen for alpine:init in case this script loads before Alpine boots
+    document.addEventListener('alpine:init', registerSeoScorecard);
+})();
 </script>

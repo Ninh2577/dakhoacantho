@@ -57,14 +57,14 @@
                 content_style: 'body { font-family: Arial, sans-serif; font-size: 16px; line-height: 1.7; color: #334155; }',
                 
                 // Admin image upload integration
-                images_upload_url: '{{ route('admin.tinymce.upload-image') }}',
+                images_upload_url: '{{ route('admin.tinymce.upload-image', [], false) }}',
                 images_upload_credentials: true,
                 automatic_uploads: true,
                 images_upload_handler: (blobInfo, progress) => {
                     return new Promise((resolve, reject) => {
                         let xhr = new XMLHttpRequest();
-                        xhr.withCredentials = false;
-                        xhr.open('POST', '{{ route('admin.tinymce.upload-image') }}');
+                        xhr.withCredentials = true;
+                        xhr.open('POST', '{{ route('admin.tinymce.upload-image', [], false) }}');
                         xhr.setRequestHeader('X-CSRF-TOKEN', '{{ csrf_token() }}');
 
                         xhr.upload.onprogress = (e) => {

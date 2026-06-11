@@ -214,7 +214,7 @@ class ArticleResource extends Resource
                             ->view('filament.components.seo-scorecard')
                             ->columnSpanFull(),
 
-                        Forms\Components\Hidden::make('seo_checks')->default('[]'),
+                        Forms\Components\Hidden::make('seo_checks')->default([])->dehydrated(false),
 
                         // --- SEO Config Card ---
                         Section::make('Cấu hình SEO')->schema([

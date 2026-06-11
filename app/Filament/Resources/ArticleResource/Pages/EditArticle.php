@@ -59,7 +59,7 @@ class EditArticle extends EditRecord
         $result = $analyzer->analyze($article);
 
         $data['seo_score'] = $result['score'];
-        $data['seo_checks'] = json_encode($result);
+        $data['seo_checks'] = $result;
 
         return $data;
     }
