@@ -182,6 +182,11 @@
                     
                     <!-- Article Header Card -->
                     <div class="p-6 md:p-10 border-b border-slate-100 bg-gradient-to-b from-slate-50/50 to-white">
+                        @if(isset($isPreview) && $isPreview)
+                            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black bg-amber-500 text-white uppercase tracking-wider mb-4 animate-pulse">
+                                Bản xem trước
+                            </span>
+                        @endif
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black bg-teal-50 text-teal-700 uppercase tracking-wider mb-4">
                             {{ $article->category->name }}
                         </span>

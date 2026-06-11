@@ -160,6 +160,19 @@ class ArticleResource extends Resource
                                     ->url(fn ($record) => $record?->public_url)
                                     ->openUrlInNewTab()
                                     ->visible(fn ($record) => $record !== null),
+                                Forms\Components\Actions\Action::make('preview_create_in_card')
+                                    ->label('Xem trước')
+                                    ->icon('heroicon-o-eye')
+                                    ->color('info')
+                                    ->extraAttributes([
+                                        'x-on:click' => "window.dispatchEvent(new CustomEvent('sync-tinymce-editors'));"
+                                    ])
+                                    ->action(function ($livewire) {
+                                        if ($livewire instanceof \App\Filament\Resources\ArticleResource\Pages\CreateArticle) {
+                                            $livewire->previewArticle();
+                                        }
+                                    })
+                                    ->visible(fn ($record) => $record === null),
                                 Forms\Components\Actions\Action::make('save_draft_in_card')
                                     ->label('Lưu nháp')
                                     ->color('gray')

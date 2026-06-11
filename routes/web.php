@@ -197,6 +197,11 @@ Route::post('/admin/tinymce/upload-image', [\App\Http\Controllers\Admin\TinyMCEU
     ->name('admin.tinymce.upload-image')
     ->middleware(['web', 'auth']);
 
+// Article preview create route
+Route::get('/admin/articles/preview-create', [\App\Http\Controllers\Admin\ArticlePreviewController::class, 'createPreview'])
+    ->name('admin.articles.preview-create')
+    ->middleware(['web', 'auth']);
+
 // 1. Home Page
 Route::get('/', [PageController::class, 'home'])->name('home');
 

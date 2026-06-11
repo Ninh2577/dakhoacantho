@@ -31,6 +31,29 @@
                     }
                 }
             });
+
+            window.addEventListener('sync-tinymce-editors', () => {
+                if (this.editorInstanceId) {
+                    let editor = tinymce.get(this.editorInstanceId);
+                    if (editor && this.editorReady) {
+                        if (this.activeTab === 'visual') {
+                            this.state = editor.getContent();
+                        } else {
+                            this.state = this.$refs.editor.value;
+                        }
+                    }
+                }
+            });
+
+            if (!window.hasOpenPreviewListener) {
+                window.hasOpenPreviewListener = true;
+                window.addEventListener('open-preview', (event) => {
+                    let url = event.detail.url;
+                    if (url) {
+                        window.open(url, '_blank');
+                    }
+                });
+            }
         },
         
         initEditor() {
