@@ -3,6 +3,7 @@
         state: $wire.entangle('{{ $getStatePath() }}'),
         editorInstanceId: null,
         activeTab: 'visual',
+        editorReady: false,
         
         init() {
             this.$nextTick(() => {
@@ -21,9 +22,11 @@
             this.$watch('state', (newVal) => {
                 if (this.editorInstanceId) {
                     let editor = tinymce.get(this.editorInstanceId);
-                    if (editor && editor.initialized) {
+                    if (editor && this.editorReady) {
                         if (this.activeTab === 'visual' && !editor.hasFocus() && newVal !== editor.getContent()) {
                             editor.setContent(newVal || '');
+                            // Also ensure editor stays in design mode after state update
+                            try { editor.mode.set('design'); } catch (e) {}
                         }
                     }
                 }
@@ -98,13 +101,40 @@
                     // Save instance ID to refer in destroy() and watches
                     this.editorInstanceId = editor.id;
 
-                    // Load initial value
-                    editor.on('init', () => {
-                        editor.setContent(this.state || '');
-                        // Guarantee contenteditable is enabled
+                    // Helper: apply content and force editable design mode
+                    const ensureEditorReady = () => {
                         try {
-                            editor.getBody().setAttribute('contenteditable', 'true');
+                            editor.mode.set('design');
+                            let body = editor.getBody();
+                            if (body) {
+                                body.setAttribute('contenteditable', 'true');
+                            }
                         } catch (e) {}
+                    };
+
+                    // Load initial value with delayed retries
+                    // The iframe body needs time to fully render before it becomes editable
+                    editor.on('init', () => {
+                        // Phase 1: Immediate attempt
+                        editor.setContent(this.state || '');
+                        ensureEditorReady();
+
+                        // Phase 2: Retry after iframe is fully rendered (fixes blank Visual tab)
+                        setTimeout(() => {
+                            if (this.state && editor.getContent() !== this.state) {
+                                editor.setContent(this.state || '');
+                            }
+                            ensureEditorReady();
+                            this.editorReady = true;
+                        }, 150);
+
+                        // Phase 3: Final retry for slow Livewire hydration on edit pages
+                        setTimeout(() => {
+                            if (this.state && editor.getContent() !== this.state) {
+                                editor.setContent(this.state || '');
+                            }
+                            ensureEditorReady();
+                        }, 600);
                     });
 
                     // Debounced state sync on typing
@@ -158,7 +188,9 @@
                 if (editor) {
                     editor.show(); // Hide textarea and show visual editor
                     editor.setContent(this.state || '');
+                    // Force design mode and contenteditable
                     try {
+                        editor.mode.set('design');
                         editor.getBody().setAttribute('contenteditable', 'true');
                     } catch (e) {}
                     setTimeout(() => {
