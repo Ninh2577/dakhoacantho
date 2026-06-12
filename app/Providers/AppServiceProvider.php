@@ -5,7 +5,14 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 
 use Illuminate\Support\Facades\View;
+use Illuminate\Support\Facades\Event;
 use App\Models\Category;
+use App\Services\Security\SecuritySettingsService;
+use App\Services\Security\SecurityEventLogger;
+use App\Listeners\TrackLoginAttempt;
+use Illuminate\Auth\Events\Login;
+use Illuminate\Auth\Events\Failed;
+use Illuminate\Auth\Events\Logout;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -14,7 +21,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        $this->app->singleton(SecuritySettingsService::class);
+        $this->app->singleton(SecurityEventLogger::class);
     }
 
     /**
@@ -43,5 +51,10 @@ class AppServiceProvider extends ServiceProvider
             });
             $view->with('mainCategories', $mainCategories);
         });
+
+        // Security: track login attempts via Laravel auth events
+        Event::listen(Login::class,  [TrackLoginAttempt::class, 'handleLogin']);
+        Event::listen(Failed::class, [TrackLoginAttempt::class, 'handleFailed']);
+        Event::listen(Logout::class, [TrackLoginAttempt::class, 'handleLogout']);
     }
 }
