@@ -15,10 +15,20 @@ class FileScanResult extends Model
         'message',
         'hash',
         'meta',
+        'check_key',
+        'check_group',
+        'status',
+        'target',
+        'recommendation',
+        'reviewed_at',
+        'ignored_at',
+        'ignored_reason',
     ];
 
     protected $casts = [
         'meta' => 'array',
+        'reviewed_at' => 'datetime',
+        'ignored_at' => 'datetime',
     ];
 
     // Type constants
@@ -28,6 +38,7 @@ class FileScanResult extends Model
     const TYPE_DELETED    = 'deleted';
     const TYPE_OK         = 'ok';
     const TYPE_REVIEWED   = 'reviewed';
+    const TYPE_IGNORED    = 'ignored';
 
     // Severity constants (mirrors SecurityEvent)
     const SEVERITY_INFO     = 'info';
@@ -43,7 +54,8 @@ class FileScanResult extends Model
 
     public function scopeSuspicious(Builder $query): Builder
     {
-        return $query->whereIn('type', [self::TYPE_SUSPICIOUS, self::TYPE_MODIFIED, self::TYPE_NEW]);
+        return $query->whereIn('type', [self::TYPE_SUSPICIOUS, self::TYPE_MODIFIED, self::TYPE_NEW])
+                     ->whereNull('ignored_at');
     }
 
     public function scopeCriticalOrHigh(Builder $query): Builder
@@ -52,10 +64,26 @@ class FileScanResult extends Model
     }
 
     /**
-     * Mark result as reviewed (non-destructive, just changes type label).
+     * Mark result as reviewed.
      */
     public function markReviewed(): void
     {
-        $this->update(['type' => self::TYPE_REVIEWED]);
+        $this->update([
+            'type' => self::TYPE_REVIEWED,
+            'reviewed_at' => now(),
+        ]);
     }
+
+    /**
+     * Mark result as ignored.
+     */
+    public function markIgnored(?string $reason = null): void
+    {
+        $this->update([
+            'type' => self::TYPE_IGNORED,
+            'ignored_at' => now(),
+            'ignored_reason' => $reason,
+        ]);
+    }
+
 }
