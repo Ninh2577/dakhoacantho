@@ -174,13 +174,17 @@ Route::get('/debug-login-check', function() {
 });
 
 Route::get('/debug-logs', function() {
+    $routingServiceFile = app_path('Services/UrlRoutingService.php');
+    $mtime = file_exists($routingServiceFile) ? date('Y-m-d H:i:s', filemtime($routingServiceFile)) : 'unknown';
+    
     $logFile = storage_path('logs/laravel.log');
     if (!file_exists($logFile)) {
-        return "Log file not found at " . $logFile;
+        return "Routing service mtime: " . $mtime . "\nLog file not found at " . $logFile;
     }
     
     $lines = file($logFile);
     $output = [];
+    $output[] = "Routing service mtime: " . $mtime . "\n";
     // Look at last 2000 lines, keep error messages and timestamps
     $recentLines = array_slice($lines, -2000);
     foreach ($recentLines as $line) {
