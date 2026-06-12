@@ -18,36 +18,57 @@ class ArticlePreviewController extends Controller
                 ->with('error', 'Chưa có dữ liệu xem trước. Vui lòng bấm Xem trước từ trang tạo mới bài viết.');
         }
 
+        // Normalize inputs to scalar types (strings/null/numeric) to avoid Array to String conversion errors in the view
+        $title = $this->scalarString($data['title'] ?? null, 'Bản xem trước');
+        $slug = $this->scalarString($data['slug'] ?? null, 'ban-xem-truoc');
+        $content = $this->scalarString($data['content'] ?? null, '');
+        $excerpt = $this->scalarString($data['excerpt'] ?? null);
+        $featuredImage = $this->scalarString($data['featured_image'] ?? null);
+        $metaTitle = $this->scalarString($data['meta_title'] ?? null);
+        $metaDescription = $this->scalarString($data['meta_description'] ?? null);
+        $canonicalUrl = $this->scalarString($data['canonical_url'] ?? null);
+        $schemaType = $this->scalarString($data['schema_type'] ?? null, 'Article');
+        $ogTitle = $this->scalarString($data['og_title'] ?? null);
+        $ogDescription = $this->scalarString($data['og_description'] ?? null);
+        $ogImage = $this->scalarString($data['og_image'] ?? null);
+        $twitterTitle = $this->scalarString($data['twitter_title'] ?? null);
+        $twitterDescription = $this->scalarString($data['twitter_description'] ?? null);
+        $twitterImage = $this->scalarString($data['twitter_image'] ?? null);
+
         // Create temporary unsaved Article model
         $article = new Article();
         $article->forceFill([
             'id' => 0,
-            'title' => $data['title'] ?? '',
-            'slug' => $data['slug'] ?? '',
-            'content' => $data['content'] ?? '',
-            'excerpt' => $data['excerpt'] ?? '',
-            'featured_image' => $data['featured_image'] ?? null,
-            'thumbnail_image' => $data['featured_image'] ?? null,
-            'meta_title' => $data['meta_title'] ?? null,
-            'meta_description' => $data['meta_description'] ?? null,
-            'canonical_url' => $data['canonical_url'] ?? null,
-            'schema_type' => $data['schema_type'] ?? 'Article',
+            'title' => $title,
+            'slug' => $slug,
+            'content' => $content,
+            'excerpt' => $excerpt,
+            'featured_image' => $featuredImage,
+            'thumbnail_image' => $featuredImage, // Map featured_image to thumbnail_image as expected by view
+            'meta_title' => $metaTitle,
+            'meta_description' => $metaDescription,
+            'canonical_url' => $canonicalUrl,
+            'schema_type' => $schemaType,
             'robots_index' => false, // Override to false for previews
             'robots_follow' => false, // Override to false for previews
-            'og_title' => $data['og_title'] ?? null,
-            'og_description' => $data['og_description'] ?? null,
-            'og_image' => $data['og_image'] ?? null,
-            'twitter_title' => $data['twitter_title'] ?? null,
-            'twitter_description' => $data['twitter_description'] ?? null,
-            'twitter_image' => $data['twitter_image'] ?? null,
+            'og_title' => $ogTitle,
+            'og_description' => $ogDescription,
+            'og_image' => $ogImage,
+            'twitter_title' => $twitterTitle,
+            'twitter_description' => $twitterDescription,
+            'twitter_image' => $twitterImage,
         ]);
 
         $article->created_at = now();
         $article->updated_at = now();
 
         // Load Category relation
-        if (!empty($data['category_id'])) {
-            $category = Category::find($data['category_id']);
+        $categoryId = is_array($data['category_id'] ?? null)
+            ? collect($data['category_id'])->flatten()->filter(fn ($item) => is_scalar($item))->first()
+            : ($data['category_id'] ?? null);
+
+        if (!empty($categoryId)) {
+            $category = Category::find($categoryId);
             if ($category) {
                 $article->setRelation('category', $category);
             }
@@ -84,8 +105,8 @@ class ArticlePreviewController extends Controller
             $relatedArticles = $relatedArticles->merge($fallbackArticles);
         }
 
-        // Process storage upload path replacements (local subdirectories support)
-        $article->content = str_replace('/storage/uploads/', asset('storage/uploads') . '/', $article->content);
+        // Process storage upload path replacements using the unified normalizer service
+        $article->content = app(\App\Services\Content\ContentImageUrlNormalizer::class)->normalize($article->content);
 
         // Safe server-side Inline CTA injection after the second paragraph (approx 35% of content)
         $paragraphs = explode('</p>', $article->content);
@@ -117,5 +138,28 @@ class ArticlePreviewController extends Controller
             'relatedArticles' => $relatedArticles,
             'isPreview' => true,
         ]);
+    }
+
+    private function scalarString(mixed $value, ?string $default = null): ?string
+    {
+        if (is_null($value)) {
+            return $default;
+        }
+
+        if (is_string($value)) {
+            return $value;
+        }
+
+        if (is_numeric($value) || is_bool($value)) {
+            return (string) $value;
+        }
+
+        if (is_array($value)) {
+            $first = collect($value)->flatten()->filter(fn ($item) => is_scalar($item))->first();
+
+            return $first !== null ? (string) $first : $default;
+        }
+
+        return $default;
     }
 }

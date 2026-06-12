@@ -120,8 +120,8 @@ class ArticleController extends Controller
             }
         }
 
-        // 2. Dynamically replace storage uploads path to support local subdirectories (XAMPP) and production domain root
-        $article->content = str_replace('/storage/uploads/', asset('storage/uploads') . '/', $article->content);
+        // 2. Dynamically replace storage uploads path using the unified normalizer service
+        $article->content = app(\App\Services\Content\ContentImageUrlNormalizer::class)->normalize($article->content);
 
         // 3. Safe server-side Inline CTA injection after the second paragraph (approx 35% of content)
         $paragraphs = explode('</p>', $article->content);

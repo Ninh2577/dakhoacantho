@@ -28,9 +28,13 @@ class CreateArticle extends CreateRecord
                 ->icon('heroicon-o-eye')
                 ->color('info')
                 ->extraAttributes([
-                    'x-on:click' => "window.dispatchEvent(new CustomEvent('sync-tinymce-editors'));"
+                    'x-on:click' => "
+                        \$event.preventDefault();
+                        \$event.stopImmediatePropagation();
+                        window.triggerArticlePreview(\$wire);
+                    "
                 ])
-                ->action('previewArticle'),
+                ->action(fn () => null),
             Actions\Action::make('save_draft')
                 ->label('Lưu nháp')
                 ->color('gray')
@@ -50,17 +54,23 @@ class CreateArticle extends CreateRecord
 
     public function previewArticle(): void
     {
-        if (empty($this->data['title'])) {
+        \Log::info('CREATE_PREVIEW_ARTICLE_CALLED', [
+            'title' => $this->data['title'] ?? null,
+            'slug' => $this->data['slug'] ?? null,
+            'all_data' => $this->data,
+        ]);
+        $title = $this->data['title'] ?? '';
+        if (empty($title)) {
+            $title = 'Bản xem trước';
             \Filament\Notifications\Notification::make()
-                ->title('Lỗi xem trước')
-                ->body('Vui lòng nhập tiêu đề bài viết trước khi xem trước.')
-                ->danger()
+                ->title('Cảnh báo xem trước')
+                ->body('Tiêu đề đang trống, sử dụng tên tạm "Bản xem trước" để hiển thị.')
+                ->warning()
                 ->send();
-            return;
         }
 
         session()->put('article_preview_create', [
-            'title' => $this->data['title'] ?? '',
+            'title' => $title,
             'slug' => $this->data['slug'] ?? '',
             'content' => $this->data['content'] ?? '',
             'excerpt' => $this->data['excerpt'] ?? '',
@@ -80,6 +90,19 @@ class CreateArticle extends CreateRecord
         ]);
 
         $this->dispatch('open-preview', url: url('/admin/articles/preview-create'));
+
+        \Filament\Notifications\Notification::make()
+            ->title('Bản xem trước đã sẵn sàng')
+            ->body('Nếu trình duyệt không tự động mở tab mới, hãy bấm nút bên dưới.')
+            ->actions([
+                \Filament\Notifications\Actions\Action::make('open')
+                    ->label('Mở bản xem trước')
+                    ->url(url('/admin/articles/preview-create'), shouldOpenInNewTab: true)
+                    ->button()
+                    ->color('primary'),
+            ])
+            ->success()
+            ->send();
     }
 
     protected function getFormActions(): array
