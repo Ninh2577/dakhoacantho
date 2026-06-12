@@ -10,6 +10,7 @@ use App\Models\Category;
 use App\Services\Security\SecuritySettingsService;
 use App\Services\Security\SecurityEventLogger;
 use App\Services\Security\SecurityScannerService;
+use App\Services\Security\SecurityFindingGuidanceService;
 use App\Listeners\TrackLoginAttempt;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Auth\Events\Failed;
@@ -25,6 +26,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(SecuritySettingsService::class);
         $this->app->singleton(SecurityEventLogger::class);
         $this->app->singleton(SecurityScannerService::class);
+        $this->app->singleton(SecurityFindingGuidanceService::class);
     }
 
     /**

@@ -61,7 +61,7 @@ class SecurityScannerService
             base_path('public/storage'),
             base_path('public/build'),
             base_path('bootstrap/cache'),
-            storage_path('app/security/baseline.json'),
+            storage_path('app/security'),
         ];
     }
 
@@ -71,6 +71,12 @@ class SecurityScannerService
     public function isExcluded(string $path): bool
     {
         $normalizedPath = str_replace('\\', '/', $path);
+        
+        // Explicitly exclude any files under storage/app/security/ to prevent self-warnings
+        if (str_contains($normalizedPath, 'storage/app/security/')) {
+            return true;
+        }
+
         $realPath = realpath($path);
         $normalizedRealPath = $realPath ? str_replace('\\', '/', $realPath) : $normalizedPath;
 
@@ -314,22 +320,62 @@ class SecurityScannerService
                 continue;
             }
 
-            $content = file_get_contents($file);
-            foreach ($spamKeywords as $keyword) {
-                if (stripos($content, $keyword) !== false) {
+            // Exclude the scanner and guidance service from keyword scan to avoid false positives
+            $relativePath = str_replace(base_path() . DIRECTORY_SEPARATOR, '', $file);
+            $normalizedPath = str_replace('\\', '/', $relativePath);
+            if (str_contains($normalizedPath, 'app/Services/Security/SecurityScannerService.php') ||
+                str_contains($normalizedPath, 'app/Services/Security/SecurityFindingGuidanceService.php')
+            ) {
+                continue;
+            }
+
+            $handle = @fopen($file, 'r');
+            if ($handle) {
+                $lineNum = 0;
+                $matchedKeyword = null;
+                $matchedLine = '';
+                $matchedLineNum = 0;
+
+                while (($line = fgets($handle)) !== false) {
+                    $lineNum++;
+                    foreach ($spamKeywords as $keyword) {
+                        if (stripos($line, $keyword) !== false) {
+                            $matchedKeyword = $keyword;
+                            $matchedLine = $line;
+                            $matchedLineNum = $lineNum;
+                            break 2;
+                        }
+                    }
+                }
+                fclose($handle);
+
+                if ($matchedKeyword) {
                     $foundCount++;
-                    $relativePath = str_replace(base_path() . DIRECTORY_SEPARATOR, '', $file);
+                    
+                    // Create evidence metadata
+                    $snippet = trim($matchedLine);
+                    if (strlen($snippet) > 150) {
+                        $snippet = mb_substr($snippet, 0, 147) . '...';
+                    }
+                    $rawSnippet = htmlspecialchars($snippet, ENT_QUOTES, 'UTF-8');
+
                     $this->addResult(
                         'spamvertising',
                         'Spamvertising',
                         'warning',
                         FileScanResult::SEVERITY_MEDIUM,
-                        "Phát hiện từ khóa nghi ngờ phát tán spam ($keyword) trong tệp.",
+                        "Phát hiện từ khóa nghi ngờ phát tán spam ($matchedKeyword) trong tệp.",
                         $relativePath,
                         "Kiểm tra xem mã nguồn tệp có bị chèn liên kết spam hoặc redirect ẩn đến trang web cá cược/dược phẩm hay không.",
-                        md5_file($file)
+                        md5_file($file),
+                        [
+                            'evidence' => [
+                                'matched_pattern' => $matchedKeyword,
+                                'line' => $matchedLineNum,
+                                'snippet' => $rawSnippet,
+                            ]
+                        ]
                     );
-                    break;
                 }
             }
         }
@@ -655,6 +701,7 @@ class SecurityScannerService
                 if ($item->isFile() && strtolower($item->getExtension()) === 'php') {
                     $foundMalware++;
                     $relativePath = str_replace(base_path() . DIRECTORY_SEPARATOR, '', $item->getPathname());
+                    
                     $this->addResult(
                         'malware_scan',
                         'Quét mã độc',
@@ -663,7 +710,14 @@ class SecurityScannerService
                         "Phát hiện tệp PHP nằm trong thư mục uploads công khai.",
                         $relativePath,
                         "Hệ thống WordPress/Laravel tuyệt đối không cho phép chạy file PHP trong mục tải lên. Hãy kiểm tra và xóa tệp tin này ngay lập tức.",
-                        md5_file($item->getPathname())
+                        md5_file($item->getPathname()),
+                        [
+                            'evidence' => [
+                                'matched_pattern' => 'php_in_uploads',
+                                'line' => 1,
+                                'snippet' => '[Tệp PHP bị cấm chạy trực tiếp từ thư mục tải lên]'
+                            ]
+                        ]
                     );
                 }
             }
@@ -679,7 +733,15 @@ class SecurityScannerService
                 FileScanResult::SEVERITY_CRITICAL,
                 "Tệp .env cấu hình hệ thống nằm công khai trong thư mục public.",
                 'public/.env',
-                "Di chuyển tệp .env ra khỏi thư mục public ngay lập tức."
+                "Di chuyển tệp .env ra khỏi thư mục public ngay lập tức.",
+                md5_file(public_path('.env')),
+                [
+                    'evidence' => [
+                        'matched_pattern' => 'public_env_exposed',
+                        'line' => 1,
+                        'snippet' => '[Đã ẩn nội dung nhạy cảm để bảo mật]'
+                    ]
+                ]
             );
         }
 
@@ -692,19 +754,74 @@ class SecurityScannerService
                 continue;
             }
 
-            $content = file_get_contents($file);
-            foreach ($patterns as $regex => $description) {
-                if (preg_match($regex, $content)) {
+            $handle = @fopen($file, 'r');
+            if ($handle) {
+                $lineNum = 0;
+                $matchedPattern = null;
+                $matchedLine = '';
+                $matchedLineNum = 0;
+                $matchedDescription = '';
+
+                while (($line = fgets($handle)) !== false) {
+                    $lineNum++;
+                    foreach ($patterns as $regex => $description) {
+                        if (preg_match($regex, $line)) {
+                            $matchedPattern = $regex;
+                            $matchedLine = $line;
+                            $matchedLineNum = $lineNum;
+                            $matchedDescription = $description;
+                            break 2;
+                        }
+                    }
+                }
+                fclose($handle);
+
+                if ($matchedPattern) {
                     $foundMalware++;
                     $relativePath = str_replace(base_path() . DIRECTORY_SEPARATOR, '', $file);
-                    
-                    // base64_decode is medium, shell_exec/eval is high/critical
+
+                    // Determine base severity
                     $severity = FileScanResult::SEVERITY_HIGH;
-                    if ($description === 'Sử dụng base64_decode()') {
+                    if ($matchedDescription === 'Sử dụng base64_decode()') {
                         $severity = FileScanResult::SEVERITY_MEDIUM;
                     }
                     if (str_contains($file, 'public' . DIRECTORY_SEPARATOR)) {
                         $severity = FileScanResult::SEVERITY_CRITICAL;
+                    }
+
+                    // Check if file is in allowlist, down-grade severity to low (still warnings for audit review)
+                    $isAllowlisted = false;
+                    $normalizedRel = str_replace('\\', '/', $relativePath);
+                    $allowlist = [
+                        'app/Services/Security/SecurityScannerService.php',
+                        'app/Services/Security/SecurityFindingGuidanceService.php',
+                        'app/Console/Commands/ImportOldArticles.php',
+                        'app/Console/Commands/RemapArticleCategories.php',
+                        'app/Services/WordPress/WordPressImportService.php',
+                        'app/Jobs/RecompileUrlPathsJob.php'
+                    ];
+                    foreach ($allowlist as $al) {
+                        if (str_contains($normalizedRel, $al)) {
+                            $isAllowlisted = true;
+                            break;
+                        }
+                    }
+
+                    if ($isAllowlisted) {
+                        $severity = FileScanResult::SEVERITY_LOW;
+                    }
+
+                    // Format snippet
+                    $snippet = trim($matchedLine);
+                    if (strlen($snippet) > 150) {
+                        $snippet = mb_substr($snippet, 0, 147) . '...';
+                    }
+
+                    // Hide snippets for sensitive files
+                    if (str_contains($normalizedRel, '.env') || str_contains($normalizedRel, 'config/')) {
+                        $rawSnippet = '[Đã ẩn nội dung nhạy cảm để bảo mật]';
+                    } else {
+                        $rawSnippet = htmlspecialchars($snippet, ENT_QUOTES, 'UTF-8');
                     }
 
                     $this->addResult(
@@ -712,12 +829,18 @@ class SecurityScannerService
                         'Quét mã độc',
                         'warning',
                         $severity,
-                        "Phát hiện mẫu lệnh nguy hiểm ($description) trong mã nguồn.",
+                        "Phát hiện mẫu lệnh nguy hiểm ($matchedDescription) trong mã nguồn.",
                         $relativePath,
                         "Kiểm tra xem tệp tin có sử dụng các hàm này một cách an toàn không, hoặc có dấu hiệu bị tiêm mã độc.",
-                        md5_file($file)
+                        md5_file($file),
+                        [
+                            'evidence' => [
+                                'matched_pattern' => $matchedDescription,
+                                'line' => $matchedLineNum,
+                                'snippet' => $rawSnippet,
+                            ]
+                        ]
                     );
-                    break;
                 }
             }
         }
@@ -748,6 +871,10 @@ class SecurityScannerService
                 foreach ($spamKeywords as $kw) {
                     if (str_contains($art->body ?? '', $kw) || str_contains($art->summary ?? '', $kw)) {
                         $foundCount++;
+                        
+                        $text = str_contains($art->body ?? '', $kw) ? ($art->body ?? '') : ($art->summary ?? '');
+                        $rawSnippet = $this->sanitizeDatabaseSnippet($text, $kw);
+
                         $this->addResult(
                             'content_safety',
                             'An toàn nội dung',
@@ -755,7 +882,18 @@ class SecurityScannerService
                             FileScanResult::SEVERITY_HIGH,
                             "Phát hiện thẻ script hoặc mã script tiêm nhiễm trong nội dung bài viết ID [{$art->id}] (Tiêu đề: {$art->title}).",
                             "database:articles:{$art->id}",
-                            "Chỉnh sửa bài viết để loại bỏ các đoạn mã script đáng ngờ, tránh lỗi tấn công XSS chéo trang."
+                            "Chỉnh sửa bài viết để loại bỏ các đoạn mã script đáng ngờ, tránh lỗi tấn công XSS chéo trang.",
+                            null,
+                            [
+                                'evidence' => [
+                                    'article_id' => $art->id,
+                                    'title' => $art->title,
+                                    'field' => str_contains($art->body ?? '', $kw) ? 'body' : 'summary',
+                                    'matched_pattern' => $kw,
+                                    'snippet' => $rawSnippet,
+                                    'admin_edit_url' => "/admin/articles/{$art->id}/edit"
+                                ]
+                            ]
                         );
                         break;
                     }
@@ -766,6 +904,10 @@ class SecurityScannerService
                 foreach ($spamKeywords as $kw) {
                     if (str_contains($setting->value ?? '', $kw)) {
                         $foundCount++;
+
+                        $text = $setting->value ?? '';
+                        $rawSnippet = $this->sanitizeDatabaseSnippet($text, $kw);
+
                         $this->addResult(
                             'content_safety',
                             'An toàn nội dung',
@@ -773,7 +915,16 @@ class SecurityScannerService
                             FileScanResult::SEVERITY_CRITICAL,
                             "Phát hiện mã script trong cài đặt hệ thống key [{$setting->key}].",
                             "database:settings:{$setting->key}",
-                            "Kiểm tra cấu hình hệ thống xem có bị chèn mã độc quảng cáo hoặc mã độc thu thập cookie."
+                            "Kiểm tra cấu hình hệ thống xem có bị chèn mã độc quảng cáo hoặc mã độc thu thập cookie.",
+                            null,
+                            [
+                                'evidence' => [
+                                    'field' => 'value',
+                                    'matched_pattern' => $kw,
+                                    'snippet' => $rawSnippet,
+                                    'admin_edit_url' => "/admin/home-page-settings"
+                                ]
+                            ]
                         );
                         break;
                     }
@@ -1186,5 +1337,53 @@ class SecurityScannerService
             'total_ignored' => $totalIgnored,
             'status' => $status,
         ];
+    }
+
+    /**
+     * Sanitize database snippet to avoid exposing sensitive medical data.
+     * Keeps code keywords, masks other words, and HTML escapes.
+     */
+    protected function sanitizeDatabaseSnippet(string $text, string $keyword): string
+    {
+        $pos = stripos($text, $keyword);
+        if ($pos === false) {
+            return '';
+        }
+
+        $start = max(0, $pos - 45);
+        $snippet = mb_substr($text, $start, 100);
+        
+        // Truncate markers
+        $prefix = ($start > 0) ? '...' : '';
+        $suffix = ($pos + strlen($keyword) + 55 < strlen($text)) ? '...' : '';
+        $snippet = $prefix . $snippet . $suffix;
+
+        // Strip HTML tags to avoid rendering raw HTML in the snippet container, but keep text
+        $snippet = strip_tags($snippet);
+
+        // Mask any words to protect sensitive medical/patient data
+        // Matches any sequence of letters/numbers (including Vietnamese Unicode)
+        $allowedCodeWords = [
+            'script', 'iframe', 'onerror', 'onload', 'javascript', 'window', 'location',
+            'var', 'let', 'const', 'function', 'http', 'https', 'src', 'href', 'width',
+            'height', 'style', 'document', 'cookie', 'alert', 'eval', 'onmouseover',
+            'body', 'summary', 'settings', 'value', 'key'
+        ];
+
+        $snippet = preg_replace_callback('/[\p{L}\p{N}_]+/u', function ($matches) use ($allowedCodeWords, $keyword) {
+            $word = $matches[0];
+            $lowerWord = strtolower($word);
+            
+            // Keep allowed code keywords or words that are part of the target match keyword
+            if (stripos($keyword, $word) !== false || in_array($lowerWord, $allowedCodeWords)) {
+                return $word;
+            }
+            
+            // Mask sensitive patient/medical words with *
+            return str_repeat('*', min(strlen($word), 5));
+        }, $snippet);
+
+        // HTML escape to be safe
+        return htmlspecialchars($snippet, ENT_QUOTES, 'UTF-8');
     }
 }

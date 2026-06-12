@@ -205,7 +205,10 @@ class SecurityScan extends Page implements Tables\Contracts\HasTable
                     ->modalCancelActionLabel('Đóng')
                     ->modalContent(fn (FileScanResult $record) => view(
                         'filament.security.scan-detail',
-                        ['record' => $record]
+                        [
+                            'record' => $record,
+                            'guidance' => app(\App\Services\Security\SecurityFindingGuidanceService::class)->build($record)
+                        ]
                     )),
 
                 TableAction::make('markReviewed')
@@ -234,7 +237,19 @@ class SecurityScan extends Page implements Tables\Contracts\HasTable
                             ->required(),
                     ])
                     ->action(function (FileScanResult $record, array $data) {
-                        $record->markIgnored($data['ignored_reason']);
+                        $user = auth()->user();
+                        $by = $user ? "{$user->name} ({$user->email})" : 'Hệ thống';
+                        
+                        $meta = $record->meta ?: [];
+                        $meta['ignored_by'] = $by;
+
+                        $record->update([
+                            'type' => FileScanResult::TYPE_IGNORED,
+                            'ignored_at' => now(),
+                            'ignored_reason' => $data['ignored_reason'],
+                            'meta' => $meta
+                        ]);
+
                         Notification::make()
                             ->title('Đã đánh dấu bỏ qua cảnh báo.')
                             ->success()
