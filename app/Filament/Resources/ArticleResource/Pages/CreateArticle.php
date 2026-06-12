@@ -52,13 +52,20 @@ class CreateArticle extends CreateRecord
         ];
     }
 
-    public function previewArticle(): void
+    public function previewArticle(?string $content = null): void
     {
         try {
             \Log::info('CREATE_PREVIEW_ARTICLE_CALLED', [
                 'title' => $this->data['title'] ?? null,
                 'slug'  => $this->data['slug'] ?? null,
             ]);
+
+            // If content is passed directly (from TinyMCE JS sync), use it.
+            // This avoids a race condition where $this->data['content'] is stale
+            // because $wire.set() and $wire.previewArticle() were two separate requests.
+            if ($content !== null) {
+                $this->data['content'] = $content;
+            }
 
             $title = $this->data['title'] ?? '';
             if (empty($title)) {

@@ -90,22 +90,26 @@
                     if (this.editorInstanceId) {
                         let editor = tinymce.get(this.editorInstanceId);
                         if (editor && this.editorReady) {
-                            // Call TinyMCE's built-in uploadImages method to process any pending local blob/pasted images first
+                            // Upload any pending blob images first, then sync + preview in ONE Livewire call
                             editor.uploadImages().then(() => {
                                 let content = (this.activeTab === 'visual') ? editor.getContent() : this.$refs.editor.value;
+
+                                // Keep Alpine state in sync (local only, no extra Livewire round-trip)
                                 this.state = content;
-                                
+
                                 // Check for lingering blobs to warn if uploads did not complete
                                 if (content.includes('src="blob:')) {
                                     console.warn('TinyMCE image upload did not complete before preview');
                                 }
 
-                                // Synchronously update Livewire state path
-                                this.$wire.set(this.statePath, content);
-
-                                // Programmatically trigger preview on the server side if requested
                                 if (event.detail && event.detail.triggerPreview) {
-                                    this.$wire.previewArticle();
+                                    // Pass content directly to previewArticle() in a SINGLE Livewire call.
+                                    // This eliminates the race condition where a separate $wire.set() request
+                                    // has not committed to $this->data before previewArticle() reads it.
+                                    this.$wire.previewArticle(content);
+                                } else {
+                                    // Not a preview trigger — just sync state normally
+                                    this.$wire.set(this.statePath, content);
                                 }
                             }).catch((err) => {
                                 console.error('TinyMCE pending upload error:', err);
