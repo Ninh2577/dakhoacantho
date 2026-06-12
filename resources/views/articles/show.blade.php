@@ -29,7 +29,7 @@
 
         $breadcrumbs = [
             ['name' => 'Trang chủ', 'url' => url('/')],
-            ['name' => $article->category->name, 'url' => $article->category->public_url],
+            ['name' => $article->category?->name ?? 'Bài viết', 'url' => $article->category?->public_url ?? url('/')],
             ['name' => $article->title, 'url' => $article->public_url]
         ];
     @endphp
@@ -151,6 +151,7 @@
                         Trang Chủ
                     </a>
                 </li>
+                @if($article->category)
                 <li>
                     <div class="flex items-center">
                         <svg class="w-5 h-5 text-slate-300" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -161,6 +162,7 @@
                         </a>
                     </div>
                 </li>
+                @endif
                 <li aria-current="page">
                     <div class="flex items-center">
                         <svg class="w-5 h-5 text-slate-300" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -188,7 +190,7 @@
                             </span>
                         @endif
                         <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-black bg-teal-50 text-teal-700 uppercase tracking-wider mb-4">
-                            {{ $article->category->name }}
+                            {{ $article->category?->name ?? 'Bài viết' }}
                         </span>
                         
                         <h1 class="text-2xl md:text-4xl font-extrabold text-slate-900 leading-tight mb-5 tracking-tight">
@@ -384,7 +386,7 @@
                                         </div>
                                     @endif
                                     <span class="absolute top-3 left-3 bg-white/95 backdrop-blur-sm px-2.5 py-1 rounded-full text-[9px] font-black text-clinic-teal uppercase shadow-sm">
-                                        {{ $related->category->name }}
+                                        {{ $related->category?->name ?? 'Bài viết' }}
                                     </span>
                                 </a>
                                 <div class="p-4 space-y-2 flex-grow flex flex-col justify-between">
@@ -585,7 +587,7 @@
                                     </div>
                                 @endif
                                 <div class="space-y-1">
-                                    <span class="text-[9px] font-black text-clinic-teal uppercase">{{ $related->category->name }}</span>
+                                    <span class="text-[9px] font-black text-clinic-teal uppercase">{{ $related->category?->name ?? 'Bài viết' }}</span>
                                     <h4 class="text-xs font-bold text-slate-800 line-clamp-2 group-hover:text-clinic-teal transition-colors leading-snug">{{ $related->title }}</h4>
                                 </div>
                             </a>
