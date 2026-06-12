@@ -65,8 +65,13 @@ class UrlRoutingService
     /**
      * Normalize paths safely.
      */
-    public function normalizePath(string $path): string
+    public function normalizePath(?string $path): string
     {
+        // Treat null as empty string — callers will handle redirect/404 logic
+        if ($path === null) {
+            return '';
+        }
+
         // 1. Remove domain or host if full URL is pasted
         if (preg_match('/^(?:https?:\/\/)?(?:[a-z0-9\-]+\.)+[a-z0-9\-]+(?::\d+)?(.*)$/i', $path, $matches)) {
             $path = $matches[1];
@@ -93,7 +98,7 @@ class UrlRoutingService
 
         // 7. Strip completely unsafe characters (e.g. quotes, brackets, spaces, query symbols)
         // Keeps letters, numbers, hyphens, slashes, dots, underscores, and Vietnamese unicode characters
-        $path = preg_replace('/[^a-z0-9\-\/\.\_\x{00C0}-\x{017F}\x{1EA0}-\x{1EF9}]/u', '', $path);
+        $path = preg_replace('/[^a-z0-9\-\/\._\x{00C0}-\x{017F}\x{1EA0}-\x{1EF9}]/u', '', $path);
 
         // 8. Clean trailing slashes/periods near extensions
         // e.g. .html/ -> .html

@@ -29,10 +29,24 @@ class ArticleController extends Controller
         $article = $query->firstOrFail();
 
         $routingService = app(\App\Services\UrlRoutingService::class);
-        $currentPath = $routingService->normalizePath(request()->path());
-        $newPath = $routingService->normalizePath($article->url_path);
 
-        if ($currentPath !== $newPath) {
+        // If url_path is null (legacy records), compute and persist it now
+        if ($article->url_path === null) {
+            try {
+                $pattern = \App\Models\Setting::get('url_pattern_article') ?: '{slug}';
+                $article->url_path = $routingService->compileArticlePath($article, $pattern);
+                $article->saveQuietly();
+            } catch (\Throwable) {
+                // Fallback: use slug directly
+                $article->url_path = $slug;
+            }
+        }
+
+        $currentPath = $routingService->normalizePath(request()->path());
+        $newPath     = $routingService->normalizePath($article->url_path);
+
+        // Guard against empty newPath (edge case) — render instead of redirect loop
+        if (!empty($newPath) && $currentPath !== $newPath) {
             return redirect()->to($article->public_url, 301);
         }
 
@@ -148,10 +162,22 @@ class ArticleController extends Controller
         $article = $query->firstOrFail();
 
         $routingService = app(\App\Services\UrlRoutingService::class);
-        $currentPath = $routingService->normalizePath(request()->path());
-        $newPath = $routingService->normalizePath($article->url_path);
 
-        if ($currentPath === $newPath) {
+        // Heal null url_path for legacy records
+        if ($article->url_path === null) {
+            try {
+                $pattern = \App\Models\Setting::get('url_pattern_article') ?: '{slug}';
+                $article->url_path = $routingService->compileArticlePath($article, $pattern);
+                $article->saveQuietly();
+            } catch (\Throwable) {
+                $article->url_path = $slug;
+            }
+        }
+
+        $currentPath = $routingService->normalizePath(request()->path());
+        $newPath     = $routingService->normalizePath($article->url_path);
+
+        if (!empty($newPath) && $currentPath === $newPath) {
             return $this->showResolved($article);
         }
 

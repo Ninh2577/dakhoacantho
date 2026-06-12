@@ -42,10 +42,22 @@ class CategoryController extends Controller
         }
 
         $routingService = app(\App\Services\UrlRoutingService::class);
-        $currentPath = $routingService->normalizePath(request()->path());
-        $newPath = $routingService->normalizePath($selectedCategory->url_path);
 
-        if ($currentPath !== $newPath) {
+        // Heal null url_path for legacy category records
+        if ($selectedCategory->url_path === null) {
+            try {
+                $pattern = \App\Models\Setting::get('url_pattern_category') ?: 'category/{categories}';
+                $selectedCategory->url_path = $routingService->compileCategoryPath($selectedCategory, $pattern);
+                $selectedCategory->saveQuietly();
+            } catch (\Throwable) {
+                $selectedCategory->url_path = 'category/' . $category_path;
+            }
+        }
+
+        $currentPath = $routingService->normalizePath(request()->path());
+        $newPath     = $routingService->normalizePath($selectedCategory->url_path);
+
+        if (!empty($newPath) && $currentPath !== $newPath) {
             return redirect()->to($selectedCategory->public_url, 301);
         }
 
