@@ -192,47 +192,6 @@ Route::get('/debug-logs', function() {
     return response(implode("", $output), 200, ['Content-Type' => 'text/plain']);
 });
 
-// Temporary: diagnose the 500 error on article view
-Route::get('/debug-article/{slug}', function(string $slug) {
-    try {
-        $article = \App\Models\Article::with('category.parent.parent')
-            ->where('slug', $slug)
-            ->first();
-
-        if (!$article) {
-            $byPath = \App\Models\Article::with('category.parent.parent')
-                ->where('url_path', $slug)
-                ->first();
-            return response()->json([
-                'by_slug' => null,
-                'by_url_path' => $byPath ? ['id' => $byPath->id, 'title' => $byPath->title, 'url_path' => $byPath->url_path, 'is_published' => $byPath->is_published] : null,
-                'article_count' => \App\Models\Article::count(),
-                'db_tables' => array_map(fn($t) => array_values((array)$t)[0], \Illuminate\Support\Facades\DB::select('SHOW TABLES')),
-            ]);
-        }
-
-        return response()->json([
-            'id'           => $article->id,
-            'title'        => $article->title,
-            'slug'         => $article->slug,
-            'url_path'     => $article->url_path,
-            'is_published' => $article->is_published,
-            'category_id'  => $article->category_id,
-            'category'     => $article->category ? ['id' => $article->category->id, 'name' => $article->category->name, 'slug' => $article->category->slug, 'url_path' => $article->category->url_path] : null,
-            'public_url'   => $article->public_url,
-            'current_path' => request()->path(),
-            'db_tables'    => array_map(fn($t) => array_values((array)$t)[0], \Illuminate\Support\Facades\DB::select('SHOW TABLES LIKE \'%security%\'')),
-        ]);
-    } catch (\Throwable $e) {
-        return response()->json([
-            'error'   => $e->getMessage(),
-            'file'    => $e->getFile(),
-            'line'    => $e->getLine(),
-            'class'   => get_class($e),
-        ], 500);
-    }
-});
-
 // TinyMCE admin image upload route
 Route::post('/admin/tinymce/upload-image', [\App\Http\Controllers\Admin\TinyMCEUploadController::class, 'upload'])
     ->name('admin.tinymce.upload-image')
