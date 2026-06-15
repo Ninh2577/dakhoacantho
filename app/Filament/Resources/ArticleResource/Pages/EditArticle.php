@@ -92,6 +92,12 @@ class EditArticle extends EditRecord
                 'previewed_at'        => now()->toDateTimeString(),
             ]);
 
+            // Force immediate session flush to DB before JS opens the preview tab.
+            // Without this, the database session is only written at end-of-response,
+            // creating a race condition: the new tab's GET request may arrive at the
+            // preview controller before the Livewire request commits its session write.
+            session()->save();
+
             $previewUrl = url('/admin/articles/preview-create');
 
             $this->dispatch('open-preview', url: $previewUrl);
