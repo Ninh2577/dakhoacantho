@@ -22,14 +22,14 @@ class EditArticle extends EditRecord
                 ->label('Xem trước')
                 ->icon('heroicon-o-eye')
                 ->color('info')
+                ->url('#')
                 ->extraAttributes([
                     'x-on:click' => "
                         \$event.preventDefault();
                         \$event.stopImmediatePropagation();
-                        window.triggerArticlePreview(\$wire);
+                        window.triggerArticlePreview(\$wire, \$el);
                     "
-                ])
-                ->action(fn () => null),
+                ]),
             Actions\Action::make('save_draft')
                 ->label('Lưu nháp')
                 ->color('gray')

@@ -157,6 +157,34 @@ class ArticleResourceTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Test Article for Preview Page');
     }
+
+    /** @test */
+    public function admins_can_post_data_to_preview_page()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+        ]);
+
+        $category = Category::create([
+            'name' => 'General Medicine',
+            'slug' => 'general-medicine',
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->post('/admin/articles/preview-create', [
+                'data' => [
+                    'title' => 'Test POST Article Preview',
+                    'slug' => 'test-post-article-preview',
+                    'content' => '<p>POST preview content page</p>',
+                    'category_id' => $category->id,
+                ]
+            ]);
+
+        $response->assertStatus(200);
+        $response->assertSee('Test POST Article Preview');
+        
+        $this->assertEquals('Test POST Article Preview', session('article_preview_create.title'));
+    }
 }
 
 

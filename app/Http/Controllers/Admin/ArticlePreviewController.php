@@ -11,6 +11,14 @@ class ArticlePreviewController extends Controller
 {
     public function createPreview(Request $request)
     {
+        if ($request->isMethod('post')) {
+            $postData = $request->input('data');
+            if (is_array($postData)) {
+                session()->put('article_preview_create', $postData);
+                session()->save();
+            }
+        }
+
         $data = session('article_preview_create');
 
         if (!$data) {

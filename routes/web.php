@@ -201,8 +201,8 @@ Route::post('/admin/tinymce/upload-image', [\App\Http\Controllers\Admin\TinyMCEU
     ->name('admin.tinymce.upload-image')
     ->middleware(['web', 'auth']);
 
-// Article preview create route
-Route::get('/admin/articles/preview-create', [\App\Http\Controllers\Admin\ArticlePreviewController::class, 'createPreview'])
+// Article preview create route (supports POST for synchronous preview form submits)
+Route::match(['get', 'post'], '/admin/articles/preview-create', [\App\Http\Controllers\Admin\ArticlePreviewController::class, 'createPreview'])
     ->name('admin.articles.preview-create')
     ->middleware(['web', 'auth']);
 

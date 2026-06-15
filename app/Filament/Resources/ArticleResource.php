@@ -157,14 +157,14 @@ class ArticleResource extends Resource
                                      ->label('Xem trước')
                                      ->icon('heroicon-o-eye')
                                      ->color('info')
+                                     ->url('#')
                                      ->extraAttributes([
                                          'x-on:click' => "
                                              \$event.preventDefault();
                                              \$event.stopImmediatePropagation();
-                                             window.triggerArticlePreview(\$wire);
+                                             window.triggerArticlePreview(\$wire, \$el);
                                          "
-                                     ])
-                                     ->action(fn () => null),
+                                     ]),
                                 Forms\Components\Actions\Action::make('save_draft_in_card')
                                     ->label('Lưu nháp')
                                     ->color('gray')
