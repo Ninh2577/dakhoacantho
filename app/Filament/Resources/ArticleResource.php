@@ -190,8 +190,8 @@ class ArticleResource extends Resource
                             ])->fullWidth(),
                         ]),
 
-                        // --- Category Card ---
-                        Section::make('Danh mục')->schema([
+                        // --- Category & Author Card ---
+                        Section::make('Danh mục & Tác giả')->schema([
                             Select::make('category_id')
                                 ->label('Chuyên khoa / Danh mục')
                                 ->relationship('category', 'name')
@@ -199,6 +199,12 @@ class ArticleResource extends Resource
                                 ->required()
                                 ->searchable()
                                 ->preload(),
+
+                            TextInput::make('author')
+                                ->label('Tác giả')
+                                ->placeholder('Nhập tên tác giả...')
+                                ->maxLength(255)
+                                ->helperText('Để trống để tự động hiển thị theo chuyên khoa.'),
                         ]),
 
                         // --- Thumbnail Card ---
@@ -367,6 +373,8 @@ class ArticleResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('author')
                     ->label('Tác giả')
+                    ->searchable()
+                    ->sortable()
                     ->default(fn (Article $record): string => match ($record->category?->slug) {
                         'nam-khoa' => 'BS. Nguyễn Văn An',
                         'phu-khoa' => 'BS. Trần Thị Mai',

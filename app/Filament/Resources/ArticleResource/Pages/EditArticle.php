@@ -79,6 +79,7 @@ class EditArticle extends EditRecord
                 'excerpt'             => $this->data['excerpt'] ?? '',
                 'featured_image'      => $featuredImage,
                 'category_id'         => $this->data['category_id'] ?? null,
+                'author'              => $this->data['author'] ?? null,
                 'meta_title'          => $this->data['meta_title'] ?? null,
                 'meta_description'    => $this->data['meta_description'] ?? null,
                 'canonical_url'       => $this->data['canonical_url'] ?? null,

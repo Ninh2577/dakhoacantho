@@ -12,8 +12,43 @@ class ArticlePreviewController extends Controller
     public function createPreview(Request $request)
     {
         if ($request->isMethod('post')) {
+            // Get data from 'data' key (Filament form fields are nested under 'data')
             $postData = $request->input('data');
-            if (is_array($postData)) {
+
+            // If 'data' key not found, try to collect from individual form fields
+            if (!is_array($postData) || empty($postData)) {
+                $postData = [];
+                // Map common form field names
+                $fieldNames = [
+                    'title',
+                    'slug',
+                    'content',
+                    'excerpt',
+                    'featured_image',
+                    'category_id',
+                    'author',
+                    'meta_title',
+                    'meta_description',
+                    'canonical_url',
+                    'schema_type',
+                    'og_title',
+                    'og_description',
+                    'og_image',
+                    'twitter_title',
+                    'twitter_description',
+                    'twitter_image',
+                    'is_published'
+                ];
+
+                foreach ($fieldNames as $field) {
+                    $value = $request->input($field);
+                    if ($value !== null) {
+                        $postData[$field] = $value;
+                    }
+                }
+            }
+
+            if (!empty($postData)) {
                 session()->put('article_preview_create', $postData);
                 session()->save();
             }
@@ -36,6 +71,7 @@ class ArticlePreviewController extends Controller
         $metaDescription = $this->scalarString($data['meta_description'] ?? null);
         $canonicalUrl = $this->scalarString($data['canonical_url'] ?? null);
         $schemaType = $this->scalarString($data['schema_type'] ?? null, 'Article');
+        $author = $this->scalarString($data['author'] ?? null);
         $ogTitle = $this->scalarString($data['og_title'] ?? null);
         $ogDescription = $this->scalarString($data['og_description'] ?? null);
         $ogImage = $this->scalarString($data['og_image'] ?? null);
@@ -53,6 +89,7 @@ class ArticlePreviewController extends Controller
             'excerpt' => $excerpt,
             'featured_image' => $featuredImage,
             'thumbnail_image' => $featuredImage, // Map featured_image to thumbnail_image as expected by view
+            'author' => $author,
             'meta_title' => $metaTitle,
             'meta_description' => $metaDescription,
             'canonical_url' => $canonicalUrl,
@@ -72,7 +109,7 @@ class ArticlePreviewController extends Controller
 
         // Load Category relation
         $categoryId = is_array($data['category_id'] ?? null)
-            ? collect($data['category_id'])->flatten()->filter(fn ($item) => is_scalar($item))->first()
+            ? collect($data['category_id'])->flatten()->filter(fn($item) => is_scalar($item))->first()
             : ($data['category_id'] ?? null);
 
         if (!empty($categoryId)) {
@@ -102,7 +139,7 @@ class ArticlePreviewController extends Controller
         if ($relatedArticles->count() < 4) {
             $needed = 4 - $relatedArticles->count();
             $excludeIds = $relatedArticles->pluck('id')->push(0)->toArray();
-            
+
             $fallbackArticles = Article::with('category.parent.parent')
                 ->whereNotIn('id', $excludeIds)
                 ->where('is_published', true)
@@ -128,16 +165,16 @@ class ArticlePreviewController extends Controller
         }
 
         // Ensure all inline content images have lazy loading and async decoding
-        $article->content = preg_replace_callback('/<img\s+([^>]*)/i', function($matches) {
+        $article->content = preg_replace_callback('/<img\s+([^>]*)/i', function ($matches) {
             $attributes = $matches[1];
-            
+
             if (stripos($attributes, 'loading=') === false) {
                 $attributes .= ' loading="lazy"';
             }
             if (stripos($attributes, 'decoding=') === false) {
                 $attributes .= ' decoding="async"';
             }
-            
+
             return '<img ' . $attributes;
         }, $article->content);
 
@@ -163,7 +200,7 @@ class ArticlePreviewController extends Controller
         }
 
         if (is_array($value)) {
-            $first = collect($value)->flatten()->filter(fn ($item) => is_scalar($item))->first();
+            $first = collect($value)->flatten()->filter(fn($item) => is_scalar($item))->first();
 
             return $first !== null ? (string) $first : $default;
         }

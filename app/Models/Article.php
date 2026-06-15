@@ -8,6 +8,7 @@ class Article extends Model
 {
     protected $fillable = [
         'category_id',
+        'author',
         'title',
         'slug',
         'content',

@@ -189,8 +189,12 @@ class SchemaBuilder
                 'datePublished'  => $pubDate,
                 'dateModified'   => $modDate,
                 'author'         => [
-                    '@type' => 'Organization',
-                    'name'  => 'Ban Biên Tập - Phòng Khám Đa Khoa Gia Phước',
+                    '@type' => ($article->author || stripos($article->author ?: '', 'BS.') !== false || stripos($article->author ?: '', 'Bác sĩ') !== false || in_array($article->category?->slug, ['nam-khoa', 'phu-khoa'])) ? 'Person' : 'Organization',
+                    'name'  => $article->author ?: match ($article->category?->slug) {
+                        'nam-khoa' => 'BS. Nguyễn Văn An',
+                        'phu-khoa' => 'BS. Trần Thị Mai',
+                        default    => 'Ban Biên Tập - Phòng Khám Đa Khoa Gia Phước',
+                    },
                     'url'   => $siteUrl,
                 ],
                 'publisher'      => [
