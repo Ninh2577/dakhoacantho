@@ -58,6 +58,7 @@
             editorInstanceId: null,
             activeTab: 'visual',
             editorReady: false,
+            _syncAbortController: null,
             
             init() {
                 this.$nextTick(() => {
@@ -86,6 +87,10 @@
                     }
                 });
 
+                // Listen for sync-tinymce-editors event (used by preview trigger)
+                // Use AbortController so the listener is removed on destroy() — prevents double-dispatch
+                // that occurred when Livewire re-rendered and re-ran init() without removing old listeners.
+                this._syncAbortController = new AbortController();
                 window.addEventListener('sync-tinymce-editors', (event) => {
                     if (this.editorInstanceId) {
                         let editor = tinymce.get(this.editorInstanceId);
@@ -121,7 +126,7 @@
                             });
                         }
                     }
-                });
+                }, { signal: this._syncAbortController.signal });
             },
             
             initEditor() {
@@ -296,6 +301,10 @@
             
             destroy() {
                 // Clean up TinyMCE instance when leaving the page (essential for Filament SPA navigation)
+                if (this._syncAbortController) {
+                    this._syncAbortController.abort();
+                    this._syncAbortController = null;
+                }
                 if (this.editorInstanceId) {
                     let editor = tinymce.get(this.editorInstanceId);
                     if (editor) {

@@ -51,11 +51,6 @@ class EditArticle extends EditRecord
     public function previewArticle(?string $content = null): void
     {
         try {
-            \Log::info('EDIT_PREVIEW_ARTICLE_CALLED', [
-                'title' => $this->data['title'] ?? null,
-                'slug'  => $this->data['slug'] ?? null,
-            ]);
-
             // If content is passed directly (from TinyMCE JS sync), use it.
             // This avoids a race condition where $this->data['content'] is stale.
             if ($content !== null) {
@@ -97,7 +92,9 @@ class EditArticle extends EditRecord
                 'previewed_at'        => now()->toDateTimeString(),
             ]);
 
-            $this->dispatch('open-preview', url: url('/admin/articles/preview-create'));
+            $previewUrl = url('/admin/articles/preview-create');
+
+            $this->dispatch('open-preview', url: $previewUrl);
 
             \Filament\Notifications\Notification::make()
                 ->title('Bản xem trước đã sẵn sàng')
@@ -105,7 +102,7 @@ class EditArticle extends EditRecord
                 ->actions([
                     \Filament\Notifications\Actions\Action::make('open')
                         ->label('Mở bản xem trước')
-                        ->url(url('/admin/articles/preview-create'), shouldOpenInNewTab: true)
+                        ->url($previewUrl, shouldOpenInNewTab: true)
                         ->button()
                         ->color('primary'),
                 ])
