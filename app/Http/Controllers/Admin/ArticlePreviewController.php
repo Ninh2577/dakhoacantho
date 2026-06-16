@@ -54,6 +54,12 @@ class ArticlePreviewController extends Controller
             }
         }
 
+        \Illuminate\Support\Facades\Log::info('ArticlePreviewController called', [
+            'session_id' => session()->getId(),
+            'has_preview_data' => session()->has('article_preview_create'),
+            'preview_data_keys' => session()->has('article_preview_create') ? array_keys((array)session('article_preview_create')) : null,
+        ]);
+
         $data = session('article_preview_create');
 
         if (!$data) {

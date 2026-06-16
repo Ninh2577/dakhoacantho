@@ -105,6 +105,10 @@ class CreateArticle extends CreateRecord
             session()->save();
 
             $previewUrl = url('/admin/articles/preview-create');
+            \Illuminate\Support\Facades\Log::info('Preview URL', [
+                'url' => $previewUrl,
+            ]);
+            \Illuminate\Support\Facades\Log::info('Preview Session Saved');
 
             $this->dispatch('open-preview', url: $previewUrl);
 
