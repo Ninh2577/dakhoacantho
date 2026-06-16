@@ -194,7 +194,7 @@ class ArticleResource extends Resource
                         Section::make('Danh mục & Tác giả')->schema([
                             Select::make('category_id')
                                 ->label('Chuyên khoa / Danh mục')
-                                ->relationship('category', 'name')
+                                ->options(fn () => \App\Models\Category::getTreeOptions())
                                 ->placeholder('Chọn danh mục...')
                                 ->required()
                                 ->searchable()
@@ -407,9 +407,17 @@ class ArticleResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('category')
-                    ->relationship('category', 'name')
-                    ->label('Chuyên khoa'),
+                Tables\Filters\SelectFilter::make('category_id')
+                    ->label('Chuyên khoa')
+                    ->options(fn () => \App\Models\Category::getTreeOptions())
+                    ->query(function (\Illuminate\Database\Eloquent\Builder $query, array $data) {
+                        if (empty($data['value'])) {
+                            return $query;
+                        }
+                        $categoryId = (int) $data['value'];
+                        $categoryIds = \App\Models\Category::getDescendantIdsAndSelf($categoryId);
+                        return $query->whereIn('category_id', $categoryIds);
+                    }),
                 Tables\Filters\SelectFilter::make('is_published')
                     ->label('Trạng thái')
                     ->options([

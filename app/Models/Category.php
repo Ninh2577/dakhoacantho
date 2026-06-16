@@ -11,6 +11,63 @@ class Category extends Model
 
     protected $fillable = ['parent_id', 'order', 'name', 'slug', 'description', 'featured_image'];
 
+    /**
+     * Get category tree formatted options for Select dropdown.
+     */
+    public static function getTreeOptions(): array
+    {
+        return \Illuminate\Support\Facades\Cache::remember('dakhoacantho:categories:tree_options', now()->addHours(12), function () {
+            // Load all categories ordered by the 'order' column
+            $categories = self::orderBy('order')->get();
+            $grouped = $categories->groupBy('parent_id');
+
+            $options = [];
+            // Root categories in SolutionForest\FilamentTree have parent_id = -1
+            $roots = $grouped->get(-1) ?? collect();
+
+            foreach ($roots as $root) {
+                self::buildTreeOption($root, $grouped, $options, 0);
+            }
+
+            return $options;
+        });
+    }
+
+    private static function buildTreeOption($category, $grouped, &$options, int $depth): void
+    {
+        $prefix = $depth > 0 ? str_repeat('—', $depth) . ' ' : '';
+        $options[$category->id] = $prefix . $category->name;
+
+        $children = $grouped->get($category->id) ?? collect();
+        foreach ($children as $child) {
+            self::buildTreeOption($child, $grouped, $options, $depth + 1);
+        }
+    }
+
+    /**
+     * Get IDs of category and all its descendants.
+     */
+    public static function getDescendantIdsAndSelf(int $categoryId): array
+    {
+        return \Illuminate\Support\Facades\Cache::remember("dakhoacantho:categories:descendants_and_self:{$categoryId}", now()->addHours(12), function () use ($categoryId) {
+            $categories = self::all();
+            $grouped = $categories->groupBy('parent_id');
+
+            $ids = [$categoryId];
+            self::collectDescendantIds($categoryId, $grouped, $ids);
+            return $ids;
+        });
+    }
+
+    private static function collectDescendantIds(int $parentId, $grouped, array &$ids): void
+    {
+        $children = $grouped->get($parentId) ?? collect();
+        foreach ($children as $child) {
+            $ids[] = $child->id;
+            self::collectDescendantIds($child->id, $grouped, $ids);
+        }
+    }
+
     public function parent()
     {
         return $this->belongsTo(Category::class, 'parent_id');
@@ -66,12 +123,14 @@ class Category extends Model
             \Illuminate\Support\Facades\Cache::forget('public_navigation_categories');
             \Illuminate\Support\Facades\Cache::forget('dakhoacantho:categories:by_slug');
             \Illuminate\Support\Facades\Cache::forget('dakhoacantho:footer:categories');
+            \Illuminate\Support\Facades\Cache::forget('dakhoacantho:categories:tree_options');
             \Illuminate\Support\Facades\Cache::forget('dakhoacantho:sitemap:xml:' . parse_url(config('app.url'), PHP_URL_HOST));
             if (request()->getHost()) {
                 \Illuminate\Support\Facades\Cache::forget('dakhoacantho:sitemap:xml:' . request()->getHost());
             }
             foreach (self::all() as $cat) {
                 \Illuminate\Support\Facades\Cache::forget("category_full_path_{$cat->id}");
+                \Illuminate\Support\Facades\Cache::forget("dakhoacantho:categories:descendants_and_self:{$cat->id}");
             }
 
             if ($category->wasChanged('slug') || $category->wasChanged('parent_id')) {
@@ -101,12 +160,14 @@ class Category extends Model
             \Illuminate\Support\Facades\Cache::forget('public_navigation_categories');
             \Illuminate\Support\Facades\Cache::forget('dakhoacantho:categories:by_slug');
             \Illuminate\Support\Facades\Cache::forget('dakhoacantho:footer:categories');
+            \Illuminate\Support\Facades\Cache::forget('dakhoacantho:categories:tree_options');
             \Illuminate\Support\Facades\Cache::forget('dakhoacantho:sitemap:xml:' . parse_url(config('app.url'), PHP_URL_HOST));
             if (request()->getHost()) {
                 \Illuminate\Support\Facades\Cache::forget('dakhoacantho:sitemap:xml:' . request()->getHost());
             }
             foreach (self::all() as $cat) {
                 \Illuminate\Support\Facades\Cache::forget("category_full_path_{$cat->id}");
+                \Illuminate\Support\Facades\Cache::forget("dakhoacantho:categories:descendants_and_self:{$cat->id}");
             }
         });
     }
