@@ -54,10 +54,17 @@ class ArticlePreviewController extends Controller
             }
         }
 
-        \Illuminate\Support\Facades\Log::info('ArticlePreviewController called', [
+        $previewPayload = session('article_preview_create');
+        $payloadSerialized = serialize($previewPayload);
+        $payloadSize = strlen($payloadSerialized);
+
+        \Illuminate\Support\Facades\Log::info('ArticlePreviewController PREVIEW_READ', [
             'session_id' => session()->getId(),
-            'has_preview_data' => session()->has('article_preview_create'),
-            'preview_data_keys' => session()->has('article_preview_create') ? array_keys((array)session('article_preview_create')) : null,
+            'auth_id' => auth()->id(),
+            'has_preview' => session()->has('article_preview_create'),
+            'payload_size' => $payloadSize,
+            'cookie_header' => request()->header('cookie'),
+            'session_cookie_name' => config('session.cookie'),
         ]);
 
         $data = session('article_preview_create');

@@ -104,11 +104,21 @@ class CreateArticle extends CreateRecord
             // preview controller before the Livewire request commits its session write.
             session()->save();
 
-            $previewUrl = url('/admin/articles/preview-create');
-            \Illuminate\Support\Facades\Log::info('Preview URL', [
-                'url' => $previewUrl,
+            $previewPayload = session('article_preview_create');
+            $payloadSerialized = serialize($previewPayload);
+            $payloadSize = strlen($payloadSerialized);
+
+            \Illuminate\Support\Facades\Log::info('CreateArticle PREVIEW_SAVED', [
+                'session_id' => session()->getId(),
+                'auth_id' => auth()->id(),
+                'has_preview' => session()->has('article_preview_create'),
+                'payload_size' => $payloadSize,
+                'cookie_header' => request()->header('cookie'),
+                'session_cookie_name' => config('session.cookie'),
+                'preview_url' => url('/admin/articles/preview-create'),
             ]);
-            \Illuminate\Support\Facades\Log::info('Preview Session Saved');
+
+            $previewUrl = url('/admin/articles/preview-create');
 
             $this->dispatch('open-preview', url: $previewUrl);
 
