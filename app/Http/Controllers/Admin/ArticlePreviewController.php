@@ -26,7 +26,7 @@ class ArticlePreviewController extends Controller
                     'excerpt',
                     'featured_image',
                     'category_id',
-                    'author',
+                    'author_id',
                     'meta_title',
                     'meta_description',
                     'canonical_url',
@@ -71,7 +71,7 @@ class ArticlePreviewController extends Controller
         $metaDescription = $this->scalarString($data['meta_description'] ?? null);
         $canonicalUrl = $this->scalarString($data['canonical_url'] ?? null);
         $schemaType = $this->scalarString($data['schema_type'] ?? null, 'Article');
-        $author = $this->scalarString($data['author'] ?? null);
+        $authorId = $this->scalarString($data['author_id'] ?? null, auth()->id());
         $ogTitle = $this->scalarString($data['og_title'] ?? null);
         $ogDescription = $this->scalarString($data['og_description'] ?? null);
         $ogImage = $this->scalarString($data['og_image'] ?? null);
@@ -89,7 +89,7 @@ class ArticlePreviewController extends Controller
             'excerpt' => $excerpt,
             'featured_image' => $featuredImage,
             'thumbnail_image' => $featuredImage, // Map featured_image to thumbnail_image as expected by view
-            'author' => $author,
+            'author_id' => $authorId,
             'meta_title' => $metaTitle,
             'meta_description' => $metaDescription,
             'canonical_url' => $canonicalUrl,
@@ -117,6 +117,14 @@ class ArticlePreviewController extends Controller
             if ($category) {
                 $article->setRelation('category', $category);
             }
+        }
+
+        $authorUser = null;
+        if (!empty($authorId)) {
+            $authorUser = \App\Models\User::find($authorId);
+        }
+        if ($authorUser) {
+            $article->setRelation('author', $authorUser);
         }
 
         if (!$article->category) {

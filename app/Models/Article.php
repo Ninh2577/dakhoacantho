@@ -8,7 +8,7 @@ class Article extends Model
 {
     protected $fillable = [
         'category_id',
-        'author',
+        'author_id',
         'title',
         'slug',
         'content',
@@ -37,6 +37,7 @@ class Article extends Model
     ];
 
     protected $casts = [
+        'author_id'     => 'integer',
         'is_published'  => 'boolean',
         'robots_index'  => 'boolean',
         'robots_follow' => 'boolean',
@@ -48,6 +49,11 @@ class Article extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function author()
+    {
+        return $this->belongsTo(User::class, 'author_id');
     }
 
     public function comments()

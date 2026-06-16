@@ -84,7 +84,7 @@ class CreateArticle extends CreateRecord
                 'excerpt'             => $this->data['excerpt'] ?? '',
                 'featured_image'      => $featuredImage,
                 'category_id'         => $this->data['category_id'] ?? null,
-                'author'              => $this->data['author'] ?? null,
+                'author_id'           => $this->data['author_id'] ?? auth()->id(),
                 'meta_title'          => $this->data['meta_title'] ?? null,
                 'meta_description'    => $this->data['meta_description'] ?? null,
                 'canonical_url'       => $this->data['canonical_url'] ?? null,
@@ -171,6 +171,10 @@ class CreateArticle extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
+        if (blank($data['author_id'] ?? null)) {
+            $data['author_id'] = auth()->id();
+        }
+
         $article = new \App\Models\Article($data);
         $analyzer = new \App\Services\ArticleSeoAnalyzerService();
         $result = $analyzer->analyze($article);

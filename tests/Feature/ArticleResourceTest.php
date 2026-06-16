@@ -19,6 +19,7 @@ class ArticleResourceTest extends TestCase
     public function admins_can_access_create_article_page()
     {
         $admin = User::factory()->create([
+            'name' => 'Admin Writer',
             'role' => 'admin',
         ]);
 
@@ -32,6 +33,7 @@ class ArticleResourceTest extends TestCase
     public function admins_can_create_article_via_filament_form()
     {
         $admin = User::factory()->create([
+            'name' => 'Admin Writer',
             'role' => 'admin',
         ]);
 
@@ -60,6 +62,46 @@ class ArticleResourceTest extends TestCase
             'content' => '<h1>Hello World</h1><p>This is a test article.</p>',
             'category_id' => $category->id,
             'is_published' => 1,
+            'author_id' => $admin->id,
+        ]);
+    }
+
+    /** @test */
+    public function admins_can_select_article_author_from_users()
+    {
+        $admin = User::factory()->create([
+            'name' => 'Admin Writer',
+            'role' => 'admin',
+        ]);
+
+        $doctor = User::factory()->create([
+            'name' => 'Doctor Author',
+            'email' => 'doctor@example.com',
+            'role' => 'admin',
+        ]);
+
+        $category = Category::create([
+            'name' => 'General Medicine',
+            'slug' => 'general-medicine',
+            'parent_id' => null,
+            'order' => 0,
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(CreateArticle::class)
+            ->fillForm([
+                'title' => 'Article With Selected Author',
+                'slug' => 'article-with-selected-author',
+                'content' => '<p>This is a test article.</p>',
+                'category_id' => $category->id,
+                'author_id' => $doctor->id,
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('articles', [
+            'title' => 'Article With Selected Author',
+            'author_id' => $doctor->id,
         ]);
     }
 
@@ -185,6 +227,167 @@ class ArticleResourceTest extends TestCase
         
         $this->assertEquals('Test POST Article Preview', session('article_preview_create.title'));
     }
-}
 
+    /** @test */
+    public function migration_maps_existing_author_string_to_author_id()
+    {
+        $user = User::factory()->create([
+            'name' => 'Doctor John',
+            'role' => 'admin',
+        ]);
+
+        $category = Category::create([
+            'name' => 'Medicine',
+            'slug' => 'medicine',
+        ]);
+
+        // Rollback the last migration
+        $this->artisan('migrate:rollback', ['--step' => 1]);
+
+        // Insert legacy article with author name string
+        \Illuminate\Support\Facades\DB::table('articles')->insert([
+            'title' => 'Legacy Article',
+            'slug' => 'legacy-article',
+            'content' => '<p>Content</p>',
+            'category_id' => $category->id,
+            'author' => 'Doctor John',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Run migration up again
+        $this->artisan('migrate');
+
+        // Check if author_id is correctly mapped
+        $this->assertDatabaseHas('articles', [
+            'title' => 'Legacy Article',
+            'author_id' => $user->id,
+        ]);
+    }
+
+    /** @test */
+    public function migration_sets_author_id_to_null_if_author_string_not_found()
+    {
+        $category = Category::create([
+            'name' => 'Medicine',
+            'slug' => 'medicine',
+        ]);
+
+        // Rollback the last migration
+        $this->artisan('migrate:rollback', ['--step' => 1]);
+
+        // Insert legacy article with unknown author name
+        \Illuminate\Support\Facades\DB::table('articles')->insert([
+            'title' => 'Legacy Article Unknown',
+            'slug' => 'legacy-article-unknown',
+            'content' => '<p>Content</p>',
+            'category_id' => $category->id,
+            'author' => 'Unknown Person',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Run migration up again
+        $this->artisan('migrate');
+
+        // Check if author_id is set to null
+        $this->assertDatabaseHas('articles', [
+            'title' => 'Legacy Article Unknown',
+            'author_id' => null,
+        ]);
+    }
+
+    /** @test */
+    public function article_form_automatically_assigns_auth_id_if_author_id_is_not_passed()
+    {
+        $admin = User::factory()->create([
+            'name' => 'Admin Writer',
+            'role' => 'admin',
+        ]);
+
+        $category = Category::create([
+            'name' => 'General Medicine',
+            'slug' => 'general-medicine',
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(CreateArticle::class)
+            ->fillForm([
+                'title' => 'Test Article Auto Assign',
+                'slug' => 'test-article-auto-assign',
+                'content' => '<h1>Hello World</h1><p>This is a test article.</p>',
+                'category_id' => $category->id,
+                'is_published' => true,
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('articles', [
+            'title' => 'Test Article Auto Assign',
+            'author_id' => $admin->id,
+        ]);
+    }
+
+    /** @test */
+    public function article_preview_displays_author_name_not_id()
+    {
+        $admin = User::factory()->create([
+            'name' => 'Admin Writer',
+            'role' => 'admin',
+        ]);
+
+        $category = Category::create([
+            'name' => 'General Medicine',
+            'slug' => 'general-medicine',
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(CreateArticle::class)
+            ->fillForm([
+                'title' => 'Test Preview Name',
+                'slug' => 'test-preview-name',
+                'content' => '<p>Content</p>',
+                'category_id' => $category->id,
+                'author_id' => $admin->id,
+            ])
+            ->call('previewArticle')
+            ->assertDispatched('open-preview');
+
+        // Retrieve the session preview data and query page
+        $response = $this->actingAs($admin)
+            ->get('/admin/articles/preview-create');
+
+        $response->assertStatus(200);
+        $response->assertSee('Tác giả: Admin Writer');
+        $response->assertDontSee('Tác giả: ' . $admin->id);
+    }
+
+    /** @test */
+    public function frontend_displays_author_name_after_publishing()
+    {
+        $author = User::factory()->create([
+            'name' => 'Dr. Jane Watson',
+            'role' => 'admin',
+        ]);
+
+        $category = Category::create([
+            'name' => 'General Medicine',
+            'slug' => 'general-medicine',
+        ]);
+
+        $article = Article::create([
+            'title' => 'Published Article Watson',
+            'slug' => 'published-article-watson',
+            'content' => '<p>Article content by Jane.</p>',
+            'category_id' => $category->id,
+            'author_id' => $author->id,
+            'is_published' => true,
+        ]);
+
+        $response = $this->get('/' . $article->slug);
+
+        $response->assertStatus(200);
+        $response->assertSee('Tác giả: Dr. Jane Watson');
+    }
+}
 

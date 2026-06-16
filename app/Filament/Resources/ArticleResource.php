@@ -200,11 +200,16 @@ class ArticleResource extends Resource
                                 ->searchable()
                                 ->preload(),
 
-                            TextInput::make('author')
+                            Select::make('author_id')
                                 ->label('Tác giả')
-                                ->placeholder('Nhập tên tác giả...')
-                                ->maxLength(255)
-                                ->helperText('Để trống để tự động hiển thị theo chuyên khoa.'),
+                                ->relationship(
+                                    name: 'author',
+                                    titleAttribute: 'name',
+                                    modifyQueryUsing: fn ($query) => $query->orderBy('name')
+                                )
+                                ->default(fn () => auth()->id())
+                                ->required()
+                                ->exists('users', 'id'),
                         ]),
 
                         // --- Thumbnail Card ---
@@ -371,14 +376,15 @@ class ArticleResource extends Resource
                     ->color('info')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\TextColumn::make('author')
+                Tables\Columns\TextColumn::make('author.name')
                     ->label('Tác giả')
                     ->searchable()
                     ->sortable()
-                    ->default(fn (Article $record): string => match ($record->category?->slug) {
+                    ->placeholder('Chưa xác định')
+                    ->default(fn (Article $record): ?string => match ($record->category?->slug) {
                         'nam-khoa' => 'BS. Nguyễn Văn An',
                         'phu-khoa' => 'BS. Trần Thị Mai',
-                        default    => 'Quản trị viên',
+                        default    => 'Ban biên tập',
                     }),
                 Tables\Columns\ToggleColumn::make('is_published')
                     ->label('Công khai')
@@ -440,7 +446,7 @@ class ArticleResource extends Resource
 
     public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
     {
-        return parent::getEloquentQuery()->with(['category']);
+        return parent::getEloquentQuery()->with(['category', 'author']);
     }
 
     public static function getRelations(): array
