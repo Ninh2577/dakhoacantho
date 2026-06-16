@@ -389,5 +389,82 @@ class ArticleResourceTest extends TestCase
         $response->assertStatus(200);
         $response->assertSee('Tác giả: Dr. Jane Watson');
     }
+
+    /** @test */
+    public function admins_can_view_preview_page_via_cache_token()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+        ]);
+
+        $category = Category::create([
+            'name' => 'General Medicine',
+            'slug' => 'general-medicine',
+        ]);
+
+        $uuid = (string) \Illuminate\Support\Str::uuid();
+        $payload = [
+            'preview_uuid' => $uuid,
+            'cached_auth_id' => $admin->id,
+            'title' => 'Test Cache Preview Article',
+            'slug' => 'test-cache-preview-article',
+            'content' => '<p>Cache content</p>',
+            'category_id' => $category->id,
+            'author_id' => $admin->id,
+        ];
+
+        \Illuminate\Support\Facades\Cache::put("preview:{$uuid}", $payload, 60);
+
+        $response = $this->actingAs($admin)
+            ->get("/admin/articles/preview/{$uuid}");
+
+        $response->assertStatus(200);
+        $response->assertSee('Test Cache Preview Article');
+        $this->assertNull(\Illuminate\Support\Facades\Cache::get("preview:{$uuid}")); // Pulled on read
+    }
+
+    /** @test */
+    public function admins_cannot_view_expired_preview_page_via_cache_token()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->get('/admin/articles/preview/non-existent-uuid');
+
+        $response->assertStatus(404);
+        $response->assertSee('Bản xem trước hết hạn');
+    }
+
+    /** @test */
+    public function admins_cannot_view_unauthorized_preview_page_via_cache_token()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+        ]);
+
+        $category = Category::create([
+            'name' => 'General Medicine',
+            'slug' => 'general-medicine',
+        ]);
+
+        $uuid = (string) \Illuminate\Support\Str::uuid();
+        $payload = [
+            'preview_uuid' => $uuid,
+            'cached_auth_id' => 9999, // Mismatched owner
+            'title' => 'Unauthorized Cache Preview Article',
+            'slug' => 'unauthorized-cache-preview-article',
+            'content' => '<p>Unauthorized cache content</p>',
+            'category_id' => $category->id,
+        ];
+
+        \Illuminate\Support\Facades\Cache::put("preview:{$uuid}", $payload, 60);
+
+        $response = $this->actingAs($admin)
+            ->get("/admin/articles/preview/{$uuid}");
+
+        $response->assertStatus(403);
+    }
 }
 

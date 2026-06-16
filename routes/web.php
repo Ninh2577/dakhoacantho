@@ -206,6 +206,11 @@ Route::match(['get', 'post'], '/admin/articles/preview-create', [\App\Http\Contr
     ->name('admin.articles.preview-create')
     ->middleware(['web', 'auth']);
 
+// Article preview show route using cache token
+Route::get('/admin/articles/preview/{uuid}', [\App\Http\Controllers\Admin\ArticlePreviewController::class, 'showCachePreview'])
+    ->name('admin.articles.preview-show')
+    ->middleware(['web', 'auth']);
+
 // 1. Home Page
 Route::get('/', [PageController::class, 'home'])->name('home');
 

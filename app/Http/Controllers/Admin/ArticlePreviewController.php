@@ -233,6 +233,201 @@ class ArticlePreviewController extends Controller
             ->header('Expires', 'Sat, 26 Jul 1997 05:00:00 GMT');
     }
 
+    public function showCachePreview(Request $request, $uuid)
+    {
+        $cacheKey = "preview:{$uuid}";
+
+        \Illuminate\Support\Facades\Log::info('ArticlePreviewController PREVIEW_READ', [
+            'preview_uuid' => $uuid,
+            'session_driver' => config('session.driver'),
+            'session_id' => session()->getId(),
+            'auth_id' => auth()->id(),
+            'source' => 'cache',
+        ]);
+
+        $data = \Illuminate\Support\Facades\Cache::get($cacheKey);
+
+        if (!$data) {
+            \Illuminate\Support\Facades\Log::warning('ArticlePreviewController PREVIEW_EXPIRED', [
+                'preview_uuid' => $uuid,
+            ]);
+            return response()->view('errors.preview-expired', [], 404);
+        }
+
+        // Validate user ownership: bind cache entry to auth user id
+        $cachedAuthId = $data['cached_auth_id'] ?? null;
+        if ($cachedAuthId !== auth()->id()) {
+            \Illuminate\Support\Facades\Log::warning('ArticlePreviewController PREVIEW_UNAUTHORIZED', [
+                'preview_uuid' => $uuid,
+                'cached_auth_id' => $cachedAuthId,
+                'auth_id' => auth()->id(),
+            ]);
+            abort(403, 'Unauthorized preview access.');
+        }
+
+        // Pull/delete cache after loading to prevent lingering preview memory
+        $data = \Illuminate\Support\Facades\Cache::pull($cacheKey);
+
+        $dbArticleId = $data['id'] ?? ($data['article_id'] ?? null);
+        $dbTitle = null;
+        if (!empty($dbArticleId)) {
+            $dbArticle = Article::find($dbArticleId);
+            if ($dbArticle) {
+                $dbTitle = $dbArticle->title;
+            }
+        }
+
+        \Illuminate\Support\Facades\Log::info('ArticlePreviewController PREVIEW_AFTER_LOAD', [
+            'preview_uuid_from_url' => $uuid,
+            'preview_uuid_from_session' => $data['preview_uuid'] ?? null,
+            'title_from_session' => $data['title'] ?? null,
+            'title_from_database' => $dbTitle,
+            'article_id' => $dbArticleId,
+            'source' => 'cache',
+        ]);
+
+        $title = $this->scalarString($data['title'] ?? null, 'Bản xem trước');
+        $slug = $this->scalarString($data['slug'] ?? null, 'ban-xem-truoc');
+        $content = $this->scalarString($data['content'] ?? null, '');
+        $excerpt = $this->scalarString($data['excerpt'] ?? null);
+        $featuredImage = $this->scalarString($data['featured_image'] ?? null);
+        $metaTitle = $this->scalarString($data['meta_title'] ?? null);
+        $metaDescription = $this->scalarString($data['meta_description'] ?? null);
+        $canonicalUrl = $this->scalarString($data['canonical_url'] ?? null);
+        $schemaType = $this->scalarString($data['schema_type'] ?? null, 'Article');
+        $authorId = $this->scalarString($data['author_id'] ?? null, auth()->id());
+        $ogTitle = $this->scalarString($data['og_title'] ?? null);
+        $ogDescription = $this->scalarString($data['og_description'] ?? null);
+        $ogImage = $this->scalarString($data['og_image'] ?? null);
+        $twitterTitle = $this->scalarString($data['twitter_title'] ?? null);
+        $twitterDescription = $this->scalarString($data['twitter_description'] ?? null);
+        $twitterImage = $this->scalarString($data['twitter_image'] ?? null);
+
+        // Create temporary unsaved Article model
+        $article = new Article();
+        $article->forceFill([
+            'id' => 0,
+            'title' => $title,
+            'slug' => $slug,
+            'content' => $content,
+            'excerpt' => $excerpt,
+            'featured_image' => $featuredImage,
+            'thumbnail_image' => $featuredImage,
+            'author_id' => $authorId,
+            'meta_title' => $metaTitle,
+            'meta_description' => $metaDescription,
+            'canonical_url' => $canonicalUrl,
+            'schema_type' => $schemaType,
+            'robots_index' => false,
+            'robots_follow' => false,
+            'og_title' => $ogTitle,
+            'og_description' => $ogDescription,
+            'og_image' => $ogImage,
+            'twitter_title' => $twitterTitle,
+            'twitter_description' => $twitterDescription,
+            'twitter_image' => $twitterImage,
+        ]);
+
+        $article->created_at = now();
+        $article->updated_at = now();
+
+        // Load Category relation
+        $categoryId = is_array($data['category_id'] ?? null)
+            ? collect($data['category_id'])->flatten()->filter(fn($item) => is_scalar($item))->first()
+            : ($data['category_id'] ?? null);
+
+        if (!empty($categoryId)) {
+            $category = Category::find($categoryId);
+            if ($category) {
+                $article->setRelation('category', $category);
+            }
+        }
+
+        $authorUser = null;
+        if (!empty($authorId)) {
+            $authorUser = \App\Models\User::find($authorId);
+        }
+        if ($authorUser) {
+            $article->setRelation('author', $authorUser);
+        }
+
+        if (!$article->category) {
+            $fallbackCategory = new Category(['name' => 'Chuyên khoa', 'slug' => 'chuyen-khoa']);
+            $article->setRelation('category', $fallbackCategory);
+        }
+
+        // Query Related Articles
+        $relatedArticles = collect();
+        if ($article->category_id) {
+            $relatedArticles = Article::with('category.parent.parent')
+                ->where('category_id', $article->category_id)
+                ->where('id', '!=', 0)
+                ->where('is_published', true)
+                ->latest()
+                ->take(4)
+                ->get();
+        }
+
+        if ($relatedArticles->count() < 4) {
+            $needed = 4 - $relatedArticles->count();
+            $excludeIds = $relatedArticles->pluck('id')->push(0)->toArray();
+
+            $fallbackArticles = Article::with('category.parent.parent')
+                ->whereNotIn('id', $excludeIds)
+                ->where('is_published', true)
+                ->latest()
+                ->take($needed)
+                ->get();
+
+            $relatedArticles = $relatedArticles->merge($fallbackArticles);
+        }
+
+        // Process storage upload path replacements using the unified normalizer service
+        $article->content = app(\App\Services\Content\ContentImageUrlNormalizer::class)->normalize($article->content);
+
+        // Safe server-side Inline CTA injection after the second paragraph (approx 35% of content)
+        $paragraphs = explode('</p>', $article->content);
+        if (count($paragraphs) > 3) {
+            $ctaHtml = view('components.article-inline-cta')->render();
+            $paragraphs[1] .= '</p>' . $ctaHtml;
+            $article->content = implode('</p>', $paragraphs);
+        } else {
+            $ctaHtml = view('components.article-inline-cta')->render();
+            $article->content .= $ctaHtml;
+        }
+
+        // Ensure all inline content images have lazy loading and async decoding
+        $article->content = preg_replace_callback('/<img\s+([^>]*)/i', function ($matches) {
+            $attributes = $matches[1];
+
+            if (stripos($attributes, 'loading=') === false) {
+                $attributes .= ' loading="lazy"';
+            }
+            if (stripos($attributes, 'decoding=') === false) {
+                $attributes .= ' decoding="async"';
+            }
+
+            return '<img ' . $attributes;
+        }, $article->content);
+
+        \Illuminate\Support\Facades\Log::info('ArticlePreviewController PREVIEW_RENDER', [
+            'title' => $article->title,
+            'slug' => $article->slug,
+            'article_id' => $dbArticleId,
+            'source' => 'cache',
+        ]);
+
+        return response()
+            ->view('articles.show', [
+                'article' => $article,
+                'relatedArticles' => $relatedArticles,
+                'isPreview' => true,
+            ])
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', 'Sat, 26 Jul 1997 05:00:00 GMT');
+    }
+
     private function scalarString(mixed $value, ?string $default = null): ?string
     {
         if (is_null($value)) {

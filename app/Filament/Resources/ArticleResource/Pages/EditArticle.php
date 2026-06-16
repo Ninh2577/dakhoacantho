@@ -84,8 +84,9 @@ class EditArticle extends EditRecord
                 'article_id' => $this->record->id ?? null,
             ]);
 
-            session()->put('article_preview_create', [
+            $payload = [
                 'preview_uuid'        => $previewUuid,
+                'cached_auth_id'      => auth()->id(),
                 'title'               => $title,
                 'slug'                => $this->data['slug'] ?? ($this->record->slug ?? ''),
                 'content'             => $this->data['content'] ?? '',
@@ -104,16 +105,20 @@ class EditArticle extends EditRecord
                 'twitter_description' => $this->data['twitter_description'] ?? null,
                 'twitter_image'       => $twitterImage,
                 'previewed_at'        => now()->toDateTimeString(),
-            ]);
+            ];
 
-            // Force immediate session flush to DB before JS opens the preview tab.
+            // Write to Cache
+            \Illuminate\Support\Facades\Cache::put("preview:{$previewUuid}", $payload, now()->addMinutes(10));
+
+            // Write to Session (for backwards compatibility)
+            session()->put('article_preview_create', $payload);
             session()->save();
+
+            $previewUrl = route('admin.articles.preview-show', ['uuid' => $previewUuid]);
 
             $previewPayload = session('article_preview_create');
             $payloadSerialized = serialize($previewPayload);
             $payloadSize = strlen($payloadSerialized);
-
-            $previewUrl = url('/admin/articles/preview-create?preview=' . $previewUuid);
 
             \Illuminate\Support\Facades\Log::info('EditArticle PREVIEW_SAVED', [
                 'preview_uuid' => $previewUuid,
