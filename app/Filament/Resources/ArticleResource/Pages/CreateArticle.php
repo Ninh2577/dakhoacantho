@@ -77,7 +77,20 @@ class CreateArticle extends CreateRecord
             $ogImage        = $this->extractFileUploadPath($this->data['og_image'] ?? null);
             $twitterImage   = $this->extractFileUploadPath($this->data['twitter_image'] ?? null);
 
+            $previewUuid = (string) \Illuminate\Support\Str::uuid();
+
+            \Illuminate\Support\Facades\Log::info('CreateArticle PREVIEW_BEFORE_SAVE', [
+                'preview_uuid' => $previewUuid,
+                'session_driver' => config('session.driver'),
+                'session_key_name' => 'article_preview_create',
+                'session_id' => session()->getId(),
+                'title' => $title,
+                'slug' => $this->data['slug'] ?? '',
+                'article_id' => 0,
+            ]);
+
             session()->put('article_preview_create', [
+                'preview_uuid'        => $previewUuid,
                 'title'               => $title,
                 'slug'                => $this->data['slug'] ?? '',
                 'content'             => $this->data['content'] ?? '',
@@ -99,26 +112,26 @@ class CreateArticle extends CreateRecord
             ]);
 
             // Force immediate session flush to DB before JS opens the preview tab.
-            // Without this, the database session is only written at end-of-response,
-            // creating a race condition: the new tab's GET request may arrive at the
-            // preview controller before the Livewire request commits its session write.
             session()->save();
 
             $previewPayload = session('article_preview_create');
             $payloadSerialized = serialize($previewPayload);
             $payloadSize = strlen($payloadSerialized);
 
+            $previewUrl = url('/admin/articles/preview-create?preview=' . $previewUuid);
+
             \Illuminate\Support\Facades\Log::info('CreateArticle PREVIEW_SAVED', [
+                'preview_uuid' => $previewUuid,
+                'session_driver' => config('session.driver'),
+                'session_key_name' => 'article_preview_create',
                 'session_id' => session()->getId(),
                 'auth_id' => auth()->id(),
                 'has_preview' => session()->has('article_preview_create'),
                 'payload_size' => $payloadSize,
                 'cookie_header' => request()->header('cookie'),
                 'session_cookie_name' => config('session.cookie'),
-                'preview_url' => url('/admin/articles/preview-create'),
+                'preview_url' => $previewUrl,
             ]);
-
-            $previewUrl = url('/admin/articles/preview-create');
 
             $this->dispatch('open-preview', url: $previewUrl);
 

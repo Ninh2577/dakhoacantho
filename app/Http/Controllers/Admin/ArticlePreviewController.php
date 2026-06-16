@@ -58,7 +58,12 @@ class ArticlePreviewController extends Controller
         $payloadSerialized = serialize($previewPayload);
         $payloadSize = strlen($payloadSerialized);
 
+        $requestQueryUuid = $request->query('preview');
+
         \Illuminate\Support\Facades\Log::info('ArticlePreviewController PREVIEW_READ', [
+            'preview_uuid_from_url' => $requestQueryUuid,
+            'session_driver' => config('session.driver'),
+            'session_key_name' => 'article_preview_create',
             'session_id' => session()->getId(),
             'auth_id' => auth()->id(),
             'has_preview' => session()->has('article_preview_create'),
@@ -68,6 +73,24 @@ class ArticlePreviewController extends Controller
         ]);
 
         $data = session('article_preview_create');
+
+        $dbArticleId = $data['id'] ?? ($data['article_id'] ?? null);
+        $dbTitle = null;
+        if (!empty($dbArticleId)) {
+            $dbArticle = Article::find($dbArticleId);
+            if ($dbArticle) {
+                $dbTitle = $dbArticle->title;
+            }
+        }
+
+        \Illuminate\Support\Facades\Log::info('ArticlePreviewController PREVIEW_AFTER_LOAD', [
+            'preview_uuid_from_url' => $requestQueryUuid,
+            'preview_uuid_from_session' => $data['preview_uuid'] ?? null,
+            'title_from_session' => $data['title'] ?? null,
+            'title_from_database' => $dbTitle,
+            'article_id' => $dbArticleId,
+            'session_key_name' => 'article_preview_create',
+        ]);
 
         if (!$data) {
             return redirect('/admin/articles/create')
@@ -199,11 +222,15 @@ class ArticlePreviewController extends Controller
             return '<img ' . $attributes;
         }, $article->content);
 
-        return view('articles.show', [
-            'article' => $article,
-            'relatedArticles' => $relatedArticles,
-            'isPreview' => true,
-        ]);
+        return response()
+            ->view('articles.show', [
+                'article' => $article,
+                'relatedArticles' => $relatedArticles,
+                'isPreview' => true,
+            ])
+            ->header('Cache-Control', 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0, max-age=0')
+            ->header('Pragma', 'no-cache')
+            ->header('Expires', 'Sat, 26 Jul 1997 05:00:00 GMT');
     }
 
     private function scalarString(mixed $value, ?string $default = null): ?string

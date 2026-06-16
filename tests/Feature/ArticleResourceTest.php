@@ -126,7 +126,7 @@ class ArticleResourceTest extends TestCase
                 'category_id' => $category->id,
             ])
             ->call('previewArticle')
-            ->assertDispatched('open-preview', url: url('/admin/articles/preview-create'));
+            ->assertDispatched('open-preview');
 
         $this->assertEquals('Test Article for Preview', session('article_preview_create.title'));
         $this->assertEquals('<p>Preview content</p>', session('article_preview_create.content'));
@@ -161,7 +161,7 @@ class ArticleResourceTest extends TestCase
                 'content' => '<p>Updated preview content</p>',
             ])
             ->call('previewArticle')
-            ->assertDispatched('open-preview', url: url('/admin/articles/preview-create'));
+            ->assertDispatched('open-preview');
 
         $this->assertEquals('Updated Article for Preview', session('article_preview_create.title'));
         $this->assertEquals('<p>Updated preview content</p>', session('article_preview_create.content'));
