@@ -103,20 +103,8 @@ class EditArticle extends EditRecord
 
             $this->dispatch('open-preview', url: $previewUrl);
 
-            \Filament\Notifications\Notification::make()
-                ->title('Bản xem trước đã sẵn sàng')
-                ->body('Nếu trình duyệt không tự động mở tab mới, hãy bấm nút bên dưới.')
-                ->actions([
-                    \Filament\Notifications\Actions\Action::make('open')
-                        ->label('Mở bản xem trước')
-                        ->url($previewUrl, shouldOpenInNewTab: true)
-                        ->button()
-                        ->color('primary'),
-                ])
-                ->success()
-                ->send();
-
         } catch (\Throwable $e) {
+            $this->dispatch('open-preview-failed');
             \Log::error('EDIT_PREVIEW_ARTICLE_ERROR', [
                 'message' => $e->getMessage(),
                 'file'    => $e->getFile(),

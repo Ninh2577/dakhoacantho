@@ -2,27 +2,65 @@
     (function () {
         // Listen for Livewire dispatch event 'open-preview' from the previewArticle() method
         // This opens the preview URL in a new tab after session data is saved
+        const handleOpenPreview = (url) => {
+            if (!url) return;
+            console.log('[preview] Redirecting to preview URL:', url);
+
+            if (window.articlePreviewWindow && !window.articlePreviewWindow.closed) {
+                window.articlePreviewWindow.location.href = url;
+                window.articlePreviewWindow.focus();
+            } else {
+                window.open(url, '_blank');
+            }
+        };
+
         if (typeof Livewire !== 'undefined') {
             Livewire.on('open-preview', (payload) => {
-                const previewUrl = typeof payload === 'string' ? payload : payload?.url;
+                let previewUrl = null;
+                if (typeof payload === 'string') {
+                    previewUrl = payload;
+                } else if (payload && typeof payload === 'object') {
+                    if (payload.url) {
+                        previewUrl = payload.url;
+                    } else if (Array.isArray(payload)) {
+                        const first = payload[0];
+                        previewUrl = typeof first === 'string' ? first : first?.url;
+                    } else if (payload.detail && payload.detail.url) {
+                        previewUrl = payload.detail.url;
+                    } else {
+                        previewUrl = Object.values(payload)[0];
+                    }
+                }
 
                 if (!previewUrl) {
-                    console.error('[preview] Preview URL missing:', payload);
+                    console.error('[preview] Preview URL missing in payload:', payload);
+                    if (window.articlePreviewWindow) {
+                        try { window.articlePreviewWindow.close(); } catch (e) {}
+                        window.articlePreviewWindow = null;
+                    }
                     alert('Không thể mở bản xem trước vì thiếu đường dẫn.');
                     return;
                 }
 
-                console.log('[preview] Opening preview URL:', previewUrl);
+                handleOpenPreview(previewUrl);
+            });
 
-                if (window.articlePreviewWindow && !window.articlePreviewWindow.closed) {
-                    window.articlePreviewWindow.location.href = previewUrl;
-                    window.articlePreviewWindow.focus();
-                    return;
+            Livewire.on('open-preview-failed', () => {
+                console.log('[preview] Preview failed, closing preview window.');
+                if (window.articlePreviewWindow) {
+                    try { window.articlePreviewWindow.close(); } catch (e) {}
+                    window.articlePreviewWindow = null;
                 }
-
-                window.open(previewUrl, '_blank');
             });
         }
+
+        // Also add native window listener just in case
+        window.addEventListener('open-preview', (event) => {
+            const previewUrl = event.detail?.url || event.detail?.[0] || event.detail;
+            if (previewUrl) {
+                handleOpenPreview(previewUrl);
+            }
+        });
 
         // Define the global trigger function to initiate article preview via Livewire
         window.triggerArticlePreview = function (wire, el) {
