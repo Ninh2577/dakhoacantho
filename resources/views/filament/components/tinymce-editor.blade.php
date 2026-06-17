@@ -140,6 +140,8 @@
                     oldEditor.remove();
                 }
 
+                console.log('TINYMCE IMAGE CONFIG', { image_caption: true });
+
                 tinymce.init({
                     target: this.$refs.editor,
                     height: 500,
@@ -154,7 +156,10 @@
                     toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | blockquote | link image media table | removeformat searchreplace code preview fullscreen',
                     toolbar_sticky: true,
                     toolbar_sticky_offset: 60,
-                    content_style: 'body { font-family: Arial, sans-serif; font-size: 16px; line-height: 1.7; color: #334155; }',
+                    image_caption: true,
+                    extended_valid_elements: 'figure[*],figcaption[contenteditable|class|style|*],img[*]',
+                    valid_children: '+figure[img|figcaption],+body[figure]',
+                    content_style: 'body { font-family: Arial, sans-serif; font-size: 16px; line-height: 1.7; color: #334155; } figure.image { text-align: center; margin: 1.5rem 0; } figure.image img { border-radius: 0.75rem; max-width: 100%; height: auto; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); } figure.image figcaption { margin-top: 5px; font-size: 0.9em; color: #666; font-style: italic; cursor: text; user-select: text; -webkit-user-select: text; }',
                     
                     // Admin image upload integration
                     images_upload_url: this.uploadUrl,
@@ -202,6 +207,15 @@
                     setup: (editor) => {
                         // Save instance ID to refer in destroy() and watches
                         this.editorInstanceId = editor.id;
+
+                        // Intercept clicks on figcaption to manually focus and select its content for editing
+                        editor.on('click', (e) => {
+                            let figcaption = editor.dom.getParent(e.target, 'figcaption');
+                            if (figcaption) {
+                                figcaption.setAttribute('contenteditable', 'true');
+                                editor.selection.select(figcaption, true);
+                            }
+                        });
 
                         // Intercept default mceLink command execution to show custom dialog
                         console.log('CUSTOM MCE LINK REGISTERED');

@@ -52,7 +52,7 @@ class InternalLinkSearchController extends Controller
             $queryBuilder->where('is_published', true)
                 ->where(function ($q) {
                     $q->whereNull('published_at')
-                      ->orWhere('published_at', '<=', now());
+                        ->orWhere('published_at', '<=', now());
                 });
 
             // Handle SoftDeletes if added in the future

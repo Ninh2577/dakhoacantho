@@ -811,4 +811,114 @@ class ArticleResourceTest extends TestCase
 
         $this->assertFalse($article->fresh()->is_published);
     }
+
+    /** @test */
+    public function article_keeps_figure_and_figcaption_upon_creation_and_displays_them()
+    {
+        $admin = User::factory()->create([
+            'name' => 'Admin Writer',
+            'role' => 'admin',
+        ]);
+
+        $category = Category::create([
+            'name' => 'General Medicine',
+            'slug' => 'general-medicine',
+        ]);
+
+        $captionedHtml = '<figure class="image"><img src="http://localhost/image.jpg" alt="test alt" /><figcaption>This is a test caption</figcaption></figure>';
+
+        Livewire::actingAs($admin)
+            ->test(CreateArticle::class)
+            ->fillForm([
+                'title' => 'Article with Caption',
+                'slug' => 'article-with-caption',
+                'content' => $captionedHtml,
+                'category_id' => $category->id,
+                'is_published' => true,
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('articles', [
+            'title' => 'Article with Caption',
+            'content' => $captionedHtml,
+        ]);
+
+        $response = $this->get('/article-with-caption');
+        $response->assertStatus(200);
+        $response->assertSee('<figure class="image">', false);
+        $response->assertSee('<img src="http://localhost/image.jpg" alt="test alt" loading="lazy" decoding="async" />', false);
+        $response->assertSee('This is a test caption');
+    }
+
+    /** @test */
+    public function article_keeps_legacy_wordpress_caption_classes_and_renders_them()
+    {
+        $admin = User::factory()->create([
+            'name' => 'Admin Writer',
+            'role' => 'admin',
+        ]);
+
+        $category = Category::create([
+            'name' => 'General Medicine',
+            'slug' => 'general-medicine',
+        ]);
+
+        $legacyHtml = '<div class="wp-caption"><img src="http://localhost/legacy.jpg" /><p class="wp-caption-text">Legacy caption text</p></div>';
+
+        Livewire::actingAs($admin)
+            ->test(CreateArticle::class)
+            ->fillForm([
+                'title' => 'Article with Legacy Caption',
+                'slug' => 'article-with-legacy-caption',
+                'content' => $legacyHtml,
+                'category_id' => $category->id,
+                'is_published' => true,
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $this->assertDatabaseHas('articles', [
+            'title' => 'Article with Legacy Caption',
+            'content' => $legacyHtml,
+        ]);
+
+        $response = $this->get('/article-with-legacy-caption');
+        $response->assertStatus(200);
+        $response->assertSee('<div class="wp-caption">', false);
+        $response->assertSee('Legacy caption text');
+    }
+
+    /** @test */
+    public function article_without_caption_renders_normally_as_img()
+    {
+        $admin = User::factory()->create([
+            'name' => 'Admin Writer',
+            'role' => 'admin',
+        ]);
+
+        $category = Category::create([
+            'name' => 'General Medicine',
+            'slug' => 'general-medicine',
+        ]);
+
+        $simpleHtml = '<p>Normal paragraph</p><img src="http://localhost/simple.jpg" alt="Simple" />';
+
+        Livewire::actingAs($admin)
+            ->test(CreateArticle::class)
+            ->fillForm([
+                'title' => 'Article with Simple Image',
+                'slug' => 'article-with-simple-image',
+                'content' => $simpleHtml,
+                'category_id' => $category->id,
+                'is_published' => true,
+            ])
+            ->call('create')
+            ->assertHasNoFormErrors();
+
+        $response = $this->get('/article-with-simple-image');
+        $response->assertStatus(200);
+        $response->assertSee('<img src="http://localhost/simple.jpg" alt="Simple" loading="lazy" decoding="async" />', false);
+        $response->assertDontSee('<figcaption>');
+    }
 }

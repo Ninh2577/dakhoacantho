@@ -14,3 +14,74 @@
     --color-clinic-gray: #475569;
     --color-clinic-light: #f1f5f9;
 }
+
+/* Image Caption and Figure styling for rich content */
+.rich-content figure.image {
+    text-align: center;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+}
+.rich-content figure.image img {
+    margin-top: 0;
+    margin-bottom: 0;
+    display: inline-block;
+}
+.rich-content figure.image figcaption {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #64748b;
+    font-style: italic;
+    text-align: center;
+    line-height: 1.5;
+}
+
+/* Legacy WordPress caption styling */
+.rich-content .wp-caption {
+    text-align: center;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    max-width: 100%;
+    display: inline-block;
+}
+.rich-content .wp-caption img {
+    margin-top: 0;
+    margin-bottom: 0;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+}
+.rich-content .wp-caption .wp-caption-text {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #64748b;
+    font-style: italic;
+    text-align: center;
+    line-height: 1.5;
+}
+
+/* Image alignment styles for legacy WordPress and figure elements */
+.rich-content .alignleft,
+.rich-content figure.alignleft {
+    float: left;
+    margin: 0.5rem 1.5rem 1rem 0;
+}
+.rich-content .alignright,
+.rich-content figure.alignright {
+    float: right;
+    margin: 0.5rem 0 1rem 1.5rem;
+}
+.rich-content .aligncenter,
+.rich-content figure.aligncenter {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    clear: both;
+    text-align: center;
+}
+
+/* Float clearing helper for content containers */
+.rich-content::after {
+    content: "";
+    display: table;
+    clear: both;
+}

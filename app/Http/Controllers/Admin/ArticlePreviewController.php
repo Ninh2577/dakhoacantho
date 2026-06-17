@@ -213,7 +213,7 @@ class ArticlePreviewController extends Controller
         }
 
         // Ensure all inline content images have lazy loading and async decoding
-        $article->content = preg_replace_callback('/<img\s+([^>]*)/i', function ($matches) {
+        $article->content = preg_replace_callback('/<img\s+([^>]*?)\s*\/?>/i', function ($matches) {
             $attributes = $matches[1];
 
             if (stripos($attributes, 'loading=') === false) {
@@ -223,7 +223,7 @@ class ArticlePreviewController extends Controller
                 $attributes .= ' decoding="async"';
             }
 
-            return '<img '.$attributes;
+            return '<img '.$attributes.' />';
         }, $article->content);
 
         return response()
@@ -402,7 +402,7 @@ class ArticlePreviewController extends Controller
         }
 
         // Ensure all inline content images have lazy loading and async decoding
-        $article->content = preg_replace_callback('/<img\s+([^>]*)/i', function ($matches) {
+        $article->content = preg_replace_callback('/<img\s+([^>]*?)\s*\/?>/i', function ($matches) {
             $attributes = $matches[1];
 
             if (stripos($attributes, 'loading=') === false) {
@@ -412,7 +412,7 @@ class ArticlePreviewController extends Controller
                 $attributes .= ' decoding="async"';
             }
 
-            return '<img '.$attributes;
+            return '<img '.$attributes.' />';
         }, $article->content);
 
         Log::info('ArticlePreviewController PREVIEW_RENDER', [
