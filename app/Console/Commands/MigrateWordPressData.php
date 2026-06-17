@@ -2,13 +2,13 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Article;
+use App\Models\Category;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
-use App\Models\Category;
-use App\Models\Article;
 
 class MigrateWordPressData extends Command
 {
@@ -31,33 +31,34 @@ class MigrateWordPressData extends Command
      */
     public function handle()
     {
-        $this->info("=== Starting WordPress Migration ===");
+        $this->info('=== Starting WordPress Migration ===');
 
         // Step 0: Check Truncation Option
         if ($this->option('truncate')) {
-            $this->info("Truncating categories and articles tables...");
+            $this->info('Truncating categories and articles tables...');
             Schema::disableForeignKeyConstraints();
             Article::truncate();
             Category::truncate();
             Schema::enableForeignKeyConstraints();
-            $this->info("Target tables truncated successfully.");
+            $this->info('Target tables truncated successfully.');
         }
 
         // Step 1: Copy Media/Uploads folder
         $srcUploadsDir = 'C:\xampp\htdocs\dakhoacantho\wp-content\uploads';
         $dstUploadsDir = storage_path('app/public/uploads');
 
-        if (!File::exists($srcUploadsDir)) {
+        if (! File::exists($srcUploadsDir)) {
             $this->error("WordPress uploads directory not found at: {$srcUploadsDir}");
+
             return 1;
         }
 
-        $this->info("Copying WordPress media uploads to Laravel public storage...");
-        if (!File::exists($dstUploadsDir)) {
+        $this->info('Copying WordPress media uploads to Laravel public storage...');
+        if (! File::exists($dstUploadsDir)) {
             File::makeDirectory($dstUploadsDir, 0755, true);
         }
         File::copyDirectory($srcUploadsDir, $dstUploadsDir);
-        $this->info("Media copy completed successfully.");
+        $this->info('Media copy completed successfully.');
 
         // Step 2: Ensure Default Category exists
         $defaultCategory = Category::firstOrCreate(
@@ -69,7 +70,7 @@ class MigrateWordPressData extends Command
         );
 
         // Step 3: Migrate Categories
-        $this->info("Fetching categories from WordPress database...");
+        $this->info('Fetching categories from WordPress database...');
         $wpCategories = DB::connection('wordpress')
             ->table('bqtdbhah0_terms as t')
             ->join('bqtdbhah0_term_taxonomy as tt', 't.term_id', '=', 'tt.term_id')
@@ -77,7 +78,7 @@ class MigrateWordPressData extends Command
             ->select('t.term_id', 't.name', 't.slug', 'tt.description', 'tt.parent')
             ->get();
 
-        $this->info("Migrating " . $wpCategories->count() . " categories (Pass 1 - Basic Info)...");
+        $this->info('Migrating '.$wpCategories->count().' categories (Pass 1 - Basic Info)...');
         $categoryBar = $this->output->createProgressBar($wpCategories->count());
         $categoryBar->start();
 
@@ -96,7 +97,7 @@ class MigrateWordPressData extends Command
         $categoryBar->finish();
         $this->newLine();
 
-        $this->info("Linking parent-child relationships (Pass 2 - Hierarchy)...");
+        $this->info('Linking parent-child relationships (Pass 2 - Hierarchy)...');
         $hierarchyBar = $this->output->createProgressBar($wpCategories->count());
         $hierarchyBar->start();
 
@@ -113,10 +114,10 @@ class MigrateWordPressData extends Command
         }
         $hierarchyBar->finish();
         $this->newLine();
-        $this->info("Categories migration completed!");
+        $this->info('Categories migration completed!');
 
         // Step 4: Migrate Articles (Posts)
-        $this->info("Fetching published posts from WordPress database...");
+        $this->info('Fetching published posts from WordPress database...');
         $wpPosts = DB::connection('wordpress')
             ->table('bqtdbhah0_posts')
             ->where('post_type', 'post')
@@ -124,14 +125,15 @@ class MigrateWordPressData extends Command
             ->get();
 
         if ($wpPosts->isEmpty()) {
-            $this->warn("No posts found in the WordPress database to migrate.");
+            $this->warn('No posts found in the WordPress database to migrate.');
+
             return 0;
         }
 
         $wpPostIds = $wpPosts->pluck('ID')->toArray();
 
-        $this->info("Fetching relationships and metadata in bulk...");
-        
+        $this->info('Fetching relationships and metadata in bulk...');
+
         // Fetch category relationships
         $relationships = DB::connection('wordpress')
             ->table('bqtdbhah0_term_relationships as tr')
@@ -151,7 +153,7 @@ class MigrateWordPressData extends Command
                 '_yoast_wpseo_metadesc',
                 'rank_math_title',
                 'rank_math_description',
-                '_thumbnail_id'
+                '_thumbnail_id',
             ])
             ->get()
             ->groupBy('post_id');
@@ -162,7 +164,7 @@ class MigrateWordPressData extends Command
         })->filter()->unique()->toArray();
 
         $attachmentPaths = [];
-        if (!empty($thumbnailIds)) {
+        if (! empty($thumbnailIds)) {
             $attachmentPaths = DB::connection('wordpress')
                 ->table('bqtdbhah0_postmeta')
                 ->whereIn('post_id', $thumbnailIds)
@@ -171,7 +173,7 @@ class MigrateWordPressData extends Command
                 ->toArray();
         }
 
-        $this->info("Migrating " . $wpPosts->count() . " articles...");
+        $this->info('Migrating '.$wpPosts->count().' articles...');
         $articleBar = $this->output->createProgressBar($wpPosts->count());
         $articleBar->start();
 
@@ -194,7 +196,7 @@ class MigrateWordPressData extends Command
 
             // Get post meta
             $meta = $postmeta->get($post->ID) ?: collect();
-            
+
             // SEO Title
             $metaTitle = null;
             $yoastTitle = $meta->where('meta_key', '_yoast_wpseo_title')->first();
@@ -204,7 +206,7 @@ class MigrateWordPressData extends Command
             } elseif ($rankMathTitle && $rankMathTitle->meta_value) {
                 $metaTitle = $rankMathTitle->meta_value;
             }
-            
+
             // SEO Description
             $metaDescription = null;
             $yoastDesc = $meta->where('meta_key', '_yoast_wpseo_metadesc')->first();
@@ -223,7 +225,7 @@ class MigrateWordPressData extends Command
                 if (isset($attachmentPaths[$thumbPostId])) {
                     // WordPress attached file is typically '2021/05/filename.jpg'
                     // We map this to 'uploads/2021/05/filename.jpg'
-                    $thumbnailImage = 'uploads/' . ltrim($attachmentPaths[$thumbPostId], '/\\');
+                    $thumbnailImage = 'uploads/'.ltrim($attachmentPaths[$thumbPostId], '/\\');
                 }
             }
 
@@ -231,11 +233,12 @@ class MigrateWordPressData extends Command
             $content = $post->post_content;
 
             // 1. Convert WordPress [caption] shortcodes into standard HTML <figure> tags
-            $content = preg_replace_callback('/\[caption[^\]]*\](.*?)\[\/caption\]/is', function($matches) {
+            $content = preg_replace_callback('/\[caption[^\]]*\](.*?)\[\/caption\]/is', function ($matches) {
                 $innerContent = $matches[1];
+
                 return '<figure class="wp-caption flex flex-col items-center justify-center my-6 p-2 bg-slate-50 border border-slate-100 rounded-2xl max-w-full mx-auto">'
-                     . trim($innerContent)
-                     . '</figure>';
+                     .trim($innerContent)
+                     .'</figure>';
             }, $content);
 
             // 2. Normalize and clean image paths
@@ -250,7 +253,7 @@ class MigrateWordPressData extends Command
                 'http://dakhoacantho.com/storage/uploads/',
                 'https://dakhoacantho.com/storage/uploads/',
                 'http://localhost/dakhoacantho/storage/uploads/',
-                'https://localhost/dakhoacantho/storage/uploads/'
+                'https://localhost/dakhoacantho/storage/uploads/',
             ], [
                 '/storage/uploads/',
                 '/storage/uploads/',
@@ -262,7 +265,7 @@ class MigrateWordPressData extends Command
                 '/storage/uploads/',
                 '/storage/uploads/',
                 '/storage/uploads/',
-                '/storage/uploads/'
+                '/storage/uploads/',
             ], $content);
 
             // 3. Convert absolute internal domain links to root relative links
@@ -270,12 +273,12 @@ class MigrateWordPressData extends Command
                 'http://dakhoacantho.com/',
                 'https://dakhoacantho.com/',
                 'http://localhost/dakhoacantho/',
-                'https://localhost/dakhoacantho/'
+                'https://localhost/dakhoacantho/',
             ], [
                 '/',
                 '/',
                 '/',
-                '/'
+                '/',
             ], $content);
 
             Article::updateOrCreate(
@@ -299,8 +302,8 @@ class MigrateWordPressData extends Command
 
         $articleBar->finish();
         $this->newLine();
-        $this->info("Articles migration completed!");
-        $this->info("=== WordPress Migration Finished Successfully! ===");
+        $this->info('Articles migration completed!');
+        $this->info('=== WordPress Migration Finished Successfully! ===');
 
         return 0;
     }

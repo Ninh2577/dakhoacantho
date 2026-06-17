@@ -27,13 +27,13 @@ class SecurityBaselineCommand extends Command
     public function handle(SecurityScannerService $scannerService): int
     {
         $this->info('Đang tạo baseline cho tệp tin mã nguồn...');
-        
+
         $result = $scannerService->generateBaseline();
-        
-        $this->info("Đã tạo baseline thành công!");
-        $this->info("Tổng số tệp đã lưu: " . $result['total_files']);
-        $this->info("Đường dẫn lưu baseline: " . $result['baseline_path']);
-        
+
+        $this->info('Đã tạo baseline thành công!');
+        $this->info('Tổng số tệp đã lưu: '.$result['total_files']);
+        $this->info('Đường dẫn lưu baseline: '.$result['baseline_path']);
+
         return Command::SUCCESS;
     }
 }

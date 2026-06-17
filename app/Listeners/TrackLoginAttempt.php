@@ -40,15 +40,15 @@ class TrackLoginAttempt
     public function handleLogin(Login $event): void
     {
         try {
-            $ip    = $this->request->ip() ?? '0.0.0.0';
+            $ip = $this->request->ip() ?? '0.0.0.0';
             $email = $event->user->email ?? null;
-            $ua    = substr((string) $this->request->userAgent(), 0, 512);
+            $ua = substr((string) $this->request->userAgent(), 0, 512);
 
             LoginAttempt::create([
-                'email'          => $email,
-                'ip_address'     => $ip,
-                'user_agent'     => $ua,
-                'successful'     => true,
+                'email' => $email,
+                'ip_address' => $ip,
+                'user_agent' => $ua,
+                'successful' => true,
                 'failure_reason' => null,
             ]);
 
@@ -66,7 +66,7 @@ class TrackLoginAttempt
                 $event->user->id ?? null
             );
         } catch (\Throwable $e) {
-            Log::warning('TrackLoginAttempt::handleLogin failed: ' . $e->getMessage());
+            Log::warning('TrackLoginAttempt::handleLogin failed: '.$e->getMessage());
         }
     }
 
@@ -76,27 +76,27 @@ class TrackLoginAttempt
     public function handleFailed(Failed $event): void
     {
         try {
-            $ip    = $this->request->ip() ?? '0.0.0.0';
+            $ip = $this->request->ip() ?? '0.0.0.0';
             $email = $event->credentials['email'] ?? null;
-            $ua    = substr((string) $this->request->userAgent(), 0, 512);
+            $ua = substr((string) $this->request->userAgent(), 0, 512);
 
             // Determine failure reason safely (no password in context)
             $reason = 'Invalid credentials';
 
             LoginAttempt::create([
-                'email'          => $email,
-                'ip_address'     => $ip,
-                'user_agent'     => $ua,
-                'successful'     => false,
+                'email' => $email,
+                'ip_address' => $ip,
+                'user_agent' => $ua,
+                'successful' => false,
                 'failure_reason' => $reason,
             ]);
 
             // Increment cache counters
-            $ipKey    = "security:failed_ip:{$ip}";
+            $ipKey = "security:failed_ip:{$ip}";
             $emailKey = $email ? "security:failed_email:{$email}" : null;
 
             $lockoutMinutes = $this->settings->lockoutMinutes();
-            $failCountIp    = Cache::increment($ipKey);
+            $failCountIp = Cache::increment($ipKey);
             Cache::put($ipKey, $failCountIp, now()->addMinutes($lockoutMinutes));
 
             $failCountEmail = 0;
@@ -105,14 +105,14 @@ class TrackLoginAttempt
                 Cache::put($emailKey, $failCountEmail, now()->addMinutes($lockoutMinutes));
             }
 
-            $maxPerIp    = $this->settings->maxFailedPerIp();
+            $maxPerIp = $this->settings->maxFailedPerIp();
             $maxPerEmail = $this->settings->maxFailedPerEmail();
 
             // Log single failed login event
             $this->logger->log(
                 SecurityEvent::TYPE_FAILED_LOGIN,
                 SecurityEvent::SEVERITY_LOW,
-                "Đăng nhập thất bại: " . ($email ?? 'unknown'),
+                'Đăng nhập thất bại: '.($email ?? 'unknown'),
                 ['email' => $email, 'fail_count_ip' => $failCountIp],
                 $this->request,
                 null,
@@ -129,7 +129,7 @@ class TrackLoginAttempt
                 $this->handleThresholdExceeded($ip, $email, 'email', $failCountEmail);
             }
         } catch (\Throwable $e) {
-            Log::warning('TrackLoginAttempt::handleFailed failed: ' . $e->getMessage());
+            Log::warning('TrackLoginAttempt::handleFailed failed: '.$e->getMessage());
         }
     }
 
@@ -140,7 +140,7 @@ class TrackLoginAttempt
     {
         // Minimal log, no dedup
         try {
-            $ip    = $this->request->ip() ?? '0.0.0.0';
+            $ip = $this->request->ip() ?? '0.0.0.0';
             $email = $event->user->email ?? null;
 
             $this->logger->info(
@@ -170,6 +170,7 @@ class TrackLoginAttempt
                 ['email' => $email, 'threshold_type' => $thresholdType, 'count' => $count],
                 $this->request
             );
+
             return;
         }
 
@@ -186,7 +187,7 @@ class TrackLoginAttempt
         // Only auto-block if admin has explicitly enabled it
         if ($this->settings->autoBlockEnabled()) {
             $lockoutMinutes = $this->settings->lockoutMinutes();
-            $isPermanent    = (bool) $this->settings->get('permanent_block_enabled', false);
+            $isPermanent = (bool) $this->settings->get('permanent_block_enabled', false);
 
             BlockedIp::blockIp(
                 ip: $ip,

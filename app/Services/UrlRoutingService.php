@@ -4,9 +4,7 @@ namespace App\Services;
 
 use App\Models\Article;
 use App\Models\Category;
-use App\Models\Setting;
 use App\Models\UrlRedirect;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Log;
 
 class UrlRoutingService
@@ -105,7 +103,7 @@ class UrlRoutingService
         if (str_ends_with($path, '.html/')) {
             $path = substr($path, 0, -1);
         }
-        
+
         // e.g. .html.html -> .html
         $path = preg_replace('/(\.html)+/i', '.html', $path);
 
@@ -134,7 +132,7 @@ class UrlRoutingService
     public function compileArticlePath(Article $article, string $pattern): string
     {
         $slug = $article->slug;
-        
+
         // Resolve Category placeholders
         $categorySlug = 'khong-phan-loai';
         $categoriesSlug = 'khong-phan-loai';
@@ -190,6 +188,7 @@ class UrlRoutingService
         // Redirect Loop Check: check if newPath redirects back to oldPath (directly or transitively)
         if ($this->detectRedirectLoop($newPath, $oldPath)) {
             Log::warning("Redirect loop detected: {$oldPath} -> {$newPath}. Skipping redirect generation.");
+
             return;
         }
 
@@ -225,7 +224,7 @@ class UrlRoutingService
         $current = $startPath;
         for ($i = 0; $i < 3; $i++) {
             $redirect = UrlRedirect::where('old_path', $current)->where('is_active', true)->first();
-            if (!$redirect) {
+            if (! $redirect) {
                 return false;
             }
             if ($redirect->new_path === $targetPath) {
@@ -233,6 +232,7 @@ class UrlRoutingService
             }
             $current = $redirect->new_path;
         }
+
         return false;
     }
 
@@ -242,6 +242,7 @@ class UrlRoutingService
     public function isReservedPath(string $path): bool
     {
         $firstSegment = explode('/', $path)[0];
+
         return in_array($firstSegment, $this->reservedPaths);
     }
 
@@ -265,6 +266,7 @@ class UrlRoutingService
                     'target_type' => 'category',
                     'target_id' => $cat->id,
                 ];
+
                 continue;
             }
 
@@ -302,6 +304,7 @@ class UrlRoutingService
                     'target_type' => 'article',
                     'target_id' => $art->id,
                 ];
+
                 continue;
             }
 

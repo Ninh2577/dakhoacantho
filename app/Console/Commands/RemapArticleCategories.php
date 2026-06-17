@@ -2,13 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Article;
+use App\Models\Category;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Str;
-use App\Models\Category;
-use App\Models\Article;
 
 class RemapArticleCategories extends Command
 {
@@ -35,13 +33,21 @@ class RemapArticleCategories extends Command
 
     // Summary statistics
     protected $totalOldPosts = 0;
+
     protected $matchedArticlesCount = 0;
+
     protected $changedCount = 0;
+
     protected $unchangedCount = 0;
+
     protected $skippedNoMatchCount = 0;
+
     protected $skippedNoCategoryCount = 0;
+
     protected $skippedLowConfidenceCount = 0;
+
     protected $missingTargetCategoriesCount = 0;
+
     protected $failedRowsCount = 0;
 
     // Transition statistics tracker: [current_name => [target_name => count]]
@@ -89,9 +95,9 @@ class RemapArticleCategories extends Command
         $minConfidence = $this->option('confidence') ?: 'high';
         $force = $this->option('force');
 
-        $this->info("=== Starting Article Category Remapping ===");
+        $this->info('=== Starting Article Category Remapping ===');
         if ($dryRun) {
-            $this->warn("!!! RUNNING IN DRY-RUN MODE (No database updates will occur) !!!");
+            $this->warn('!!! RUNNING IN DRY-RUN MODE (No database updates will occur) !!!');
         }
 
         // Initialize log files
@@ -115,27 +121,30 @@ class RemapArticleCategories extends Command
         // Connection Check
         try {
             DB::connection('old_mysql')->getPdo();
-            $this->info("Connected successfully to old WordPress database.");
+            $this->info('Connected successfully to old WordPress database.');
         } catch (\Exception $e) {
-            $this->error("Failed to connect to 'old_mysql' connection. Error: " . $e->getMessage());
+            $this->error("Failed to connect to 'old_mysql' connection. Error: ".$e->getMessage());
             $this->logAction('SYSTEM', 'N/A', 'N/A', 'DB_CONN_FAIL', null, $e->getMessage());
+
             return 1;
         }
 
         // Safe Confirmation before full real run
-        $isFullRealRun = (!$dryRun && !$limit && !$slugFilter && !$oldPostIdFilter);
-        if ($isFullRealRun && !$force) {
-            $confirmed = $this->confirm("Do you really want to run the FULL category remapping? This will modify article records in the database.", false);
-            if (!$confirmed) {
-                $this->error("Command aborted by user.");
+        $isFullRealRun = (! $dryRun && ! $limit && ! $slugFilter && ! $oldPostIdFilter);
+        if ($isFullRealRun && ! $force) {
+            $confirmed = $this->confirm('Do you really want to run the FULL category remapping? This will modify article records in the database.', false);
+            if (! $confirmed) {
+                $this->error('Command aborted by user.');
+
                 return 0;
             }
         }
 
         // Database Backup (only if NOT dry-run)
-        if (!$dryRun) {
+        if (! $dryRun) {
             if ($this->runBackup() !== 0) {
-                $this->error("Halting migration: Backup failed. Database safety is a critical priority.");
+                $this->error('Halting migration: Backup failed. Database safety is a critical priority.');
+
                 return 1;
             }
         }
@@ -148,7 +157,7 @@ class RemapArticleCategories extends Command
         });
 
         // Step 2: Fetch and build old WP Category Hierarchy depth
-        $this->info("Loading WordPress categories hierarchy...");
+        $this->info('Loading WordPress categories hierarchy...');
         try {
             $wpCategories = DB::connection('old_mysql')
                 ->table('bqtdbhah0_terms as t')
@@ -157,7 +166,8 @@ class RemapArticleCategories extends Command
                 ->select('t.term_id', 't.name', 't.slug', 'tt.parent')
                 ->get();
         } catch (\Exception $e) {
-            $this->error("Failed to fetch old WordPress categories: " . $e->getMessage());
+            $this->error('Failed to fetch old WordPress categories: '.$e->getMessage());
+
             return 1;
         }
 
@@ -168,13 +178,13 @@ class RemapArticleCategories extends Command
                 'name' => $wpCat->name,
                 'slug' => $wpCat->slug,
                 'parent' => (int) $wpCat->parent,
-                'depth' => -1
+                'depth' => -1,
             ];
         }
 
         // Depth analyzer helper
         $computeDepth = function ($termId) use (&$wpCategoriesById, &$computeDepth) {
-            if (!isset($wpCategoriesById[$termId])) {
+            if (! isset($wpCategoriesById[$termId])) {
                 return 0;
             }
             if ($wpCategoriesById[$termId]['depth'] !== -1) {
@@ -182,10 +192,12 @@ class RemapArticleCategories extends Command
             }
             if ($wpCategoriesById[$termId]['parent'] === 0) {
                 $wpCategoriesById[$termId]['depth'] = 0;
+
                 return 0;
             }
             $parentDepth = $computeDepth($wpCategoriesById[$termId]['parent']);
             $wpCategoriesById[$termId]['depth'] = 1 + $parentDepth;
+
             return $wpCategoriesById[$termId]['depth'];
         };
 
@@ -194,7 +206,7 @@ class RemapArticleCategories extends Command
         }
 
         // Step 3: Fetch WordPress posts based on filters
-        $this->info("Querying WordPress posts...");
+        $this->info('Querying WordPress posts...');
         $postsQuery = DB::connection('old_mysql')
             ->table('bqtdbhah0_posts')
             ->where('post_type', 'post')
@@ -220,7 +232,7 @@ class RemapArticleCategories extends Command
             ->get()
             ->groupBy('object_id');
 
-        $this->info("Remapping articles...");
+        $this->info('Remapping articles...');
         $progressBar = $this->output->createProgressBar($wpPosts->count());
         $progressBar->start();
 
@@ -243,15 +255,16 @@ class RemapArticleCategories extends Command
                 if ($slugFilter && $wpSlug !== $slugFilter) {
                     // Skip if slug filter is active and doesn't match
                     $progressBar->advance();
+
                     continue;
                 }
                 $targetArticle = Article::where('slug', $wpSlug)->first();
             }
 
             // Priority 2: Match by normalized title
-            if (!$targetArticle && $wpTitle) {
+            if (! $targetArticle && $wpTitle) {
                 $normalizedWpTitle = $this->normalizeString($wpTitle);
-                
+
                 // We'll query target articles with similar titles
                 $targetArticles = Article::all(); // load in memory for matching since count is small
                 foreach ($targetArticles as $art) {
@@ -265,16 +278,17 @@ class RemapArticleCategories extends Command
                 }
             }
 
-            if (!$targetArticle) {
+            if (! $targetArticle) {
                 $this->logAction($post->ID, $wpSlug, $wpTitle, 'skipped_no_match', null, 'Target article not found in new database.');
                 $this->skippedNoMatchCount++;
                 $progressBar->advance();
+
                 continue;
             }
 
             // Article is matched
             $this->matchedArticlesCount++;
-            
+
             $currentCategoryId = $targetArticle->category_id;
             $currentCategoryName = $targetArticle->category ? $targetArticle->category->name : 'N/A';
 
@@ -286,7 +300,7 @@ class RemapArticleCategories extends Command
 
             $associatedWpTermIds = isset($wpRelationships[$post->ID]) ? $wpRelationships[$post->ID]->pluck('term_id')->toArray() : [];
 
-            if (!empty($associatedWpTermIds)) {
+            if (! empty($associatedWpTermIds)) {
                 $validCats = [];
                 foreach ($associatedWpTermIds as $termId) {
                     if (isset($wpCategoriesById[$termId])) {
@@ -294,7 +308,7 @@ class RemapArticleCategories extends Command
                     }
                 }
 
-                if (!empty($validCats)) {
+                if (! empty($validCats)) {
                     // Sort by depth descending, tie-break by title keyword match strength, then by term_id
                     usort($validCats, function ($a, $b) use ($wpTitle, $wpSlug) {
                         if ($b['depth'] !== $a['depth']) {
@@ -303,15 +317,19 @@ class RemapArticleCategories extends Command
                         // tie break check
                         $aNormName = $this->normalizeString($a['name']);
                         $bNormName = $this->normalizeString($b['name']);
-                        
+
                         $titleNorm = $this->normalizeString($wpTitle);
                         $slugNorm = str_replace('-', ' ', $this->normalizeString($wpSlug));
 
                         $aMatch = (str_contains($titleNorm, $aNormName) || str_contains($slugNorm, $aNormName));
                         $bMatch = (str_contains($titleNorm, $bNormName) || str_contains($slugNorm, $bNormName));
 
-                        if ($aMatch && !$bMatch) return -1;
-                        if (!$aMatch && $bMatch) return 1;
+                        if ($aMatch && ! $bMatch) {
+                            return -1;
+                        }
+                        if (! $aMatch && $bMatch) {
+                            return 1;
+                        }
 
                         return $a['term_id'] <=> $b['term_id'];
                     });
@@ -328,7 +346,7 @@ class RemapArticleCategories extends Command
                         $reason = 'Matched old category slug directly';
                     }
                     // 2. Normalized slug match
-                    if (!$resolvedTargetCategoryId) {
+                    if (! $resolvedTargetCategoryId) {
                         $normalizedWpSlug = $this->normalizeString(str_replace('-', ' ', $selectedWpSlug));
                         foreach ($targetCategories as $targetCat) {
                             $normTargetSlug = $this->normalizeString(str_replace('-', ' ', $targetCat->slug));
@@ -341,7 +359,7 @@ class RemapArticleCategories extends Command
                         }
                     }
                     // 3. Exact Vietnamese name match
-                    if (!$resolvedTargetCategoryId) {
+                    if (! $resolvedTargetCategoryId) {
                         foreach ($targetCategories as $targetCat) {
                             if ($targetCat->name === $selectedWpCategoryName) {
                                 $resolvedTargetCategoryId = $targetCat->id;
@@ -352,7 +370,7 @@ class RemapArticleCategories extends Command
                         }
                     }
                     // 4. Normalized Vietnamese name match
-                    if (!$resolvedTargetCategoryId) {
+                    if (! $resolvedTargetCategoryId) {
                         $normWpCatName = $this->normalizeString($selectedWpCategoryName);
                         if (isset($targetCategoriesByName[$normWpCatName])) {
                             $resolvedTargetCategoryId = $targetCategoriesByName[$normWpCatName]->id;
@@ -361,7 +379,7 @@ class RemapArticleCategories extends Command
                         }
                     }
                     // 5. Manual dictionary mapping
-                    if (!$resolvedTargetCategoryId && isset($this->manualDictionary[$selectedWpSlug])) {
+                    if (! $resolvedTargetCategoryId && isset($this->manualDictionary[$selectedWpSlug])) {
                         $mappedSlug = $this->manualDictionary[$selectedWpSlug];
                         if (isset($targetCategoriesBySlug[$mappedSlug])) {
                             $resolvedTargetCategoryId = $targetCategoriesBySlug[$mappedSlug]->id;
@@ -381,7 +399,7 @@ class RemapArticleCategories extends Command
                 }
             }
 
-            if (!$resolvedTargetCategoryId || $isRootOrVague) {
+            if (! $resolvedTargetCategoryId || $isRootOrVague) {
                 // Apply keyword-based fallback rules
                 $fallbackResult = $this->resolveCategoryByKeywords($wpTitle, $wpSlug, $targetCategoriesBySlug);
                 if ($fallbackResult) {
@@ -400,14 +418,16 @@ class RemapArticleCategories extends Command
                 $this->logToReviewCsv($post->ID, $targetArticle->id, $wpSlug, $wpTitle, $currentCategoryName, $resolvedTargetCategoryId ? Category::find($resolvedTargetCategoryId)->name : 'Unmapped', $confidence, $reason);
                 $this->skippedLowConfidenceCount++;
                 $progressBar->advance();
+
                 continue;
             }
 
             $targetCategoryInstance = Category::find($resolvedTargetCategoryId);
-            if (!$targetCategoryInstance) {
+            if (! $targetCategoryInstance) {
                 $this->logAction($post->ID, $wpSlug, $wpTitle, 'missing_target_category', $resolvedTargetCategoryId, 'Target Category ID does not exist in target DB.');
                 $this->missingTargetCategoriesCount++;
                 $progressBar->advance();
+
                 continue;
             }
 
@@ -424,24 +444,24 @@ class RemapArticleCategories extends Command
                 }
 
                 // Transition statistics tracking
-                if (!isset($this->transitions[$currentCategoryName])) {
+                if (! isset($this->transitions[$currentCategoryName])) {
                     $this->transitions[$currentCategoryName] = [];
                 }
-                if (!isset($this->transitions[$currentCategoryName][$targetCategoryName])) {
+                if (! isset($this->transitions[$currentCategoryName][$targetCategoryName])) {
                     $this->transitions[$currentCategoryName][$targetCategoryName] = 0;
                 }
                 $this->transitions[$currentCategoryName][$targetCategoryName]++;
 
                 if ($dryRun) {
                     $proposalLine = sprintf(
-                        "[DRY-RUN] current: %s -> target: %s | slug: %s | confidence: %s",
+                        '[DRY-RUN] current: %s -> target: %s | slug: %s | confidence: %s',
                         $currentCategoryName,
                         $targetCategoryName,
                         $wpSlug,
                         $confidence
                     );
                     $this->logAction($post->ID, $wpSlug, $wpTitle, 'dry-run-change', $resolvedTargetCategoryId, "Proposed: {$currentCategoryName} -> {$targetCategoryName}. Reason: {$reason}");
-                    
+
                     if (count($dryRunProposals) < 20) {
                         $dryRunProposals[] = $proposalLine;
                     }
@@ -450,7 +470,7 @@ class RemapArticleCategories extends Command
                     try {
                         $targetArticle->category_id = $resolvedTargetCategoryId;
                         $targetArticle->save();
-                        
+
                         $this->logAction($post->ID, $wpSlug, $wpTitle, 'changed', $resolvedTargetCategoryId, "Remapped: {$currentCategoryName} -> {$targetCategoryName}. Reason: {$reason}");
                         $this->changedCount++;
                     } catch (\Exception $e) {
@@ -467,8 +487,8 @@ class RemapArticleCategories extends Command
         $this->newLine(2);
 
         // Print Dry Run proposals if available
-        if ($dryRun && !empty($dryRunProposals)) {
-            $this->info("--- Top 20 Proposed High-Confidence Changes (Dry Run Preview) ---");
+        if ($dryRun && ! empty($dryRunProposals)) {
+            $this->info('--- Top 20 Proposed High-Confidence Changes (Dry Run Preview) ---');
             foreach ($dryRunProposals as $proposal) {
                 $this->line($proposal);
             }
@@ -476,20 +496,20 @@ class RemapArticleCategories extends Command
         }
 
         // Post-migration clearing of cache & optimize files
-        if (!$dryRun && $this->changedCount > 0) {
-            $this->info("Clearing caches and optimizations...");
+        if (! $dryRun && $this->changedCount > 0) {
+            $this->info('Clearing caches and optimizations...');
             try {
                 $this->call('optimize:clear');
                 $this->call('cache:clear');
                 $this->call('view:clear');
-                $this->info("Caches cleared successfully.");
+                $this->info('Caches cleared successfully.');
             } catch (\Exception $e) {
-                $this->warn("Failed to clear caches: " . $e->getMessage());
+                $this->warn('Failed to clear caches: '.$e->getMessage());
             }
         }
 
         // Print final summary
-        $this->info("=== Category Remap Summary ===");
+        $this->info('=== Category Remap Summary ===');
         $summaryHeaders = ['Metric', 'Count'];
         $summaryRows = [
             ['Total WordPress Posts Checked', $this->totalOldPosts],
@@ -505,9 +525,9 @@ class RemapArticleCategories extends Command
         $this->table($summaryHeaders, $summaryRows);
 
         // Display transition stats
-        if (!empty($this->transitions)) {
+        if (! empty($this->transitions)) {
             $this->newLine();
-            $this->info("=== Category Transitions Map ===");
+            $this->info('=== Category Transitions Map ===');
             $transitionHeaders = ['From Category', 'To Category', 'Count'];
             $transitionRows = [];
             foreach ($this->transitions as $fromCat => $toCats) {
@@ -518,9 +538,9 @@ class RemapArticleCategories extends Command
             $this->table($transitionHeaders, $transitionRows);
         }
 
-        $this->info("Audit log written to: storage/logs/article-category-remap.log");
-        $this->info("Review CSV list written to: storage/logs/article-category-remap-review.csv");
-        $this->info("=== Category Remap Process Completed ===");
+        $this->info('Audit log written to: storage/logs/article-category-remap.log');
+        $this->info('Review CSV list written to: storage/logs/article-category-remap-review.csv');
+        $this->info('=== Category Remap Process Completed ===');
 
         return 0;
     }
@@ -531,15 +551,15 @@ class RemapArticleCategories extends Command
     protected function runBackup(): int
     {
         $backupDir = storage_path('backups');
-        if (!File::exists($backupDir)) {
+        if (! File::exists($backupDir)) {
             File::makeDirectory($backupDir, 0755, true);
         }
-        
+
         $timestamp = date('Ymd_His');
-        $backupFile = $backupDir . "/dakhoacantho_web_before_category_remap_{$timestamp}.sql";
+        $backupFile = $backupDir."/dakhoacantho_web_before_category_remap_{$timestamp}.sql";
 
         $mysqlDumpPath = 'C:\\xampp\\mysql\\bin\\mysqldump.exe';
-        if (!File::exists($mysqlDumpPath)) {
+        if (! File::exists($mysqlDumpPath)) {
             $mysqlDumpPath = 'mysqldump'; // fallback
         }
 
@@ -549,7 +569,7 @@ class RemapArticleCategories extends Command
         $dbUser = config('database.connections.mysql.username', 'root');
         $dbPass = config('database.connections.mysql.password', '');
 
-        $passwordOption = $dbPass !== '' ? "-p" . escapeshellarg($dbPass) : '';
+        $passwordOption = $dbPass !== '' ? '-p'.escapeshellarg($dbPass) : '';
 
         $command = sprintf(
             '"%s" -h %s -P %s -u %s %s %s > "%s"',
@@ -563,16 +583,18 @@ class RemapArticleCategories extends Command
         );
 
         $this->info("Creating timestamped database backup: {$backupFile}");
-        
+
         exec($command, $output, $resultCode);
 
         if ($resultCode !== 0) {
             $this->logAction('SYSTEM', 'N/A', 'N/A', 'BACKUP_FAIL', null, "mysqldump exit code: {$resultCode}");
+
             return $resultCode;
         }
 
-        $this->info("Database backup created successfully.");
+        $this->info('Database backup created successfully.');
         $this->logAction('SYSTEM', 'N/A', 'N/A', 'BACKUP_SUCCESS', null, "Backup created at {$backupFile}");
+
         return 0;
     }
 
@@ -592,132 +614,132 @@ class RemapArticleCategories extends Command
                 'keywords' => ['cat bao quy dau', 'cắt bao quy đầu', 'phau thuat bao quy dau', 'phẫu thuật bao quy đầu'],
                 'target' => 'cat-bao-quy-dau',
                 'confidence' => 'high',
-                'reason' => 'Keyword matched specific Cắt Bao Quy Đầu action'
+                'reason' => 'Keyword matched specific Cắt Bao Quy Đầu action',
             ],
             // Viêm Bao Quy Đầu
             [
                 'keywords' => ['viem bao quy dau', 'viêm bao quy đầu'],
                 'target' => 'viem-bao-quy-dau',
                 'confidence' => 'high',
-                'reason' => 'Keyword matched specific Viêm Bao Quy Đầu pathology'
+                'reason' => 'Keyword matched specific Viêm Bao Quy Đầu pathology',
             ],
             // Hẹp Bao Quy Đầu
             [
                 'keywords' => ['hep bao quy dau', 'hẹp bao quy đầu'],
                 'target' => 'hep-bao-quy-dau',
                 'confidence' => 'high',
-                'reason' => 'Keyword matched specific Hẹp Bao Quy Đầu pathology'
+                'reason' => 'Keyword matched specific Hẹp Bao Quy Đầu pathology',
             ],
             // Dài Bao Quy Đầu
             [
                 'keywords' => ['dai bao quy dau', 'dài bao quy đầu'],
                 'target' => 'dai-bao-quy-dau',
                 'confidence' => 'high',
-                'reason' => 'Keyword matched specific Dài Bao Quy Đầu pathology'
+                'reason' => 'Keyword matched specific Dài Bao Quy Đầu pathology',
             ],
             // Bao Quy Đầu (general child)
             [
                 'keywords' => ['bao quy dau', 'bao quy đầu'],
                 'target' => 'bao-quy-dau',
                 'confidence' => 'medium',
-                'reason' => 'Keyword matched general Bao Quy Đầu'
+                'reason' => 'Keyword matched general Bao Quy Đầu',
             ],
             // Xuất Tinh Sớm
             [
                 'keywords' => ['xuat tinh som', 'xuất tinh sớm'],
                 'target' => 'xuat-tinh-som',
                 'confidence' => 'high',
-                'reason' => 'Keyword matched specific Xuất Tinh Sớm symptom'
+                'reason' => 'Keyword matched specific Xuất Tinh Sớm symptom',
             ],
             // Tinh Trùng Yếu
             [
                 'keywords' => ['tinh trung yeu', 'tinh trùng yếu', 'tinh trung loang', 'tinh trùng loãng'],
                 'target' => 'tinh-trung-yeu',
                 'confidence' => 'high',
-                'reason' => 'Keyword matched specific Tinh Trùng Yếu symptom'
+                'reason' => 'Keyword matched specific Tinh Trùng Yếu symptom',
             ],
             // Yếu Sinh Lý
             [
                 'keywords' => ['yeu sinh ly', 'yếu sinh lý', 'cuong duong', 'cương dương', 'liet duong', 'liệt dương'],
                 'target' => 'yeu-sinh-ly',
                 'confidence' => 'high',
-                'reason' => 'Keyword matched specific Yếu Sinh Lý pathology'
+                'reason' => 'Keyword matched specific Yếu Sinh Lý pathology',
             ],
             // Bệnh Tinh Hoàn
             [
                 'keywords' => ['tinh hoan', 'tinh hoàn', 'mao tinh', 'mào tinh', 'uot biu', 'ướt bìu'],
                 'target' => 'benh-tinh-hoan',
                 'confidence' => 'high',
-                'reason' => 'Keyword matched specific Bệnh Tinh Hoàn pathology'
+                'reason' => 'Keyword matched specific Bệnh Tinh Hoàn pathology',
             ],
             // U Xơ Tử Cung
             [
                 'keywords' => ['u xo tu cung', 'u xơ tử cung', 'u nang buong trung', 'u nang buồng trứng'],
                 'target' => 'u-xo-tu-cung',
                 'confidence' => 'high',
-                'reason' => 'Keyword matched specific U Xơ Tử Cung / Buồng Trứng pathology'
+                'reason' => 'Keyword matched specific U Xơ Tử Cung / Buồng Trứng pathology',
             ],
             // Viêm Phụ Khoa
             [
                 'keywords' => ['viem phu khoa', 'viêm phụ khoa', 'viem am dao', 'viêm âm đạo', 'viem am ho', 'viêm âm hộ', 'viem lo tuyen', 'viêm lộ tuyến', 'viem co tu cung', 'viêm cổ tử cung'],
                 'target' => 'viem-phu-khoa',
                 'confidence' => 'high',
-                'reason' => 'Keyword matched specific Viêm Phụ Khoa pathology'
+                'reason' => 'Keyword matched specific Viêm Phụ Khoa pathology',
             ],
             // Rối Loạn Kinh Nguyệt
             [
                 'keywords' => ['roi loan kinh nguyet', 'rối loạn kinh nguyệt', 'cham kinh', 'trễ kinh', 'rong kinh', 'kinh nguyet', 'kinh nguyệt', 'dau bung kinh', 'đau bụng kinh'],
                 'target' => 'roi-loan-kinh-nguyet',
                 'confidence' => 'high',
-                'reason' => 'Keyword matched specific Rối Loạn Kinh Nguyệt pathology'
+                'reason' => 'Keyword matched specific Rối Loạn Kinh Nguyệt pathology',
             ],
             // Sùi Mào Gà
             [
                 'keywords' => ['sui mao ga', 'sùi mào gà', 'hpv'],
                 'target' => 'sui-mao-ga',
                 'confidence' => 'high',
-                'reason' => 'Keyword matched specific Sùi Mào Gà disease'
+                'reason' => 'Keyword matched specific Sùi Mào Gà disease',
             ],
             // Bệnh Lậu
             [
                 'keywords' => ['benh lau', 'bệnh lậu'],
                 'target' => 'benh-lau',
                 'confidence' => 'high',
-                'reason' => 'Keyword matched specific Bệnh Lậu disease'
+                'reason' => 'Keyword matched specific Bệnh Lậu disease',
             ],
             // Giang Mai
             [
                 'keywords' => ['giang mai', 'syphilis'],
                 'target' => 'giang-mai',
                 'confidence' => 'high',
-                'reason' => 'Keyword matched specific Giang Mai disease'
+                'reason' => 'Keyword matched specific Giang Mai disease',
             ],
             // Xét Nghiệm
             [
                 'keywords' => ['xet nghiem', 'xét nghiệm', 'kiem tra suc khoe', 'kiểm tra sức khỏe', 'kham suc khoe', 'khám sức khỏe'],
                 'target' => 'xet-nghiem',
                 'confidence' => 'high',
-                'reason' => 'Keyword matched Xét Nghiệm action'
+                'reason' => 'Keyword matched Xét Nghiệm action',
             ],
             // general fallbacks to roots:
             [
                 'keywords' => ['nam khoa', 'nam giới', 'nam gioi', 'dan ong', 'đàn ông'],
                 'target' => 'nam-khoa',
                 'confidence' => 'medium',
-                'reason' => 'Keyword matched general Nam Khoa root'
+                'reason' => 'Keyword matched general Nam Khoa root',
             ],
             [
                 'keywords' => ['phu khoa', 'phụ khoa', 'phu nu', 'phụ nữ', 'chi em', 'chị em', 'pha thai', 'phá thai', 'dinh chi thai', 'đình chỉ thai'],
                 'target' => 'phu-khoa',
                 'confidence' => 'medium',
-                'reason' => 'Keyword matched general Phụ Khoa root'
+                'reason' => 'Keyword matched general Phụ Khoa root',
             ],
             [
                 'keywords' => ['benh xa hoi', 'bệnh xã hội', 'lay truyen', 'lây truyền'],
                 'target' => 'benh-xa-hoi',
                 'confidence' => 'medium',
-                'reason' => 'Keyword matched general Bệnh Xã Hội root'
-            ]
+                'reason' => 'Keyword matched general Bệnh Xã Hội root',
+            ],
         ];
 
         foreach ($rules as $rule) {
@@ -728,7 +750,7 @@ class RemapArticleCategories extends Command
                         return [
                             'category_id' => $targetCategoriesBySlug[$slugTarget]->id,
                             'confidence' => $rule['confidence'],
-                            'reason' => $rule['reason']
+                            'reason' => $rule['reason'],
                         ];
                     }
                 }
@@ -758,6 +780,7 @@ class RemapArticleCategories extends Command
         }
         $str = preg_replace('/[^a-z0-9\s]/', '', $str);
         $str = preg_replace('/\s+/', ' ', $str);
+
         return trim($str);
     }
 
@@ -787,13 +810,14 @@ class RemapArticleCategories extends Command
     protected function logToReviewCsv($oldPostId, $newArticleId, $slug, $title, $currentCategory, $proposedCategory, $confidence, $reason)
     {
         $reviewCsvFile = storage_path('logs/article-category-remap-review.csv');
-        
+
         // Escape CSV values
         $escapeCsv = function ($val) {
             $val = str_replace('"', '""', $val);
             if (str_contains($val, ',') || str_contains($val, '"') || str_contains($val, "\n")) {
-                return '"' . $val . '"';
+                return '"'.$val.'"';
             }
+
             return $val;
         };
 
@@ -808,7 +832,7 @@ class RemapArticleCategories extends Command
             $confidence,
             $escapeCsv($reason)
         );
-        
+
         File::append($reviewCsvFile, $line);
     }
 }

@@ -2,9 +2,9 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -20,7 +20,7 @@ return new class extends Migration
         // Migrate existing author string to author_id using DB query builder (no Eloquent models)
         $articles = DB::table('articles')->get();
         foreach ($articles as $article) {
-            if (!empty($article->author)) {
+            if (! empty($article->author)) {
                 $user = DB::table('users')->where('name', $article->author)->first();
                 if ($user) {
                     DB::table('articles')->where('id', $article->id)->update(['author_id' => $user->id]);

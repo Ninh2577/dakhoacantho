@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
 use App\Models\Article;
-use Illuminate\Http\Request;
+use App\Models\Category;
+use App\Models\Setting;
+use App\Services\UrlRoutingService;
+use Illuminate\Support\Facades\Cache;
 
 class CategoryController extends Controller
 {
@@ -41,23 +43,23 @@ class CategoryController extends Controller
             abort(404);
         }
 
-        $routingService = app(\App\Services\UrlRoutingService::class);
+        $routingService = app(UrlRoutingService::class);
 
         // Heal null url_path for legacy category records
         if ($selectedCategory->url_path === null) {
             try {
-                $pattern = \App\Models\Setting::get('url_pattern_category') ?: 'category/{categories}';
+                $pattern = Setting::get('url_pattern_category') ?: 'category/{categories}';
                 $selectedCategory->url_path = $routingService->compileCategoryPath($selectedCategory, $pattern);
                 $selectedCategory->saveQuietly();
             } catch (\Throwable) {
-                $selectedCategory->url_path = 'category/' . $category_path;
+                $selectedCategory->url_path = 'category/'.$category_path;
             }
         }
 
         $currentPath = $routingService->normalizePath(request()->path());
-        $newPath     = $routingService->normalizePath($selectedCategory->url_path);
+        $newPath = $routingService->normalizePath($selectedCategory->url_path);
 
-        if (!empty($newPath) && $currentPath !== $newPath) {
+        if (! empty($newPath) && $currentPath !== $newPath) {
             return redirect()->to($selectedCategory->public_url, 301);
         }
 
@@ -87,7 +89,7 @@ class CategoryController extends Controller
 
         // Retrieve and cache 9 latest related articles for 15 minutes
         $cacheKey = "category_related_articles_{$selectedCategory->id}";
-        $relatedArticles = \Illuminate\Support\Facades\Cache::remember($cacheKey, now()->addMinutes(15), function () use ($categoryIds) {
+        $relatedArticles = Cache::remember($cacheKey, now()->addMinutes(15), function () use ($categoryIds) {
             $articles = Article::with('category.parent.parent')
                 ->whereIn('category_id', $categoryIds)
                 ->where('is_published', true)
@@ -98,23 +100,25 @@ class CategoryController extends Controller
             if ($articles->count() < 9) {
                 $needed = 9 - $articles->count();
                 $excludeIds = $articles->pluck('id')->toArray();
-                
+
                 $fallbackArticles = Article::with('category.parent.parent')
                     ->whereNotIn('id', $excludeIds)
                     ->where('is_published', true)
                     ->latest()
                     ->take($needed)
                     ->get();
-                    
+
                 $articles = $articles->merge($fallbackArticles);
             }
+
             return $articles;
         });
 
         // Check for custom landing page
-        $customView = 'categories.landing.' . $selectedCategory->slug;
+        $customView = 'categories.landing.'.$selectedCategory->slug;
         if (view()->exists($customView)) {
             $category = $selectedCategory;
+
             return view($customView, compact('categories', 'category', 'selectedCategory', 'articles', 'featuredArticle', 'relatedArticles'));
         }
 
@@ -130,6 +134,7 @@ class CategoryController extends Controller
         foreach ($category->children as $child) {
             $ids = array_merge($ids, $this->getCategoryAndChildrenIds($child));
         }
+
         return $ids;
     }
 }

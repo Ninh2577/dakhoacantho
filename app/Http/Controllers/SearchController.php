@@ -2,8 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Article;
+use Illuminate\Http\Request;
 
 class SearchController extends Controller
 {
@@ -30,7 +30,7 @@ class SearchController extends Controller
                 // Nested closure isolates search criteria so OR doesn't override is_published
                 $qBuilder->where(function ($subQ) use ($query) {
                     $subQ->where('title', 'LIKE', "%{$query}%")
-                         ->orWhere('content', 'LIKE', "%{$query}%");
+                        ->orWhere('content', 'LIKE', "%{$query}%");
                 });
             })
             ->when($startDate, function ($qBuilder) use ($startDate) {

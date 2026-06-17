@@ -2,16 +2,15 @@
 
 namespace App\Services\WordPress;
 
+use App\Models\Article;
+use App\Models\Category;
 use App\Models\WordPressImportBatch;
 use App\Models\WordPressImportLog;
-use App\Models\Category;
-use App\Models\Article;
 use App\Services\ArticleSeoAnalyzerService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
-use Exception;
 
 class WordPressImportService
 {
@@ -20,19 +19,19 @@ class WordPressImportService
     /**
      * Run safe timestamped database backup.
      */
-    public function runBackup(string &$backupFile = null): bool
+    public function runBackup(?string &$backupFile = null): bool
     {
         $backupDir = storage_path('backups');
-        if (!File::exists($backupDir)) {
+        if (! File::exists($backupDir)) {
             File::makeDirectory($backupDir, 0755, true);
         }
 
         $timestamp = date('Ymd_His');
-        $backupFile = $backupDir . "/dakhoacantho_web_before_import_{$timestamp}.sql";
+        $backupFile = $backupDir."/dakhoacantho_web_before_import_{$timestamp}.sql";
 
         // Determine mysqldump path
         $mysqlDumpPath = 'C:\\xampp\\mysql\\bin\\mysqldump.exe';
-        if (!File::exists($mysqlDumpPath)) {
+        if (! File::exists($mysqlDumpPath)) {
             $mysqlDumpPath = 'mysqldump'; // Fallback to PATH environment
         }
 
@@ -46,7 +45,7 @@ class WordPressImportService
         if ($dbPass === '') {
             $passwordOption = '';
         } else {
-            $passwordOption = '--password=' . escapeshellarg($dbPass);
+            $passwordOption = '--password='.escapeshellarg($dbPass);
         }
 
         $command = sprintf(
@@ -82,7 +81,7 @@ class WordPressImportService
         $category = Category::where('slug', $slug)->first();
 
         // 2. Match by normalized name
-        if (!$category) {
+        if (! $category) {
             $normalizedName = $this->normalizeString($name);
             $category = Category::all()->first(function ($cat) use ($normalizedName) {
                 return $this->normalizeString($cat->name) === $normalizedName;
@@ -91,16 +90,18 @@ class WordPressImportService
 
         if ($category) {
             if ($batch->dry_run) {
-                $this->logAction($batch->id, $termId, 'category', $slug, $name, 'dry_run', 'success', 'Sẽ khớp danh mục đã có: ' . $category->name);
+                $this->logAction($batch->id, $termId, 'category', $slug, $name, 'dry_run', 'success', 'Sẽ khớp danh mục đã có: '.$category->name);
             } else {
-                $this->logAction($batch->id, $termId, 'category', $slug, $name, 'skipped', 'success', 'Khớp với danh mục có sẵn: ' . $category->name, ['target_id' => $category->id]);
+                $this->logAction($batch->id, $termId, 'category', $slug, $name, 'skipped', 'success', 'Khớp với danh mục có sẵn: '.$category->name, ['target_id' => $category->id]);
             }
+
             return $category->id;
         }
 
         // Create if not dry run
         if ($batch->dry_run) {
-            $this->logAction($batch->id, $termId, 'category', $slug, $name, 'dry_run', 'success', 'Sẽ tạo danh mục mới: ' . $name);
+            $this->logAction($batch->id, $termId, 'category', $slug, $name, 'dry_run', 'success', 'Sẽ tạo danh mục mới: '.$name);
+
             return 9999 + $termId;
         }
 
@@ -108,16 +109,16 @@ class WordPressImportService
         $originalSlug = $slug;
         $suffix = 1;
         while (Category::where('slug', $slug)->exists()) {
-            $slug = $originalSlug . '-' . $suffix;
+            $slug = $originalSlug.'-'.$suffix;
             $suffix++;
         }
 
         $newCategory = Category::create([
-            'name'        => $name,
-            'slug'        => $slug,
+            'name' => $name,
+            'slug' => $slug,
             'description' => $description,
-            'parent_id'   => $resolvedParentId,
-            'order'       => 1
+            'parent_id' => $resolvedParentId,
+            'order' => 1,
         ]);
 
         $this->logAction($batch->id, $termId, 'category', $slug, $name, 'imported', 'success', 'Đã tạo danh mục mới', ['target_id' => $newCategory->id]);
@@ -148,13 +149,13 @@ class WordPressImportService
 
         // Skip post types not selected
         $selectedPostTypes = $batch->import_post_types ?? [];
-        if (!in_array($postType, $selectedPostTypes)) {
+        if (! in_array($postType, $selectedPostTypes)) {
             return;
         }
 
         // Skip statuses not selected
         $selectedStatuses = $batch->import_statuses ?? [];
-        if (!in_array($status, $selectedStatuses)) {
+        if (! in_array($status, $selectedStatuses)) {
             return;
         }
 
@@ -174,8 +175,8 @@ class WordPressImportService
 
         $chosenCategoryId = null;
         $rootParentId = Category::whereNull('parent_id')->exists() ? null : -1;
-        
-        if (!empty($postCategories)) {
+
+        if (! empty($postCategories)) {
             // Find matched target IDs
             $matchedIds = [];
             foreach ($postCategories as $pCatSlug) {
@@ -184,26 +185,26 @@ class WordPressImportService
                 }
             }
 
-            if (!empty($matchedIds)) {
+            if (! empty($matchedIds)) {
                 // Pick the first matched ID (usually deepest child, as categories are sorted by depth ascending)
                 $chosenCategoryId = $matchedIds[count($matchedIds) - 1];
             }
         }
 
         // Fallback Category
-        if (!$chosenCategoryId) {
+        if (! $chosenCategoryId) {
             $defaultCat = Category::where('slug', 'chua-phan-loai')
                 ->orWhere('name', 'Chưa được phân loại')
                 ->first();
-            if (!$defaultCat) {
+            if (! $defaultCat) {
                 if ($batch->dry_run) {
                     $chosenCategoryId = 9999;
                 } else {
                     $defaultCat = Category::create([
-                        'name'      => 'Chưa được phân loại',
-                        'slug'      => 'chua-phan-loai',
+                        'name' => 'Chưa được phân loại',
+                        'slug' => 'chua-phan-loai',
                         'parent_id' => $rootParentId ?? -1,
-                        'order'     => 1
+                        'order' => 1,
                     ]);
                     $chosenCategoryId = $defaultCat->id;
                 }
@@ -227,19 +228,19 @@ class WordPressImportService
         $thumbnailId = isset($metas['_thumbnail_id']) ? (int) $metas['_thumbnail_id'] : null;
         if ($thumbnailId && isset($attachmentMap[$thumbnailId])) {
             $relativeAttachedFile = $attachmentMap[$thumbnailId]['file'];
-            
+
             // Check local copy if path provided
             $copied = $this->copyMediaFile($relativeAttachedFile, $batch->local_media_base_path, $batch->media_mode, $batch);
-            if (!$copied && !empty($batch->local_media_base_path)) {
+            if (! $copied && ! empty($batch->local_media_base_path)) {
                 $batch->increment('missing_media_items');
-                $this->logAction($batch->id, $postId, $postType, $slug, $title, 'missing_media', 'warning', 'Không tìm thấy ảnh nổi bật cục bộ: ' . $relativeAttachedFile);
+                $this->logAction($batch->id, $postId, $postType, $slug, $title, 'missing_media', 'warning', 'Không tìm thấy ảnh nổi bật cục bộ: '.$relativeAttachedFile);
             }
 
             // Set DB value
             if ($batch->media_mode === 'storage_uploads') {
-                $thumbnailImage = 'uploads/' . ltrim($relativeAttachedFile, '/');
+                $thumbnailImage = 'uploads/'.ltrim($relativeAttachedFile, '/');
             } elseif ($batch->media_mode === 'public_wp_uploads') {
-                $thumbnailImage = 'wp-content/uploads/' . ltrim($relativeAttachedFile, '/');
+                $thumbnailImage = 'wp-content/uploads/'.ltrim($relativeAttachedFile, '/');
             } else {
                 $thumbnailImage = $attachmentMap[$thumbnailId]['url'];
             }
@@ -247,12 +248,12 @@ class WordPressImportService
 
         // Parse content
         $content = (string) $contentNs->encoded;
-        
+
         // 1. Convert WordPress [caption] shortcodes into standard HTML <figure>
         $content = preg_replace_callback('/\[caption[^\]]*\](.*?)\[\/caption\]/is', function ($matches) {
             return '<figure class="wp-caption flex flex-col items-center justify-center my-6 p-2 bg-slate-50 border border-slate-100 rounded-2xl max-w-full mx-auto">'
-                 . trim($matches[1])
-                 . '</figure>';
+                 .trim($matches[1])
+                 .'</figure>';
         }, $content);
 
         // 2. Clean content: Strip script tags
@@ -266,14 +267,14 @@ class WordPressImportService
         $content = $this->rewriteContentUrls($content, $batch->old_domain, $batch->media_mode);
 
         // Detect inline media copy if base path exists
-        if (!empty($batch->local_media_base_path) && $batch->media_mode !== 'keep_remote') {
+        if (! empty($batch->local_media_base_path) && $batch->media_mode !== 'keep_remote') {
             preg_match_all('/(?:wp-content\/uploads|storage\/uploads)\/([^\s"\'\>\?#]+)/i', $content, $matches);
-            if (!empty($matches[1])) {
+            if (! empty($matches[1])) {
                 foreach ($matches[1] as $matchPath) {
                     $copied = $this->copyMediaFile($matchPath, $batch->local_media_base_path, $batch->media_mode, $batch);
-                    if (!$copied) {
+                    if (! $copied) {
                         $batch->increment('missing_media_items');
-                        $this->logAction($batch->id, $postId, $postType, $slug, $title, 'missing_media', 'warning', 'Không tìm thấy tệp ảnh nội dung cục bộ: ' . $matchPath);
+                        $this->logAction($batch->id, $postId, $postType, $slug, $title, 'missing_media', 'warning', 'Không tìm thấy tệp ảnh nội dung cục bộ: '.$matchPath);
                     }
                 }
             }
@@ -290,7 +291,7 @@ class WordPressImportService
 
         $ogTitle = $metas['rank_math_facebook_title'] ?? $metas['_yoast_wpseo_opengraph-title'] ?? null;
         $ogDesc = $metas['rank_math_facebook_description'] ?? $metas['_yoast_wpseo_opengraph-description'] ?? null;
-        
+
         $twitterTitle = $metas['rank_math_twitter_title'] ?? $metas['_yoast_wpseo_twitter-title'] ?? null;
         $twitterDesc = $metas['rank_math_twitter_description'] ?? $metas['_yoast_wpseo_twitter-description'] ?? null;
 
@@ -329,11 +330,11 @@ class WordPressImportService
         $setField('canonical_url', $canonicalUrl);
         $setField('robots_index', true);
         $setField('robots_follow', true);
-        
+
         $setField('og_title', $ogTitle ?: $metaTitle);
         $setField('og_description', $ogDesc ?: $metaDesc);
         $setField('og_image', $thumbnailImage);
-        
+
         $setField('twitter_title', $twitterTitle ?: $metaTitle);
         $setField('twitter_description', $twitterDesc ?: $metaDesc);
         $setField('twitter_image', $thumbnailImage);
@@ -346,7 +347,7 @@ class WordPressImportService
         $reservedSlugs = [
             'admin', 'login', 'logout', 'register', 'lien-he', 'tim-kiem', 'category', 'categories',
             'bai-viet', 'articles', 'nam-khoa', 'phu-khoa', 'ngoai-khoa', 'benh-xa-hoi', 'xet-nghiem',
-            'vi-cong-dong', 'gioi-thieu', 'chinh-sach-bao-mat', 'dieu-khoan-su-dung', 'sitemap', 'sitemap.xml'
+            'vi-cong-dong', 'gioi-thieu', 'chinh-sach-bao-mat', 'dieu-khoan-su-dung', 'sitemap', 'sitemap.xml',
         ];
 
         $isReserved = in_array(strtolower($slug), $reservedSlugs);
@@ -354,47 +355,51 @@ class WordPressImportService
 
         if ($isReserved) {
             if ($batch->duplicate_mode === 'unique') {
-                $slug = $slug . '-wp-' . $postId;
+                $slug = $slug.'-wp-'.$postId;
                 $setField('slug', $slug);
                 $setField('seo_slug', $slug);
-                $this->logAction($batch->id, $postId, $postType, $slug, $title, 'warning', 'warning', 'Slug trùng với route hệ thống đã đặt. Đổi thành: ' . $slug);
+                $this->logAction($batch->id, $postId, $postType, $slug, $title, 'warning', 'warning', 'Slug trùng với route hệ thống đã đặt. Đổi thành: '.$slug);
                 $isReserved = false;
             } elseif ($batch->duplicate_mode === 'skip') {
                 $batch->increment('skipped_items');
                 $this->logAction($batch->id, $postId, $postType, $slug, $title, 'skipped', 'warning', 'Bỏ qua bài viết có slug trùng với route hệ thống.');
+
                 return;
             } else { // update mode
-                if (!$existingArticle) {
+                if (! $existingArticle) {
                     $batch->increment('skipped_items');
                     $this->logAction($batch->id, $postId, $postType, $slug, $title, 'skipped', 'warning', 'Bỏ qua cập nhật vì slug trùng với route hệ thống và không có bài viết tương ứng.');
+
                     return;
                 }
             }
         }
 
         // Duplicate handling
-        if ($existingArticle && !$isReserved) {
+        if ($existingArticle && ! $isReserved) {
             if ($batch->duplicate_mode === 'skip') {
                 $batch->increment('skipped_items');
                 $this->logAction($batch->id, $postId, $postType, $slug, $title, 'skipped', 'success', 'Bỏ qua vì bài viết trùng slug đã tồn tại.');
+
                 return;
             } elseif ($batch->duplicate_mode === 'unique') {
                 $originalSlug = $slug;
-                $slug = $originalSlug . '-wp-' . $postId;
-                
+                $slug = $originalSlug.'-wp-'.$postId;
+
                 $suffix = 1;
                 while (Article::where('slug', $slug)->exists()) {
-                    $slug = $originalSlug . '-' . $suffix;
+                    $slug = $originalSlug.'-'.$suffix;
                     $suffix++;
                 }
-                
+
                 $setField('slug', $slug);
                 $setField('seo_slug', $slug);
             } else {
                 // Update mode
                 if ($batch->dry_run) {
-                    $this->logAction($batch->id, $postId, $postType, $slug, $title, 'dry_run', 'success', 'Sẽ cập nhật bài viết có sẵn: ' . $existingArticle->title);
+                    $this->logAction($batch->id, $postId, $postType, $slug, $title, 'dry_run', 'success', 'Sẽ cập nhật bài viết có sẵn: '.$existingArticle->title);
                     $batch->increment('updated_items');
+
                     return;
                 }
 
@@ -402,14 +407,14 @@ class WordPressImportService
                 if (in_array('seo_score', $existingColumns)) {
                     try {
                         $tempArticle = new Article($articleData);
-                        $analyzer = new ArticleSeoAnalyzerService();
+                        $analyzer = new ArticleSeoAnalyzerService;
                         $seoResult = $analyzer->analyze($tempArticle);
                         $setField('seo_score', $seoResult['score'] ?? 0);
                         $setField('seo_checks', json_encode($seoResult));
                     } catch (\Throwable $e) {
                         $setField('seo_score', 0);
                         $setField('seo_checks', null);
-                        $this->logAction($batch->id, $postId, $postType, $slug, $title, 'warning', 'warning', 'Lỗi phân tích SEO: ' . $e->getMessage());
+                        $this->logAction($batch->id, $postId, $postType, $slug, $title, 'warning', 'warning', 'Lỗi phân tích SEO: '.$e->getMessage());
                     }
                 }
 
@@ -417,14 +422,16 @@ class WordPressImportService
                 $existingArticle->update($articleData);
                 $batch->increment('updated_items');
                 $this->logAction($batch->id, $postId, $postType, $slug, $title, 'updated', 'success', 'Đã cập nhật bài viết thành công.', ['target_id' => $existingArticle->id]);
+
                 return;
             }
         }
 
         // Create new article
         if ($batch->dry_run) {
-            $this->logAction($batch->id, $postId, $postType, $slug, $title, 'dry_run', 'success', 'Sẽ tạo bài viết mới: ' . $title);
+            $this->logAction($batch->id, $postId, $postType, $slug, $title, 'dry_run', 'success', 'Sẽ tạo bài viết mới: '.$title);
             $batch->increment('imported_items');
+
             return;
         }
 
@@ -432,14 +439,14 @@ class WordPressImportService
         if (in_array('seo_score', $existingColumns)) {
             try {
                 $tempArticle = new Article($articleData);
-                $analyzer = new ArticleSeoAnalyzerService();
+                $analyzer = new ArticleSeoAnalyzerService;
                 $seoResult = $analyzer->analyze($tempArticle);
                 $setField('seo_score', $seoResult['score'] ?? 0);
                 $setField('seo_checks', json_encode($seoResult));
             } catch (\Throwable $e) {
                 $setField('seo_score', 0);
                 $setField('seo_checks', null);
-                $this->logAction($batch->id, $postId, $postType, $slug, $title, 'warning', 'warning', 'Lỗi phân tích SEO: ' . $e->getMessage());
+                $this->logAction($batch->id, $postId, $postType, $slug, $title, 'warning', 'warning', 'Lỗi phân tích SEO: '.$e->getMessage());
             }
         }
 
@@ -449,7 +456,7 @@ class WordPressImportService
             $this->logAction($batch->id, $postId, $postType, $slug, $title, 'imported', 'success', 'Đã thêm bài viết mới thành công.', ['target_id' => $newArticle->id]);
         } catch (\Throwable $e) {
             $batch->increment('failed_items');
-            $this->logAction($batch->id, $postId, $postType, $slug, $title, 'failed', 'error', 'Thất bại khi ghi DB: ' . $e->getMessage());
+            $this->logAction($batch->id, $postId, $postType, $slug, $title, 'failed', 'error', 'Thất bại khi ghi DB: '.$e->getMessage());
         }
     }
 
@@ -463,13 +470,13 @@ class WordPressImportService
         }
 
         $oldDomainHost = parse_url($oldDomain, PHP_URL_HOST);
-        if (!$oldDomainHost) {
+        if (! $oldDomainHost) {
             $oldDomainHost = $oldDomain;
         }
         $oldDomainHost = preg_replace('/^www\./', '', $oldDomainHost); // e.g. dakhoacantho.com
 
         // Pattern for absolute links to uploads
-        $patternAbsolute = '/(?:https?:)?\/\/(?:www\.)?' . preg_quote($oldDomainHost, '/') . '\/wp-content\/uploads\/([^\s"\'\>\?#]+)/i';
+        $patternAbsolute = '/(?:https?:)?\/\/(?:www\.)?'.preg_quote($oldDomainHost, '/').'\/wp-content\/uploads\/([^\s"\'\>\?#]+)/i';
         // Pattern for relative links to uploads
         $patternRelative = '/\/wp-content\/uploads\/([^\s"\'\>\?#]+)/i';
 
@@ -478,13 +485,15 @@ class WordPressImportService
         // Replace absolute URLs
         $content = preg_replace_callback($patternAbsolute, function ($matches) use ($targetBase) {
             $filePath = urldecode($matches[1]);
-            return url($targetBase . $filePath);
+
+            return url($targetBase.$filePath);
         }, $content);
 
         // Replace relative URLs
         $content = preg_replace_callback($patternRelative, function ($matches) use ($targetBase) {
             $filePath = urldecode($matches[1]);
-            return url($targetBase . $filePath);
+
+            return url($targetBase.$filePath);
         }, $content);
 
         return $content;
@@ -495,8 +504,8 @@ class WordPressImportService
      */
     protected function logOmittedField($batchId, $field)
     {
-        $key = $batchId . '_' . $field;
-        if (!isset($this->omittedFields[$key])) {
+        $key = $batchId.'_'.$field;
+        if (! isset($this->omittedFields[$key])) {
             $this->omittedFields[$key] = true;
             $this->logAction($batchId, null, 'system', null, null, 'warning', 'warning', "Cột '{$field}' không tồn tại trong bảng 'articles'. Bỏ qua thuộc tính này.");
         }
@@ -516,16 +525,16 @@ class WordPressImportService
         $relativeFile = ltrim($relativeFile, '/');
 
         // Check multiple possible paths relative to Laravel root folder
-        $sourcePath = base_path(rtrim($localMediaBasePath, '/\\') . '/' . $relativeFile);
+        $sourcePath = base_path(rtrim($localMediaBasePath, '/\\').'/'.$relativeFile);
 
-        if (!File::exists($sourcePath)) {
+        if (! File::exists($sourcePath)) {
             return false;
         }
 
         if ($mediaMode === 'storage_uploads') {
-            $destPath = storage_path('app/public/uploads/' . $relativeFile);
+            $destPath = storage_path('app/public/uploads/'.$relativeFile);
         } else {
-            $destPath = public_path('wp-content/uploads/' . $relativeFile);
+            $destPath = public_path('wp-content/uploads/'.$relativeFile);
         }
 
         if ($batch->dry_run) {
@@ -534,9 +543,10 @@ class WordPressImportService
 
         try {
             File::ensureDirectoryExists(dirname($destPath));
-            if (!File::exists($destPath)) {
+            if (! File::exists($destPath)) {
                 File::copy($sourcePath, $destPath);
             }
+
             return true;
         } catch (\Throwable $e) {
             return false;
@@ -563,6 +573,7 @@ class WordPressImportService
         }
         $str = preg_replace('/[^a-z0-9\s]/', '', $str);
         $str = preg_replace('/\s+/', ' ', $str);
+
         return trim($str);
     }
 
@@ -572,15 +583,15 @@ class WordPressImportService
     public function logAction($batchId, $sourcePostId, $sourcePostType, $sourceSlug, $sourceTitle, $action, $status, $message, $context = null)
     {
         WordPressImportLog::create([
-            'batch_id'         => $batchId,
-            'source_post_id'   => $sourcePostId,
+            'batch_id' => $batchId,
+            'source_post_id' => $sourcePostId,
             'source_post_type' => $sourcePostType,
-            'source_slug'      => $sourceSlug,
-            'source_title'     => $sourceTitle,
-            'action'           => $action,
-            'status'           => $status,
-            'message'          => $message,
-            'context'          => $context,
+            'source_slug' => $sourceSlug,
+            'source_title' => $sourceTitle,
+            'action' => $action,
+            'status' => $status,
+            'message' => $message,
+            'context' => $context,
         ]);
     }
 }

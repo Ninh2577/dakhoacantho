@@ -2,7 +2,9 @@
 
 namespace App\Models;
 
+use App\Services\UrlRoutingService;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Cache;
 
 class Article extends Model
 {
@@ -37,13 +39,13 @@ class Article extends Model
     ];
 
     protected $casts = [
-        'author_id'     => 'integer',
-        'is_published'  => 'boolean',
-        'robots_index'  => 'boolean',
+        'author_id' => 'integer',
+        'is_published' => 'boolean',
+        'robots_index' => 'boolean',
         'robots_follow' => 'boolean',
-        'published_at'  => 'datetime',
-        'schema_json'   => 'array',
-        'seo_checks'    => 'array',
+        'published_at' => 'datetime',
+        'schema_json' => 'array',
+        'seo_checks' => 'array',
     ];
 
     public function category()
@@ -76,39 +78,39 @@ class Article extends Model
             } elseif ($article->isDirty('thumbnail_image')) {
                 $article->featured_image = $article->thumbnail_image;
             } else {
-                if (empty($article->featured_image) && !empty($article->thumbnail_image)) {
+                if (empty($article->featured_image) && ! empty($article->thumbnail_image)) {
                     $article->featured_image = $article->thumbnail_image;
-                } elseif (empty($article->thumbnail_image) && !empty($article->featured_image)) {
+                } elseif (empty($article->thumbnail_image) && ! empty($article->featured_image)) {
                     $article->thumbnail_image = $article->featured_image;
                 }
             }
 
-            $pattern = \App\Models\Setting::get('url_pattern_article') ?: '{slug}';
-            $service = app(\App\Services\UrlRoutingService::class);
+            $pattern = Setting::get('url_pattern_article') ?: '{slug}';
+            $service = app(UrlRoutingService::class);
             $article->url_path = $service->compileArticlePath($article, $pattern);
         });
 
         static::saved(function ($article) {
-            \Illuminate\Support\Facades\Cache::forget('home_latest_articles');
-            \Illuminate\Support\Facades\Cache::forget("dakhoacantho:articles:related:{$article->id}");
-            \Illuminate\Support\Facades\Cache::forget('dakhoacantho:sitemap:xml:' . parse_url(config('app.url'), PHP_URL_HOST));
+            Cache::forget('home_latest_articles');
+            Cache::forget("dakhoacantho:articles:related:{$article->id}");
+            Cache::forget('dakhoacantho:sitemap:xml:'.parse_url(config('app.url'), PHP_URL_HOST));
             if (request()->getHost()) {
-                \Illuminate\Support\Facades\Cache::forget('dakhoacantho:sitemap:xml:' . request()->getHost());
+                Cache::forget('dakhoacantho:sitemap:xml:'.request()->getHost());
             }
-            foreach (\App\Models\Category::all() as $cat) {
-                \Illuminate\Support\Facades\Cache::forget("category_related_articles_{$cat->id}");
+            foreach (Category::all() as $cat) {
+                Cache::forget("category_related_articles_{$cat->id}");
             }
         });
 
         static::deleted(function ($article) {
-            \Illuminate\Support\Facades\Cache::forget('home_latest_articles');
-            \Illuminate\Support\Facades\Cache::forget("dakhoacantho:articles:related:{$article->id}");
-            \Illuminate\Support\Facades\Cache::forget('dakhoacantho:sitemap:xml:' . parse_url(config('app.url'), PHP_URL_HOST));
+            Cache::forget('home_latest_articles');
+            Cache::forget("dakhoacantho:articles:related:{$article->id}");
+            Cache::forget('dakhoacantho:sitemap:xml:'.parse_url(config('app.url'), PHP_URL_HOST));
             if (request()->getHost()) {
-                \Illuminate\Support\Facades\Cache::forget('dakhoacantho:sitemap:xml:' . request()->getHost());
+                Cache::forget('dakhoacantho:sitemap:xml:'.request()->getHost());
             }
-            foreach (\App\Models\Category::all() as $cat) {
-                \Illuminate\Support\Facades\Cache::forget("category_related_articles_{$cat->id}");
+            foreach (Category::all() as $cat) {
+                Cache::forget("category_related_articles_{$cat->id}");
             }
         });
     }
@@ -121,6 +123,7 @@ class Article extends Model
     public function getPublicUrlAttribute()
     {
         $path = $this->url_path ?: $this->slug;
+
         return url(ltrim($path, '/'));
     }
 }

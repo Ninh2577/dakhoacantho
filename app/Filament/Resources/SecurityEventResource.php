@@ -7,9 +7,9 @@ use App\Models\SecurityEvent;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Table;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
 class SecurityEventResource extends Resource
@@ -41,37 +41,37 @@ class SecurityEventResource extends Resource
                 Tables\Columns\TextColumn::make('severity')
                     ->label('Mức độ')
                     ->badge()
-                    ->color(fn (string $state): string => match($state) {
-                        'info'     => 'gray',
-                        'low'      => 'success',
-                        'medium'   => 'warning',
-                        'high'     => 'danger',
+                    ->color(fn (string $state): string => match ($state) {
+                        'info' => 'gray',
+                        'low' => 'success',
+                        'medium' => 'warning',
+                        'high' => 'danger',
                         'critical' => 'danger',
-                        default    => 'gray',
+                        default => 'gray',
                     })
-                    ->formatStateUsing(fn ($state) => match($state) {
-                        'info'     => 'Thông tin',
-                        'low'      => 'Thấp',
-                        'medium'   => 'Trung bình',
-                        'high'     => 'Cao',
+                    ->formatStateUsing(fn ($state) => match ($state) {
+                        'info' => 'Thông tin',
+                        'low' => 'Thấp',
+                        'medium' => 'Trung bình',
+                        'high' => 'Cao',
                         'critical' => 'Nghiêm trọng',
-                        default    => $state,
+                        default => $state,
                     })
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('type')
                     ->label('Loại')
-                    ->formatStateUsing(fn ($state) => match($state) {
-                        'failed_login'       => 'Đăng nhập thất bại',
-                        'successful_login'   => 'Đăng nhập thành công',
-                        'brute_force'        => 'Brute force',
-                        'ip_blocked'         => 'IP bị chặn',
-                        'firewall_block'     => 'Tường lửa chặn',
+                    ->formatStateUsing(fn ($state) => match ($state) {
+                        'failed_login' => 'Đăng nhập thất bại',
+                        'successful_login' => 'Đăng nhập thành công',
+                        'brute_force' => 'Brute force',
+                        'ip_blocked' => 'IP bị chặn',
+                        'firewall_block' => 'Tường lửa chặn',
                         'suspicious_request' => 'Yêu cầu đáng ngờ',
-                        'malicious_path'     => 'Đường dẫn độc hại',
-                        'scan_critical'      => 'Quét phát hiện nguy hiểm',
-                        'file_integrity'     => 'Toàn vẹn file',
-                        default              => $state,
+                        'malicious_path' => 'Đường dẫn độc hại',
+                        'scan_critical' => 'Quét phát hiện nguy hiểm',
+                        'file_integrity' => 'Toàn vẹn file',
+                        default => $state,
                     })
                     ->searchable()
                     ->sortable(),
@@ -103,23 +103,23 @@ class SecurityEventResource extends Resource
                 SelectFilter::make('severity')
                     ->label('Mức độ')
                     ->options([
-                        'info'     => 'Thông tin',
-                        'low'      => 'Thấp',
-                        'medium'   => 'Trung bình',
-                        'high'     => 'Cao',
+                        'info' => 'Thông tin',
+                        'low' => 'Thấp',
+                        'medium' => 'Trung bình',
+                        'high' => 'Cao',
                         'critical' => 'Nghiêm trọng',
                     ]),
 
                 SelectFilter::make('type')
                     ->label('Loại')
                     ->options([
-                        'failed_login'       => 'Đăng nhập thất bại',
-                        'brute_force'        => 'Brute force',
-                        'ip_blocked'         => 'IP bị chặn',
-                        'firewall_block'     => 'Tường lửa chặn',
+                        'failed_login' => 'Đăng nhập thất bại',
+                        'brute_force' => 'Brute force',
+                        'ip_blocked' => 'IP bị chặn',
+                        'firewall_block' => 'Tường lửa chặn',
                         'suspicious_request' => 'Yêu cầu đáng ngờ',
-                        'malicious_path'     => 'Đường dẫn độc hại',
-                        'scan_critical'      => 'Quét phát hiện nguy hiểm',
+                        'malicious_path' => 'Đường dẫn độc hại',
+                        'scan_critical' => 'Quét phát hiện nguy hiểm',
                     ]),
 
                 Filter::make('today')
@@ -162,6 +162,7 @@ class SecurityEventResource extends Resource
     {
         try {
             $count = SecurityEvent::criticalOrHigh()->today()->count();
+
             return $count > 0 ? (string) $count : null;
         } catch (\Throwable) {
             return null;

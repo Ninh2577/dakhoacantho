@@ -10,12 +10,17 @@ use Illuminate\Support\Carbon;
 
 class ReportsAnalytics extends Page
 {
-    protected static ?string $navigationIcon  = 'heroicon-o-chart-bar';
+    protected static ?string $navigationIcon = 'heroicon-o-chart-bar';
+
     protected static ?string $navigationLabel = 'Báo cáo & Phân tích';
-    protected static ?int    $navigationSort  = 6;
-    protected static string  $view            = 'filament.pages.reports-analytics';
-    protected static ?string $title           = 'Báo cáo & Phân tích';
-    protected static ?string $slug            = 'reports-analytics';
+
+    protected static ?int $navigationSort = 6;
+
+    protected static string $view = 'filament.pages.reports-analytics';
+
+    protected static ?string $title = 'Báo cáo & Phân tích';
+
+    protected static ?string $slug = 'reports-analytics';
 
     public string $range = '7'; // days
 
@@ -32,10 +37,10 @@ class ReportsAnalytics extends Page
     protected function getDateFrom(): Carbon
     {
         return match ($this->range) {
-            'today'  => Carbon::today(),
-            '30'     => Carbon::today()->subDays(29),
-            'month'  => Carbon::today()->startOfMonth(),
-            default  => Carbon::today()->subDays(6), // 7 days
+            'today' => Carbon::today(),
+            '30' => Carbon::today()->subDays(29),
+            'month' => Carbon::today()->startOfMonth(),
+            default => Carbon::today()->subDays(6), // 7 days
         };
     }
 
@@ -43,19 +48,19 @@ class ReportsAnalytics extends Page
     {
         $from = $this->getDateFrom();
 
-        $totalConsultations    = Consultation::count();
-        $pendingConsultations  = Consultation::where('status', 'pending')->count();
+        $totalConsultations = Consultation::count();
+        $pendingConsultations = Consultation::where('status', 'pending')->count();
         $processedConsultations = Consultation::whereIn('status', ['contacted', 'booked', 'visited'])->count();
-        $newPatients           = Patient::where('created_at', '>=', $from)->count();
-        $totalPatients         = Patient::count();
+        $newPatients = Patient::where('created_at', '>=', $from)->count();
+        $totalPatients = Patient::count();
 
         // Conversion rate: patients created from consultations
-        $converted   = Consultation::whereNotNull('patient_id')->count();
-        $convRate    = $totalConsultations > 0 ? round($converted / $totalConsultations * 100, 1) : 0;
+        $converted = Consultation::whereNotNull('patient_id')->count();
+        $convRate = $totalConsultations > 0 ? round($converted / $totalConsultations * 100, 1) : 0;
 
-        $totalArticles     = Article::count();
+        $totalArticles = Article::count();
         $publishedArticles = Article::where('is_published', true)->count();
-        $avgSeo            = Article::whereNotNull('seo_score')->avg('seo_score');
+        $avgSeo = Article::whereNotNull('seo_score')->avg('seo_score');
 
         return compact(
             'totalConsultations', 'pendingConsultations', 'processedConsultations',
@@ -76,7 +81,7 @@ class ReportsAnalytics extends Page
 
         return [
             'labels' => collect($days)->map(fn ($d) => $d->format('d/m'))->toArray(),
-            'data'   => collect($days)->map(fn ($d) => Consultation::whereDate('created_at', $d)->count())->toArray(),
+            'data' => collect($days)->map(fn ($d) => Consultation::whereDate('created_at', $d)->count())->toArray(),
         ];
     }
 
@@ -108,10 +113,11 @@ class ReportsAnalytics extends Page
             ->get()
             ->map(function ($row) {
                 $articleCount = Article::whereHas('category', fn ($q) => $q->where('name', 'like', "%{$row->department}%"))->count();
+
                 return [
-                    'department'   => $row->department,
+                    'department' => $row->department,
                     'consultations' => $row->consultations,
-                    'articles'     => $articleCount,
+                    'articles' => $articleCount,
                 ];
             });
     }
@@ -119,12 +125,12 @@ class ReportsAnalytics extends Page
     protected function getViewData(): array
     {
         return [
-            'stats'                => $this->getStatsProperty(),
-            'consultationTrend'    => $this->getConsultationTrendProperty(),
+            'stats' => $this->getStatsProperty(),
+            'consultationTrend' => $this->getConsultationTrendProperty(),
             'pendingConsultations' => $this->getPendingConsultationsProperty(),
-            'lowSeoArticles'       => $this->getLowSeoArticlesProperty(),
-            'specialtyStats'       => $this->getSpecialtyStatsProperty(),
-            'range'                => $this->range,
+            'lowSeoArticles' => $this->getLowSeoArticlesProperty(),
+            'specialtyStats' => $this->getSpecialtyStatsProperty(),
+            'range' => $this->range,
         ];
     }
 }

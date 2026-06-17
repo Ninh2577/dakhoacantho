@@ -17,7 +17,7 @@ class SchemaBuilder
 
         // Ensure canonical url is absolute
         $currentUrl = $options['url'] ?? request()->url();
-        if (!preg_match('/^https?:\/\//', $currentUrl)) {
+        if (! preg_match('/^https?:\/\//', $currentUrl)) {
             $currentUrl = url($currentUrl);
         }
 
@@ -25,7 +25,7 @@ class SchemaBuilder
         $organization = [
             '@context' => 'https://schema.org',
             '@type' => ['Organization', 'MedicalClinic', 'LocalBusiness'],
-            '@id' => $siteUrl . '/#organization',
+            '@id' => $siteUrl.'/#organization',
             'name' => 'Phòng Khám Đa Khoa Gia Phước',
             'alternateName' => 'Đa Khoa Gia Phước',
             'url' => $siteUrl,
@@ -46,7 +46,7 @@ class SchemaBuilder
             'openingHoursSpecification' => [
                 '@type' => 'OpeningHoursSpecification',
                 'dayOfWeek' => [
-                    'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'
+                    'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
                 ],
                 'opens' => '07:30',
                 'closes' => '20:00',
@@ -58,11 +58,11 @@ class SchemaBuilder
         $website = [
             '@context' => 'https://schema.org',
             '@type' => 'WebSite',
-            '@id' => $siteUrl . '/#website',
+            '@id' => $siteUrl.'/#website',
             'url' => $siteUrl,
             'name' => 'Phòng Khám Đa Khoa Gia Phước',
             'publisher' => [
-                '@id' => $siteUrl . '/#organization',
+                '@id' => $siteUrl.'/#organization',
             ],
         ];
 
@@ -72,7 +72,7 @@ class SchemaBuilder
                 '@type' => 'SearchAction',
                 'target' => [
                     '@type' => 'EntryPoint',
-                    'urlTemplate' => url('/tim-kiem') . '?q={search_term_string}',
+                    'urlTemplate' => url('/tim-kiem').'?q={search_term_string}',
                 ],
                 'query-input' => 'required name=search_term_string',
             ];
@@ -91,38 +91,38 @@ class SchemaBuilder
         $webpage = [
             '@context' => 'https://schema.org',
             '@type' => $mappedPageType,
-            '@id' => $currentUrl . '#webpage',
+            '@id' => $currentUrl.'#webpage',
             'url' => $currentUrl,
             'name' => $options['title'] ?? 'Phòng Khám Đa Khoa Gia Phước',
             'description' => $options['description'] ?? '',
             'isPartOf' => [
-                '@id' => $siteUrl . '/#website',
+                '@id' => $siteUrl.'/#website',
             ],
             'about' => [
-                '@id' => $siteUrl . '/#organization',
+                '@id' => $siteUrl.'/#organization',
             ],
             'publisher' => [
-                '@id' => $siteUrl . '/#organization',
+                '@id' => $siteUrl.'/#organization',
             ],
             'inLanguage' => 'vi-VN',
         ];
 
-        if (!empty($options['breadcrumbs'])) {
+        if (! empty($options['breadcrumbs'])) {
             $webpage['breadcrumb'] = [
-                '@id' => $currentUrl . '#breadcrumb',
+                '@id' => $currentUrl.'#breadcrumb',
             ];
         }
 
         // 4. BreadcrumbList Node
         $breadcrumbList = null;
-        if (!empty($options['breadcrumbs'])) {
+        if (! empty($options['breadcrumbs'])) {
             $itemListElement = [];
             foreach ($options['breadcrumbs'] as $index => $crumb) {
                 if (empty($crumb['name']) || empty($crumb['url'])) {
                     continue;
                 }
                 $crumbUrl = $crumb['url'];
-                if (!preg_match('/^https?:\/\//', $crumbUrl)) {
+                if (! preg_match('/^https?:\/\//', $crumbUrl)) {
                     $crumbUrl = url($crumbUrl);
                 }
                 $itemListElement[] = [
@@ -133,11 +133,11 @@ class SchemaBuilder
                 ];
             }
 
-            if (!empty($itemListElement)) {
+            if (! empty($itemListElement)) {
                 $breadcrumbList = [
                     '@context' => 'https://schema.org',
                     '@type' => 'BreadcrumbList',
-                    '@id' => $currentUrl . '#breadcrumb',
+                    '@id' => $currentUrl.'#breadcrumb',
                     'itemListElement' => $itemListElement,
                 ];
             }
@@ -146,17 +146,17 @@ class SchemaBuilder
         // 5. Article Node (Article/BlogPosting/MedicalWebPage, based on schema_type)
         $blogPosting = null;
         $pageTypeLower = strtolower($options['pageType'] ?? '');
-        $schemaType    = $options['schemaType'] ?? ($options['article']->schema_type ?? 'Article');
+        $schemaType = $options['schemaType'] ?? ($options['article']->schema_type ?? 'Article');
 
         if (($pageTypeLower === 'article' || $pageTypeLower === 'article detail')
-            && !empty($options['article'])
+            && ! empty($options['article'])
             && strtolower((string) $schemaType) !== 'none'
         ) {
             $article = $options['article'];
             $articleUrl = $article->public_url;
 
             $pubDate = $options['publishedAt'] ?? $article->published_at ?? $article->created_at;
-            $modDate = $options['modifiedAt']  ?? $article->updated_at;
+            $modDate = $options['modifiedAt'] ?? $article->updated_at;
 
             if ($pubDate instanceof \DateTimeInterface) {
                 $pubDate = $pubDate->format('c'); // ISO 8601
@@ -169,7 +169,7 @@ class SchemaBuilder
             $articleImage = $options['image'];
             if (empty($articleImage)) {
                 $imagePath = $article->featured_image ?: $article->thumbnail_image;
-                $articleImage = $imagePath ? asset('storage/' . $imagePath) : $logoUrl;
+                $articleImage = $imagePath ? asset('storage/'.$imagePath) : $logoUrl;
             }
 
             // Normalize schema type
@@ -177,30 +177,30 @@ class SchemaBuilder
             $resolvedType = in_array($schemaType, $allowedTypes) ? $schemaType : 'Article';
 
             $blogPosting = [
-                '@context'       => 'https://schema.org',
-                '@type'          => $resolvedType,
-                '@id'            => $articleUrl . '#article',
+                '@context' => 'https://schema.org',
+                '@type' => $resolvedType,
+                '@id' => $articleUrl.'#article',
                 'mainEntityOfPage' => [
-                    '@id' => $articleUrl . '#webpage',
+                    '@id' => $articleUrl.'#webpage',
                 ],
-                'headline'       => $article->title,
-                'description'    => $options['description'] ?? $article->meta_description ?? Str::limit(strip_tags($article->content), 150),
-                'image'          => $articleImage,
-                'datePublished'  => $pubDate,
-                'dateModified'   => $modDate,
-                'author'         => [
+                'headline' => $article->title,
+                'description' => $options['description'] ?? $article->meta_description ?? Str::limit(strip_tags($article->content), 150),
+                'image' => $articleImage,
+                'datePublished' => $pubDate,
+                'dateModified' => $modDate,
+                'author' => [
                     '@type' => ($article->author || in_array($article->category?->slug, ['nam-khoa', 'phu-khoa'])) ? 'Person' : 'Organization',
-                    'name'  => ($article->author ? $article->author->name : null) ?: match ($article->category?->slug) {
+                    'name' => ($article->author ? $article->author->name : null) ?: match ($article->category?->slug) {
                         'nam-khoa' => 'BS. Nguyễn Văn An',
                         'phu-khoa' => 'BS. Trần Thị Mai',
-                        default    => 'Ban Biên Tập - Phòng Khám Đa Khoa Gia Phước',
+                        default => 'Ban Biên Tập - Phòng Khám Đa Khoa Gia Phước',
                     },
-                    'url'   => $siteUrl,
+                    'url' => $siteUrl,
                 ],
-                'publisher'      => [
-                    '@id' => $siteUrl . '/#organization',
+                'publisher' => [
+                    '@id' => $siteUrl.'/#organization',
                 ],
-                'inLanguage'     => 'vi-VN',
+                'inLanguage' => 'vi-VN',
             ];
 
             if ($article->category) {
@@ -214,14 +214,14 @@ class SchemaBuilder
                     'audienceType' => 'Patient',
                 ];
                 $blogPosting['about'] = [
-                    '@id' => $siteUrl . '/#organization',
+                    '@id' => $siteUrl.'/#organization',
                 ];
             }
         }
 
         // 6. FAQPage Node
         $faqPage = null;
-        if (!empty($options['faqItems'])) {
+        if (! empty($options['faqItems'])) {
             $mainEntity = [];
             foreach ($options['faqItems'] as $faq) {
                 $q = self::cleanText($faq['q'] ?? $faq['question'] ?? '');
@@ -239,11 +239,11 @@ class SchemaBuilder
                 ];
             }
 
-            if (!empty($mainEntity)) {
+            if (! empty($mainEntity)) {
                 $faqPage = [
                     '@context' => 'https://schema.org',
                     '@type' => 'FAQPage',
-                    '@id' => $currentUrl . '#faq',
+                    '@id' => $currentUrl.'#faq',
                     'mainEntity' => $mainEntity,
                 ];
             }
@@ -288,7 +288,7 @@ class SchemaBuilder
      */
     public static function cleanArrayRecursive($array)
     {
-        if (!is_array($array)) {
+        if (! is_array($array)) {
             return $array;
         }
 
@@ -317,6 +317,7 @@ class SchemaBuilder
     {
         $text = strip_tags($text);
         $text = preg_replace('/\s+/', ' ', $text);
+
         return trim($text);
     }
 }

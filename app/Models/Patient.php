@@ -36,46 +36,46 @@ class Patient extends Model
     public static function statusOptions(): array
     {
         return [
-            'new'       => 'Mới',
+            'new' => 'Mới',
             'contacted' => 'Đã liên hệ',
-            'booked'    => 'Đã đặt lịch',
-            'visited'   => 'Đã đến khám',
+            'booked' => 'Đã đặt lịch',
+            'visited' => 'Đã đến khám',
             'cancelled' => 'Đã hủy',
-            'archived'  => 'Lưu trữ',
+            'archived' => 'Lưu trữ',
         ];
     }
 
     public static function statusColor(string $status): string
     {
         return match ($status) {
-            'new'       => 'info',
+            'new' => 'info',
             'contacted' => 'warning',
-            'booked'    => 'primary',
-            'visited'   => 'success',
+            'booked' => 'primary',
+            'visited' => 'success',
             'cancelled' => 'danger',
-            'archived'  => 'gray',
-            default     => 'gray',
+            'archived' => 'gray',
+            default => 'gray',
         };
     }
 
     public static function genderOptions(): array
     {
         return [
-            'male'   => 'Nam',
+            'male' => 'Nam',
             'female' => 'Nữ',
-            'other'  => 'Khác',
+            'other' => 'Khác',
         ];
     }
 
     public static function sourceOptions(): array
     {
         return [
-            'Tư vấn online'   => 'Tư vấn online',
-            'Giới thiệu'      => 'Giới thiệu',
-            'Tự đến'          => 'Tự đến',
-            'Mạng xã hội'     => 'Mạng xã hội',
-            'Google Search'   => 'Google Search',
-            'Khác'            => 'Khác',
+            'Tư vấn online' => 'Tư vấn online',
+            'Giới thiệu' => 'Giới thiệu',
+            'Tự đến' => 'Tự đến',
+            'Mạng xã hội' => 'Mạng xã hội',
+            'Google Search' => 'Google Search',
+            'Khác' => 'Khác',
         ];
     }
 }

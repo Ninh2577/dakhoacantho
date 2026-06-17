@@ -34,7 +34,7 @@ class DynamicRouterController extends Controller
         if ($redirect) {
             $resolvedPath = $redirect->new_path;
             $hops = 0;
-            
+
             while ($nextRedirect = UrlRedirect::where('old_path', $resolvedPath)->where('is_active', true)->first()) {
                 $hops++;
                 if ($hops >= 3) {

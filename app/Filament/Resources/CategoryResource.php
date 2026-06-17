@@ -3,17 +3,16 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\CategoryResource\Pages;
-use App\Filament\Resources\CategoryResource\RelationManagers;
 use App\Models\Category;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
-use Filament\Tables;
-use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Form;
+use Filament\Notifications\Notification;
+use Filament\Resources\Resource;
+use Illuminate\Support\Str;
+use SolutionForest\FilamentTree\Actions\DeleteAction;
+use SolutionForest\FilamentTree\Actions\EditAction;
+use SolutionForest\FilamentTree\Components\Tree;
 
 class CategoryResource extends Resource
 {
@@ -41,7 +40,7 @@ class CategoryResource extends Resource
                     ->required()
                     ->maxLength(255)
                     ->live(onBlur: true)
-                    ->afterStateUpdated(fn (Forms\Set $set, ?string $state) => $set('slug', \Illuminate\Support\Str::slug($state))),
+                    ->afterStateUpdated(fn (Forms\Set $set, ?string $state) => $set('slug', Str::slug($state))),
                 Forms\Components\TextInput::make('slug')
                     ->label('Đường dẫn')
                     ->helperText('Tự động tạo từ tên, có thể tùy chỉnh. Dùng cho URL thân thiện SEO.')
@@ -60,15 +59,15 @@ class CategoryResource extends Resource
             ]);
     }
 
-    public static function tree(\SolutionForest\FilamentTree\Components\Tree $tree): \SolutionForest\FilamentTree\Components\Tree
+    public static function tree(Tree $tree): Tree
     {
         return $tree
             ->actions([
-                \SolutionForest\FilamentTree\Actions\EditAction::make(),
-                \SolutionForest\FilamentTree\Actions\DeleteAction::make()
-                    ->before(function (\SolutionForest\FilamentTree\Actions\DeleteAction $action, Category $record) {
+                EditAction::make(),
+                DeleteAction::make()
+                    ->before(function (DeleteAction $action, Category $record) {
                         if ($record->articles()->exists()) {
-                            \Filament\Notifications\Notification::make()
+                            Notification::make()
                                 ->warning()
                                 ->title('Không thể xóa!')
                                 ->body('Danh mục này đang chứa bài viết. Vui lòng xóa hoặc di chuyển các bài viết trước khi xóa danh mục.')

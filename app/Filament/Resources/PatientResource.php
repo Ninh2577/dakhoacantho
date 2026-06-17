@@ -7,19 +7,19 @@ use App\Models\Category;
 use App\Models\Patient;
 use App\Models\User;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Table;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\BadgeColumn;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
 
 class PatientResource extends Resource
 {
@@ -156,16 +156,16 @@ class PatientResource extends Resource
                 TextColumn::make('gender')
                     ->label('Giới tính')
                     ->formatStateUsing(fn (?string $state): string => match ($state) {
-                        'male'   => 'Nam',
+                        'male' => 'Nam',
                         'female' => 'Nữ',
-                        'other'  => 'Khác',
-                        default  => '—',
+                        'other' => 'Khác',
+                        default => '—',
                     })
                     ->badge()
                     ->color(fn (?string $state): string => match ($state) {
-                        'male'   => 'info',
+                        'male' => 'info',
                         'female' => 'danger',
-                        default  => 'gray',
+                        default => 'gray',
                     }),
                 TextColumn::make('category.name')
                     ->label('Chuyên khoa')
@@ -228,7 +228,7 @@ class PatientResource extends Resource
                                 ->options(Patient::statusOptions())
                                 ->required(),
                         ])
-                        ->action(function (\Illuminate\Database\Eloquent\Collection $records, array $data): void {
+                        ->action(function (Collection $records, array $data): void {
                             $records->each->update(['status' => $data['status']]);
                         }),
                 ]),
@@ -243,9 +243,9 @@ class PatientResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListPatients::route('/'),
+            'index' => Pages\ListPatients::route('/'),
             'create' => Pages\CreatePatient::route('/create'),
-            'edit'   => Pages\EditPatient::route('/{record}/edit'),
+            'edit' => Pages\EditPatient::route('/{record}/edit'),
         ];
     }
 }

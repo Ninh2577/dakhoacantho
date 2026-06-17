@@ -15,6 +15,7 @@ use App\Models\SecuritySetting;
 class SecuritySettingsService
 {
     private array $cache = [];
+
     private bool $loaded = false;
 
     /**
@@ -94,6 +95,7 @@ class SecuritySettingsService
         if (is_string($val)) {
             return array_filter(array_map('trim', explode(',', $val)));
         }
+
         return (array) $val;
     }
 
@@ -111,7 +113,7 @@ class SecuritySettingsService
     public function flush(): void
     {
         $this->loaded = false;
-        $this->cache  = [];
+        $this->cache = [];
         SecuritySetting::flushCache();
     }
 

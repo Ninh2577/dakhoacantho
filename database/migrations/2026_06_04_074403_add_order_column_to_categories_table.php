@@ -2,8 +2,8 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
@@ -16,7 +16,7 @@ return new class extends Migration
             Schema::table('categories', function (Blueprint $table) {
                 $table->dropForeign(['parent_id']);
             });
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Already dropped in previous failed run
         }
 
@@ -49,7 +49,7 @@ return new class extends Migration
             Schema::table('categories', function (Blueprint $table) {
                 $table->foreign('parent_id')->references('id')->on('categories')->nullOnDelete();
             });
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             // Re-adding safety
         }
     }

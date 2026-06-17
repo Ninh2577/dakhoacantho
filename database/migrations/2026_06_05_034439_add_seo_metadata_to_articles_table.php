@@ -12,43 +12,43 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('articles', function (Blueprint $table) {
-            if (!Schema::hasColumn('articles', 'focus_keyword')) {
+            if (! Schema::hasColumn('articles', 'focus_keyword')) {
                 $table->string('focus_keyword')->nullable();
             }
-            if (!Schema::hasColumn('articles', 'seo_slug')) {
+            if (! Schema::hasColumn('articles', 'seo_slug')) {
                 $table->string('seo_slug')->nullable();
             }
-            if (!Schema::hasColumn('articles', 'canonical_url')) {
+            if (! Schema::hasColumn('articles', 'canonical_url')) {
                 $table->string('canonical_url')->nullable();
             }
-            if (!Schema::hasColumn('articles', 'robots_index')) {
+            if (! Schema::hasColumn('articles', 'robots_index')) {
                 $table->boolean('robots_index')->default(true);
             }
-            if (!Schema::hasColumn('articles', 'robots_follow')) {
+            if (! Schema::hasColumn('articles', 'robots_follow')) {
                 $table->boolean('robots_follow')->default(true);
             }
-            if (!Schema::hasColumn('articles', 'og_title')) {
+            if (! Schema::hasColumn('articles', 'og_title')) {
                 $table->string('og_title')->nullable();
             }
-            if (!Schema::hasColumn('articles', 'og_description')) {
+            if (! Schema::hasColumn('articles', 'og_description')) {
                 $table->text('og_description')->nullable();
             }
-            if (!Schema::hasColumn('articles', 'og_image')) {
+            if (! Schema::hasColumn('articles', 'og_image')) {
                 $table->string('og_image')->nullable();
             }
-            if (!Schema::hasColumn('articles', 'twitter_title')) {
+            if (! Schema::hasColumn('articles', 'twitter_title')) {
                 $table->string('twitter_title')->nullable();
             }
-            if (!Schema::hasColumn('articles', 'twitter_description')) {
+            if (! Schema::hasColumn('articles', 'twitter_description')) {
                 $table->text('twitter_description')->nullable();
             }
-            if (!Schema::hasColumn('articles', 'twitter_image')) {
+            if (! Schema::hasColumn('articles', 'twitter_image')) {
                 $table->string('twitter_image')->nullable();
             }
-            if (!Schema::hasColumn('articles', 'seo_score')) {
+            if (! Schema::hasColumn('articles', 'seo_score')) {
                 $table->unsignedTinyInteger('seo_score')->default(0);
             }
-            if (!Schema::hasColumn('articles', 'seo_checks')) {
+            if (! Schema::hasColumn('articles', 'seo_checks')) {
                 $table->json('seo_checks')->nullable();
             }
         });
@@ -63,7 +63,7 @@ return new class extends Migration
             $cols = [
                 'focus_keyword', 'seo_slug', 'canonical_url', 'robots_index', 'robots_follow',
                 'og_title', 'og_description', 'og_image', 'twitter_title', 'twitter_description',
-                'twitter_image', 'seo_score', 'seo_checks'
+                'twitter_image', 'seo_score', 'seo_checks',
             ];
             foreach ($cols as $col) {
                 if (Schema::hasColumn('articles', $col)) {

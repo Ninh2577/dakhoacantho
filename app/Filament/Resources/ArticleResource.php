@@ -4,22 +4,24 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ArticleResource\Pages;
 use App\Models\Article;
+use App\Models\Category;
 use Filament\Forms;
-use Filament\Forms\Form;
+use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
-use Filament\Forms\Components\ViewField;
 use Filament\Forms\Components\Select;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\Tabs;
-use Filament\Forms\Components\DateTimePicker;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\ViewField;
+use Filament\Forms\Form;
+use Filament\Resources\Pages\CreateRecord;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use FilamentTiptapEditor\TiptapEditor;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Str;
 
 class ArticleResource extends Resource
@@ -56,9 +58,9 @@ class ArticleResource extends Resource
                                 ->afterStateHydrated(function (Forms\Set $set, ?string $state) {
                                     $set('_prev_title', $state);
                                 })
-                                ->afterStateUpdated(function (Forms\Set $set, Forms\Get $get, ?string $state, ?\App\Models\Article $record) {
+                                ->afterStateUpdated(function (Forms\Set $set, Forms\Get $get, ?string $state, ?Article $record) {
                                     $currentSlug = $get('slug');
-                                    $prevTitle    = $get('_prev_title') ?? '';
+                                    $prevTitle = $get('_prev_title') ?? '';
                                     $prevAutoSlug = Str::slug($prevTitle);
                                     if (empty($currentSlug) || $currentSlug === $prevAutoSlug) {
                                         $ignoreId = $record?->id;
@@ -77,11 +79,11 @@ class ArticleResource extends Resource
                                 ->maxLength(255)
                                 ->unique(ignoreRecord: true)
                                 ->live(onBlur: true)
-                                ->prefix(fn () => rtrim(config('app.url'), '/') . '/')
+                                ->prefix(fn () => rtrim(config('app.url'), '/').'/')
                                 ->suffix('.html')
                                 ->helperText('Không dấu, viết thường, ngăn cách bởi dấu gạch ngang.')
                                 ->afterStateUpdated(function (Forms\Set $set, ?string $state) {
-                                    if (!empty($state)) {
+                                    if (! empty($state)) {
                                         $set('slug', Str::slug($state));
                                     }
                                 })
@@ -90,11 +92,11 @@ class ArticleResource extends Resource
                                         ->icon('heroicon-m-clipboard')
                                         ->tooltip('Sao chép URL')
                                         ->extraAttributes([
-                                            'x-on:click' => "
-                                                const url = `" . rtrim(config('app.url'), "/") . "/` + \$wire.get(`data.slug`) + `.html`;
+                                            'x-on:click' => '
+                                                const url = `'.rtrim(config('app.url'), '/').'/` + $wire.get(`data.slug`) + `.html`;
                                                 window.navigator.clipboard.writeText(url);
                                                 alert(`Đã sao chép URL bài viết vào clipboard: ` + url);
-                                            "
+                                            ',
                                         ])
                                         ->action(fn () => null)
                                 ),
@@ -132,228 +134,228 @@ class ArticleResource extends Resource
                         ])
                         ->schema([
 
-                        // --- Publish Card ---
-                        Section::make('Xuất bản')->schema([
-                            Forms\Components\Placeholder::make('current_status')
-                                ->label('Trạng thái')
-                                ->content(fn ($record) => ($record?->is_published) ? 'Đã xuất bản' : 'Bản nháp'),
+                            // --- Publish Card ---
+                            Section::make('Xuất bản')->schema([
+                                Forms\Components\Placeholder::make('current_status')
+                                    ->label('Trạng thái')
+                                    ->content(fn ($record) => ($record?->is_published) ? 'Đã xuất bản' : 'Bản nháp'),
 
-                            Toggle::make('is_published')
-                                ->label('Công khai bài viết')
-                                ->helperText('Bật để hiển thị bài viết trên website.')
-                                ->live()
-                                ->afterStateUpdated(function (Forms\Set $set, Forms\Get $get, ?bool $state) {
-                                    if ($state && empty($get('published_at'))) {
-                                        $set('published_at', now()->format('Y-m-d\TH:i'));
-                                    }
-                                }),
-                            DateTimePicker::make('published_at')
-                                ->label('Ngày xuất bản')
-                                ->displayFormat('d/m/Y H:i')
-                                ->seconds(false)
-                                ->visible(fn (Forms\Get $get) => (bool) $get('is_published')),
-                            Forms\Components\Actions::make([
-                                Forms\Components\Actions\Action::make('preview_in_card')
-                                     ->label('Xem trước')
-                                     ->icon('heroicon-o-eye')
-                                     ->color('info')
-                                     ->url('#')
-                                     ->extraAttributes([
-                                         'x-on:click' => "
-                                             \$event.preventDefault();
-                                             \$event.stopImmediatePropagation();
-                                             window.triggerArticlePreview(\$wire, \$el);
-                                         "
-                                     ]),
-                                Forms\Components\Actions\Action::make('save_draft_in_card')
-                                    ->label('Lưu nháp')
-                                    ->color('gray')
-                                    ->action(function ($livewire) {
-                                        $livewire->data['is_published'] = false;
-                                        if ($livewire instanceof \Filament\Resources\Pages\CreateRecord) {
-                                            $livewire->create();
-                                        } else {
-                                            $livewire->save();
+                                Toggle::make('is_published')
+                                    ->label('Công khai bài viết')
+                                    ->helperText('Bật để hiển thị bài viết trên website.')
+                                    ->live()
+                                    ->afterStateUpdated(function (Forms\Set $set, Forms\Get $get, ?bool $state) {
+                                        if ($state && empty($get('published_at'))) {
+                                            $set('published_at', now()->format('Y-m-d\TH:i'));
                                         }
                                     }),
-                                Forms\Components\Actions\Action::make('publish_in_card')
-                                    ->label(fn ($record) => ($record?->is_published) ? 'Cập nhật' : 'Xuất bản')
-                                    ->color('primary')
-                                    ->action(function ($livewire) {
-                                        $livewire->data['is_published'] = true;
-                                        if ($livewire instanceof \Filament\Resources\Pages\CreateRecord) {
-                                            $livewire->create();
-                                        } else {
-                                            $livewire->save();
-                                        }
-                                    }),
-                            ])->fullWidth(),
-                        ]),
+                                DateTimePicker::make('published_at')
+                                    ->label('Ngày xuất bản')
+                                    ->displayFormat('d/m/Y H:i')
+                                    ->seconds(false)
+                                    ->visible(fn (Forms\Get $get) => (bool) $get('is_published')),
+                                Forms\Components\Actions::make([
+                                    Forms\Components\Actions\Action::make('preview_in_card')
+                                        ->label('Xem trước')
+                                        ->icon('heroicon-o-eye')
+                                        ->color('info')
+                                        ->url('#')
+                                        ->extraAttributes([
+                                            'x-on:click' => '
+                                             $event.preventDefault();
+                                             $event.stopImmediatePropagation();
+                                             window.triggerArticlePreview($wire, $el);
+                                         ',
+                                        ]),
+                                    Forms\Components\Actions\Action::make('save_draft_in_card')
+                                        ->label('Lưu nháp')
+                                        ->color('gray')
+                                        ->action(function ($livewire) {
+                                            $livewire->data['is_published'] = false;
+                                            if ($livewire instanceof CreateRecord) {
+                                                $livewire->create();
+                                            } else {
+                                                $livewire->save();
+                                            }
+                                        }),
+                                    Forms\Components\Actions\Action::make('publish_in_card')
+                                        ->label(fn ($record) => ($record?->is_published) ? 'Cập nhật' : 'Xuất bản')
+                                        ->color('primary')
+                                        ->action(function ($livewire) {
+                                            $livewire->data['is_published'] = true;
+                                            if ($livewire instanceof CreateRecord) {
+                                                $livewire->create();
+                                            } else {
+                                                $livewire->save();
+                                            }
+                                        }),
+                                ])->fullWidth(),
+                            ]),
 
-                        // --- Category & Author Card ---
-                        Section::make('Danh mục & Tác giả')->schema([
-                            Select::make('category_id')
-                                ->label('Chuyên khoa / Danh mục')
-                                ->options(fn () => \App\Models\Category::getTreeOptions())
-                                ->placeholder('Chọn danh mục...')
-                                ->required()
-                                ->searchable()
-                                ->preload(),
+                            // --- Category & Author Card ---
+                            Section::make('Danh mục & Tác giả')->schema([
+                                Select::make('category_id')
+                                    ->label('Chuyên khoa / Danh mục')
+                                    ->options(fn () => Category::getTreeOptions())
+                                    ->placeholder('Chọn danh mục...')
+                                    ->required()
+                                    ->searchable()
+                                    ->preload(),
 
-                            Select::make('author_id')
-                                ->label('Tác giả')
-                                ->relationship(
-                                    name: 'author',
-                                    titleAttribute: 'name',
-                                    modifyQueryUsing: fn ($query) => $query->orderBy('name')
-                                )
-                                ->default(fn () => auth()->id())
-                                ->required()
-                                ->exists('users', 'id'),
-                        ]),
+                                Select::make('author_id')
+                                    ->label('Tác giả')
+                                    ->relationship(
+                                        name: 'author',
+                                        titleAttribute: 'name',
+                                        modifyQueryUsing: fn ($query) => $query->orderBy('name')
+                                    )
+                                    ->default(fn () => auth()->id())
+                                    ->required()
+                                    ->exists('users', 'id'),
+                            ]),
 
-                        // --- Thumbnail Card ---
-                        Section::make('Ảnh đại diện')->schema([
-                            FileUpload::make('featured_image')
-                                ->label('Ảnh đại diện')
-                                ->image()
-                                ->directory('articles/featured')
-                                ->disk('public')
-                                ->imagePreviewHeight('160')
-                                ->panelAspectRatio('16:9')
-                                ->panelLayout('integrated')
-                                ->live(),
-                        ]),
+                            // --- Thumbnail Card ---
+                            Section::make('Ảnh đại diện')->schema([
+                                FileUpload::make('featured_image')
+                                    ->label('Ảnh đại diện')
+                                    ->image()
+                                    ->directory('articles/featured')
+                                    ->disk('public')
+                                    ->imagePreviewHeight('160')
+                                    ->panelAspectRatio('16:9')
+                                    ->panelLayout('integrated')
+                                    ->live(),
+                            ]),
 
-                        // --- SEO Scorecard ---
-                        ViewField::make('seo_scorecard')
-                            ->view('filament.components.seo-scorecard')
-                            ->columnSpanFull(),
+                            // --- SEO Scorecard ---
+                            ViewField::make('seo_scorecard')
+                                ->view('filament.components.seo-scorecard')
+                                ->columnSpanFull(),
 
-                        Forms\Components\Hidden::make('seo_checks')->default([])->dehydrated(false),
+                            Forms\Components\Hidden::make('seo_checks')->default([])->dehydrated(false),
 
-                        // --- SEO Config Card ---
-                        Section::make('Cấu hình SEO')->schema([
-                            Tabs::make('SEO Config')->tabs([
-                                Tabs\Tab::make('SEO cơ bản')->schema([
-                                    TextInput::make('focus_keyword')
-                                        ->label('Từ khóa chính (Focus Keyword)')
-                                        ->placeholder('VD: phòng khám đa khoa cần thơ')
-                                        ->live(debounce: 500)
-                                        ->helperText('Từ khóa bạn muốn bài viết xếp hạng trên Google.'),
-                                    TextInput::make('meta_title')
-                                        ->label('Tiêu đề SEO (Meta Title)')
-                                        ->placeholder('Tiêu đề hiển thị trên Google')
-                                        ->maxLength(60)
-                                        ->live(debounce: 500)
-                                        ->suffixAction(
-                                            Forms\Components\Actions\Action::make('generateMetaTitle')
-                                                ->icon('heroicon-m-sparkles')
-                                                ->tooltip('Tạo từ tiêu đề bài viết')
-                                                ->action(function (Forms\Set $set, Forms\Get $get) {
-                                                    $title = $get('title') ?? '';
-                                                    $set('meta_title', mb_substr($title, 0, 60));
-                                                })
-                                        )
-                                        ->helperText('Tối ưu: 50-60 ký tự.'),
-                                    Textarea::make('meta_description')
-                                        ->label('Mô tả SEO (Meta Description)')
-                                        ->placeholder('Mô tả hiển thị dưới tiêu đề trên Google...')
-                                        ->rows(3)
-                                        ->maxLength(160)
-                                        ->live(debounce: 500)
-                                        ->hintAction(
-                                            Forms\Components\Actions\Action::make('generateMetaDesc')
-                                                ->icon('heroicon-m-sparkles')
-                                                ->tooltip('Tạo từ nội dung bài viết')
-                                                ->action(function (Forms\Set $set, Forms\Get $get) {
-                                                    $content = $get('content') ?? '';
-                                                    $plain = preg_replace('/\s+/', ' ', strip_tags($content));
-                                                    $set('meta_description', mb_substr(trim($plain), 0, 155));
-                                                })
-                                        )
-                                        ->helperText('Tối ưu: 140-160 ký tự.'),
-                                    TextInput::make('canonical_url')
-                                        ->label('URL chuẩn (Canonical)')
-                                        ->placeholder('https://...')
-                                        ->url()
-                                        ->live(debounce: 500)
-                                        ->helperText('Để trống = tự dùng URL bài viết hiện tại.'),
-                                ]),
-                                Tabs\Tab::make('Mạng xã hội')->schema([
-                                    TextInput::make('og_title')
-                                        ->label('Tiêu đề Facebook (OG Title)')
-                                        ->placeholder('Tiêu đề khi chia sẻ Facebook')
-                                        ->live(debounce: 500)
-                                        ->suffixAction(
-                                            Forms\Components\Actions\Action::make('syncSocial')
-                                                ->icon('heroicon-m-arrow-path')
-                                                ->tooltip('Đồng bộ từ SEO cơ bản')
-                                                ->action(function (Forms\Set $set, Forms\Get $get) {
-                                                    $set('og_title', $get('meta_title') ?? '');
-                                                    $set('og_description', $get('meta_description') ?? '');
-                                                    $set('twitter_title', $get('meta_title') ?? '');
-                                                    $set('twitter_description', $get('meta_description') ?? '');
-                                                })
-                                        ),
-                                    Textarea::make('og_description')
-                                        ->label('Mô tả Facebook (OG Description)')
-                                        ->rows(2)
-                                        ->live(debounce: 500),
-                                    FileUpload::make('og_image')
-                                        ->label('Ảnh Facebook (OG Image)')
-                                        ->image()
-                                        ->directory('articles/seo')
-                                        ->disk('public')
-                                        ->live(),
-                                    TextInput::make('twitter_title')
-                                        ->label('Tiêu đề Twitter')
-                                        ->live(debounce: 500),
-                                    Textarea::make('twitter_description')
-                                        ->label('Mô tả Twitter')
-                                        ->rows(2)
-                                        ->live(debounce: 500),
-                                    FileUpload::make('twitter_image')
-                                        ->label('Ảnh Twitter')
-                                        ->image()
-                                        ->directory('articles/seo')
-                                        ->disk('public')
-                                        ->live(),
-                                ]),
-                                Tabs\Tab::make('Nâng cao')->schema([
-                                    TextInput::make('seo_slug')
-                                        ->label('Slug SEO riêng (nếu khác slug chính)')
-                                        ->placeholder('slug-seo-rieng')
-                                        ->live(debounce: 500)
-                                        ->helperText('Để trống = dùng slug chính.'),
-                                    Toggle::make('robots_index')
-                                        ->label('Cho phép Google lập chỉ mục (Index)')
-                                        ->default(true)
-                                        ->live(),
-                                    Toggle::make('robots_follow')
-                                        ->label('Cho phép Google theo dõi liên kết (Follow)')
-                                        ->default(true)
-                                        ->live(),
+                            // --- SEO Config Card ---
+                            Section::make('Cấu hình SEO')->schema([
+                                Tabs::make('SEO Config')->tabs([
+                                    Tabs\Tab::make('SEO cơ bản')->schema([
+                                        TextInput::make('focus_keyword')
+                                            ->label('Từ khóa chính (Focus Keyword)')
+                                            ->placeholder('VD: phòng khám đa khoa cần thơ')
+                                            ->live(debounce: 500)
+                                            ->helperText('Từ khóa bạn muốn bài viết xếp hạng trên Google.'),
+                                        TextInput::make('meta_title')
+                                            ->label('Tiêu đề SEO (Meta Title)')
+                                            ->placeholder('Tiêu đề hiển thị trên Google')
+                                            ->maxLength(60)
+                                            ->live(debounce: 500)
+                                            ->suffixAction(
+                                                Forms\Components\Actions\Action::make('generateMetaTitle')
+                                                    ->icon('heroicon-m-sparkles')
+                                                    ->tooltip('Tạo từ tiêu đề bài viết')
+                                                    ->action(function (Forms\Set $set, Forms\Get $get) {
+                                                        $title = $get('title') ?? '';
+                                                        $set('meta_title', mb_substr($title, 0, 60));
+                                                    })
+                                            )
+                                            ->helperText('Tối ưu: 50-60 ký tự.'),
+                                        Textarea::make('meta_description')
+                                            ->label('Mô tả SEO (Meta Description)')
+                                            ->placeholder('Mô tả hiển thị dưới tiêu đề trên Google...')
+                                            ->rows(3)
+                                            ->maxLength(160)
+                                            ->live(debounce: 500)
+                                            ->hintAction(
+                                                Forms\Components\Actions\Action::make('generateMetaDesc')
+                                                    ->icon('heroicon-m-sparkles')
+                                                    ->tooltip('Tạo từ nội dung bài viết')
+                                                    ->action(function (Forms\Set $set, Forms\Get $get) {
+                                                        $content = $get('content') ?? '';
+                                                        $plain = preg_replace('/\s+/', ' ', strip_tags($content));
+                                                        $set('meta_description', mb_substr(trim($plain), 0, 155));
+                                                    })
+                                            )
+                                            ->helperText('Tối ưu: 140-160 ký tự.'),
+                                        TextInput::make('canonical_url')
+                                            ->label('URL chuẩn (Canonical)')
+                                            ->placeholder('https://...')
+                                            ->url()
+                                            ->live(debounce: 500)
+                                            ->helperText('Để trống = tự dùng URL bài viết hiện tại.'),
+                                    ]),
+                                    Tabs\Tab::make('Mạng xã hội')->schema([
+                                        TextInput::make('og_title')
+                                            ->label('Tiêu đề Facebook (OG Title)')
+                                            ->placeholder('Tiêu đề khi chia sẻ Facebook')
+                                            ->live(debounce: 500)
+                                            ->suffixAction(
+                                                Forms\Components\Actions\Action::make('syncSocial')
+                                                    ->icon('heroicon-m-arrow-path')
+                                                    ->tooltip('Đồng bộ từ SEO cơ bản')
+                                                    ->action(function (Forms\Set $set, Forms\Get $get) {
+                                                        $set('og_title', $get('meta_title') ?? '');
+                                                        $set('og_description', $get('meta_description') ?? '');
+                                                        $set('twitter_title', $get('meta_title') ?? '');
+                                                        $set('twitter_description', $get('meta_description') ?? '');
+                                                    })
+                                            ),
+                                        Textarea::make('og_description')
+                                            ->label('Mô tả Facebook (OG Description)')
+                                            ->rows(2)
+                                            ->live(debounce: 500),
+                                        FileUpload::make('og_image')
+                                            ->label('Ảnh Facebook (OG Image)')
+                                            ->image()
+                                            ->directory('articles/seo')
+                                            ->disk('public')
+                                            ->live(),
+                                        TextInput::make('twitter_title')
+                                            ->label('Tiêu đề Twitter')
+                                            ->live(debounce: 500),
+                                        Textarea::make('twitter_description')
+                                            ->label('Mô tả Twitter')
+                                            ->rows(2)
+                                            ->live(debounce: 500),
+                                        FileUpload::make('twitter_image')
+                                            ->label('Ảnh Twitter')
+                                            ->image()
+                                            ->directory('articles/seo')
+                                            ->disk('public')
+                                            ->live(),
+                                    ]),
+                                    Tabs\Tab::make('Nâng cao')->schema([
+                                        TextInput::make('seo_slug')
+                                            ->label('Slug SEO riêng (nếu khác slug chính)')
+                                            ->placeholder('slug-seo-rieng')
+                                            ->live(debounce: 500)
+                                            ->helperText('Để trống = dùng slug chính.'),
+                                        Toggle::make('robots_index')
+                                            ->label('Cho phép Google lập chỉ mục (Index)')
+                                            ->default(true)
+                                            ->live(),
+                                        Toggle::make('robots_follow')
+                                            ->label('Cho phép Google theo dõi liên kết (Follow)')
+                                            ->default(true)
+                                            ->live(),
+                                    ]),
                                 ]),
                             ]),
+
+                            // --- Schema Card ---
+                            Section::make('Loại Schema (JSON-LD)')->schema([
+                                Select::make('schema_type')
+                                    ->label('Loại Schema')
+                                    ->options([
+                                        'Article' => 'Article (Bài viết thông thường)',
+                                        'BlogPosting' => 'BlogPosting (Blog)',
+                                        'MedicalWebPage' => 'MedicalWebPage (Trang y tế)',
+                                        'None' => 'None (Không dùng Schema)',
+                                    ])
+                                    ->default('Article')
+                                    ->live()
+                                    ->helperText('MedicalWebPage phù hợp cho bài y tế/phòng khám.'),
+                            ])->collapsed(),
+
                         ]),
-
-                        // --- Schema Card ---
-                        Section::make('Loại Schema (JSON-LD)')->schema([
-                            Select::make('schema_type')
-                                ->label('Loại Schema')
-                                ->options([
-                                    'Article'        => 'Article (Bài viết thông thường)',
-                                    'BlogPosting'    => 'BlogPosting (Blog)',
-                                    'MedicalWebPage' => 'MedicalWebPage (Trang y tế)',
-                                    'None'           => 'None (Không dùng Schema)',
-                                ])
-                                ->default('Article')
-                                ->live()
-                                ->helperText('MedicalWebPage phù hợp cho bài y tế/phòng khám.'),
-                        ])->collapsed(),
-
-                    ]),
                 ]),
             ]);
     }
@@ -369,7 +371,7 @@ class ArticleResource extends Resource
                     ->label('Tiêu đề')
                     ->searchable()
                     ->wrap()
-                    ->description(fn (Article $record): string => 'slug: /' . $record->slug),
+                    ->description(fn (Article $record): string => 'slug: /'.$record->slug),
                 Tables\Columns\TextColumn::make('category.name')
                     ->label('Chuyên khoa')
                     ->badge()
@@ -384,7 +386,7 @@ class ArticleResource extends Resource
                     ->default(fn (Article $record): ?string => match ($record->category?->slug) {
                         'nam-khoa' => 'BS. Nguyễn Văn An',
                         'phu-khoa' => 'BS. Trần Thị Mai',
-                        default    => 'Ban biên tập',
+                        default => 'Ban biên tập',
                     }),
                 Tables\Columns\ToggleColumn::make('is_published')
                     ->label('Công khai')
@@ -395,9 +397,9 @@ class ArticleResource extends Resource
                     ->formatStateUsing(fn ($state): string => $state !== null ? (string) $state : 'Chưa phân tích')
                     ->color(fn ($state): string => match (true) {
                         $state === null => 'gray',
-                        $state >= 80   => 'success',
-                        $state >= 50   => 'warning',
-                        default        => 'danger',
+                        $state >= 80 => 'success',
+                        $state >= 50 => 'warning',
+                        default => 'danger',
                     })
                     ->sortable(),
                 Tables\Columns\TextColumn::make('created_at')
@@ -409,13 +411,14 @@ class ArticleResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('category_id')
                     ->label('Chuyên khoa')
-                    ->options(fn () => \App\Models\Category::getTreeOptions())
-                    ->query(function (\Illuminate\Database\Eloquent\Builder $query, array $data) {
+                    ->options(fn () => Category::getTreeOptions())
+                    ->query(function (Builder $query, array $data) {
                         if (empty($data['value'])) {
                             return $query;
                         }
                         $categoryId = (int) $data['value'];
-                        $categoryIds = \App\Models\Category::getDescendantIdsAndSelf($categoryId);
+                        $categoryIds = Category::getDescendantIdsAndSelf($categoryId);
+
                         return $query->whereIn('category_id', $categoryIds);
                     }),
                 Tables\Filters\SelectFilter::make('is_published')
@@ -452,7 +455,7 @@ class ArticleResource extends Resource
             ]);
     }
 
-    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    public static function getEloquentQuery(): Builder
     {
         return parent::getEloquentQuery()->with(['category', 'author']);
     }
@@ -472,9 +475,9 @@ class ArticleResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListArticles::route('/'),
+            'index' => Pages\ListArticles::route('/'),
             'create' => Pages\CreateArticle::route('/create'),
-            'edit'   => Pages\EditArticle::route('/{record}/edit'),
+            'edit' => Pages\EditArticle::route('/{record}/edit'),
         ];
     }
 
@@ -489,14 +492,14 @@ class ArticleResource extends Resource
         $count = 2;
 
         while (true) {
-            $query = \App\Models\Article::where('slug', $slug);
+            $query = Article::where('slug', $slug);
             if ($ignoreId) {
                 $query->where('id', '!=', $ignoreId);
             }
-            if (!$query->exists()) {
+            if (! $query->exists()) {
                 break;
             }
-            $slug = $originalSlug . '-' . $count;
+            $slug = $originalSlug.'-'.$count;
             $count++;
         }
 

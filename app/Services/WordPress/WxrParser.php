@@ -2,10 +2,10 @@
 
 namespace App\Services\WordPress;
 
-use XMLReader;
 use DOMDocument;
-use SimpleXMLElement;
 use Exception;
+use Illuminate\Support\Facades\Log;
+use XMLReader;
 
 class WxrParser
 {
@@ -15,8 +15,8 @@ class WxrParser
     public static function detectNamespaces(string $filePath): array
     {
         $namespaces = [];
-        $reader = new XMLReader();
-        
+        $reader = new XMLReader;
+
         if ($reader->open($filePath)) {
             $count = 0;
             // Scan first 10 nodes to detect namespaces dynamically from DOM
@@ -25,7 +25,7 @@ class WxrParser
                     try {
                         $node = $reader->expand();
                         if ($node) {
-                            $dom = new DOMDocument();
+                            $dom = new DOMDocument;
                             $dom->appendChild($dom->importNode($node, true));
                             $sxml = simplexml_import_dom($dom);
                             if ($sxml) {
@@ -43,10 +43,10 @@ class WxrParser
 
         // Standard WXR Namespace fallbacks if they are not detected
         $defaults = [
-            'wp'      => 'http://wordpress.org/export/1.2/',
+            'wp' => 'http://wordpress.org/export/1.2/',
             'content' => 'http://purl.org/rss/1.0/modules/content/',
             'excerpt' => 'http://wordpress.org/export/1.2/excerpt/',
-            'dc'      => 'http://purl.org/dc/elements/1.1/'
+            'dc' => 'http://purl.org/dc/elements/1.1/',
         ];
 
         foreach ($defaults as $prefix => $uri) {
@@ -60,7 +60,7 @@ class WxrParser
                         break;
                     }
                 }
-                if (!$found || $prefix !== 'wp') {
+                if (! $found || $prefix !== 'wp') {
                     $namespaces[$prefix] = $uri;
                 }
             }
@@ -75,10 +75,10 @@ class WxrParser
     public function parseCategories(string $filePath, array $ns): array
     {
         $categories = [];
-        $reader = new XMLReader();
+        $reader = new XMLReader;
 
-        if (!$reader->open($filePath)) {
-            throw new Exception("Không thể mở tệp XML để đọc danh mục: " . $filePath);
+        if (! $reader->open($filePath)) {
+            throw new Exception('Không thể mở tệp XML để đọc danh mục: '.$filePath);
         }
 
         $wpUri = $ns['wp'] ?? 'http://wordpress.org/export/1.2/';
@@ -87,10 +87,10 @@ class WxrParser
             if ($reader->nodeType === XMLReader::ELEMENT && $reader->name === 'wp:category') {
                 try {
                     $node = $reader->expand();
-                    $dom = new DOMDocument();
+                    $dom = new DOMDocument;
                     $dom->appendChild($dom->importNode($node, true));
                     $sxml = simplexml_import_dom($dom);
-                    
+
                     if ($sxml !== false) {
                         $wpNs = $sxml->children('wp', true);
                         if (count($wpNs) === 0) {
@@ -104,17 +104,17 @@ class WxrParser
 
                         if ($slug) {
                             $categories[$slug] = [
-                                'term_id'     => $termId,
-                                'slug'        => $slug,
-                                'name'        => $name ?: $slug,
+                                'term_id' => $termId,
+                                'slug' => $slug,
+                                'name' => $name ?: $slug,
                                 'parent_slug' => $parentSlug,
                                 'description' => $description,
-                                'depth'       => -1
+                                'depth' => -1,
                             ];
                         }
                     }
                 } catch (\Throwable $e) {
-                    \Illuminate\Support\Facades\Log::warning("Category parsing error: " . $e->getMessage());
+                    Log::warning('Category parsing error: '.$e->getMessage());
                 }
             }
         }
@@ -122,19 +122,21 @@ class WxrParser
 
         // Calculate depth recursively
         $computeDepth = function ($slug) use (&$categories, &$computeDepth) {
-            if (!isset($categories[$slug])) {
+            if (! isset($categories[$slug])) {
                 return 0;
             }
             if ($categories[$slug]['depth'] !== -1) {
                 return $categories[$slug]['depth'];
             }
             $parentSlug = $categories[$slug]['parent_slug'];
-            if (empty($parentSlug) || !isset($categories[$parentSlug])) {
+            if (empty($parentSlug) || ! isset($categories[$parentSlug])) {
                 $categories[$slug]['depth'] = 0;
+
                 return 0;
             }
             $parentDepth = $computeDepth($parentSlug);
             $categories[$slug]['depth'] = 1 + $parentDepth;
+
             return $categories[$slug]['depth'];
         };
 
@@ -156,10 +158,10 @@ class WxrParser
     public function parseAttachments(string $filePath, array $ns, ?string &$warningMsg = null): array
     {
         $attachments = [];
-        $reader = new XMLReader();
+        $reader = new XMLReader;
 
-        if (!$reader->open($filePath)) {
-            throw new Exception("Không thể mở tệp XML để đọc tệp đính kèm: " . $filePath);
+        if (! $reader->open($filePath)) {
+            throw new Exception('Không thể mở tệp XML để đọc tệp đính kèm: '.$filePath);
         }
 
         $wpUri = $ns['wp'] ?? 'http://wordpress.org/export/1.2/';
@@ -168,7 +170,7 @@ class WxrParser
             if ($reader->nodeType === XMLReader::ELEMENT && $reader->name === 'item') {
                 try {
                     $node = $reader->expand();
-                    $dom = new DOMDocument();
+                    $dom = new DOMDocument;
                     $dom->appendChild($dom->importNode($node, true));
                     $sxml = simplexml_import_dom($dom);
 
@@ -182,7 +184,7 @@ class WxrParser
                         if ($postType === 'attachment') {
                             $postId = (int) $wpNs->post_id;
                             $attachmentUrl = (string) $wpNs->attachment_url;
-                            
+
                             // Find relative attached file path in postmeta
                             $attachedFile = '';
                             foreach ($wpNs->postmeta as $meta) {
@@ -194,8 +196,8 @@ class WxrParser
 
                             if ($postId) {
                                 $attachments[$postId] = [
-                                    'url'  => $attachmentUrl,
-                                    'file' => $attachedFile ?: basename($attachmentUrl)
+                                    'url' => $attachmentUrl,
+                                    'file' => $attachedFile ?: basename($attachmentUrl),
                                 ];
                             }
                         }
@@ -209,7 +211,7 @@ class WxrParser
 
         // Memory usage safety warning
         if (count($attachments) > 20000) {
-            $warningMsg = "XML chứa lượng lớn tệp đính kèm (" . count($attachments) . "). Hãy theo dõi lượng RAM tiêu thụ.";
+            $warningMsg = 'XML chứa lượng lớn tệp đính kèm ('.count($attachments).'). Hãy theo dõi lượng RAM tiêu thụ.';
         }
 
         return $attachments;
@@ -220,17 +222,17 @@ class WxrParser
      */
     public function streamItems(string $filePath, array $ns)
     {
-        $reader = new XMLReader();
+        $reader = new XMLReader;
 
-        if (!$reader->open($filePath)) {
-            throw new Exception("Không thể mở tệp XML để đọc bài viết: " . $filePath);
+        if (! $reader->open($filePath)) {
+            throw new Exception('Không thể mở tệp XML để đọc bài viết: '.$filePath);
         }
 
         while ($reader->read()) {
             if ($reader->nodeType === XMLReader::ELEMENT && $reader->name === 'item') {
                 try {
                     $node = $reader->expand();
-                    $dom = new DOMDocument();
+                    $dom = new DOMDocument;
                     $dom->appendChild($dom->importNode($node, true));
                     $sxml = simplexml_import_dom($dom);
 

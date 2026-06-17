@@ -8,6 +8,7 @@ use App\Models\Setting;
 use App\Models\UrlRedirect;
 use App\Models\UrlSettingHistory;
 use Illuminate\Console\Command;
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 
 class RollbackUrlsCommand extends Command
@@ -31,14 +32,15 @@ class RollbackUrlsCommand extends Command
      */
     public function handle(): int
     {
-        $this->info("Bắt đầu tìm kiếm đợt biên dịch URL cuối cùng...");
+        $this->info('Bắt đầu tìm kiếm đợt biên dịch URL cuối cùng...');
 
         $history = UrlSettingHistory::where('status', 'completed')
             ->orderBy('id', 'desc')
             ->first();
 
-        if (!$history) {
-            $this->error("Không tìm thấy đợt biên dịch hoàn thành nào để rollback.");
+        if (! $history) {
+            $this->error('Không tìm thấy đợt biên dịch hoàn thành nào để rollback.');
+
             return 1;
         }
 
@@ -46,8 +48,9 @@ class RollbackUrlsCommand extends Command
         $this->warn(" - Pattern bài viết cũ: '{$history->old_article_pattern}' -> mới: '{$history->new_article_pattern}'");
         $this->warn(" - Pattern danh mục cũ: '{$history->old_category_pattern}' -> mới: '{$history->new_category_pattern}'");
 
-        if (!$this->confirm("Bạn có chắc chắn muốn khôi phục lại toàn bộ đường dẫn URL trước đợt này?", false)) {
-            $this->info("Hủy bỏ thao tác.");
+        if (! $this->confirm('Bạn có chắc chắn muốn khôi phục lại toàn bộ đường dẫn URL trước đợt này?', false)) {
+            $this->info('Hủy bỏ thao tác.');
+
             return 0;
         }
 
@@ -78,7 +81,7 @@ class RollbackUrlsCommand extends Command
                 }
 
                 // Delete redirects created during this history run
-                if (!empty($item->old_path) && !empty($item->new_path)) {
+                if (! empty($item->old_path) && ! empty($item->new_path)) {
                     UrlRedirect::where('old_path', $item->old_path)
                         ->where('new_path', $item->new_path)
                         ->delete();
@@ -90,7 +93,7 @@ class RollbackUrlsCommand extends Command
             } catch (\Throwable $e) {
                 DB::rollBack();
                 $failed++;
-                $this->error("\nLỗi khi rollback mục ID {$item->id}: " . $e->getMessage());
+                $this->error("\nLỗi khi rollback mục ID {$item->id}: ".$e->getMessage());
             }
             $this->output->progressAdvance();
         }
@@ -108,8 +111,9 @@ class RollbackUrlsCommand extends Command
 
         // Clear caches
         try {
-            \Illuminate\Support\Facades\Artisan::call('optimize:clear');
-        } catch (\Throwable $e) {}
+            Artisan::call('optimize:clear');
+        } catch (\Throwable $e) {
+        }
 
         return 0;
     }

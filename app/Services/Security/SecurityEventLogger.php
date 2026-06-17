@@ -29,38 +29,38 @@ class SecurityEventLogger
 
     public function __construct()
     {
-        $this->redactFields  = config('security.redact_fields', []);
-        $this->dedupSeconds  = (int) config('security.event_dedup_seconds', 300);
+        $this->redactFields = config('security.redact_fields', []);
+        $this->dedupSeconds = (int) config('security.event_dedup_seconds', 300);
     }
 
     /**
      * Log a security event.
      *
-     * @param  string       $type       Event type (use SecurityEvent::TYPE_* constants)
-     * @param  string       $severity   Event severity (use SecurityEvent::SEVERITY_* constants)
-     * @param  string       $message    Human-readable description
-     * @param  array        $context    Optional metadata (will be sanitized)
-     * @param  Request|null $request    Current request (extracts ip, ua, url, method)
-     * @param  int|null     $userId     Authenticated user ID if known
-     * @param  bool         $deduplicate Whether to apply dedup window
+     * @param  string  $type  Event type (use SecurityEvent::TYPE_* constants)
+     * @param  string  $severity  Event severity (use SecurityEvent::SEVERITY_* constants)
+     * @param  string  $message  Human-readable description
+     * @param  array  $context  Optional metadata (will be sanitized)
+     * @param  Request|null  $request  Current request (extracts ip, ua, url, method)
+     * @param  int|null  $userId  Authenticated user ID if known
+     * @param  bool  $deduplicate  Whether to apply dedup window
      */
     public function log(
-        string  $type,
-        string  $severity,
-        string  $message,
-        array   $context  = [],
+        string $type,
+        string $severity,
+        string $message,
+        array $context = [],
         ?Request $request = null,
-        ?int    $userId   = null,
-        bool    $deduplicate = true
+        ?int $userId = null,
+        bool $deduplicate = true
     ): ?SecurityEvent {
-        $ip     = $request ? $this->extractIp($request) : null;
-        $ua     = $request ? substr((string) $request->userAgent(), 0, 512) : null;
-        $url    = $request ? substr($request->fullUrl(), 0, 1024) : null;
+        $ip = $request ? $this->extractIp($request) : null;
+        $ua = $request ? substr((string) $request->userAgent(), 0, 512) : null;
+        $url = $request ? substr($request->fullUrl(), 0, 1024) : null;
         $method = $request ? $request->method() : null;
 
         // Deduplication: don't create duplicate rows for spam/bots
         if ($deduplicate && $ip && $url) {
-            $dedupKey = "security:dedup:{$type}:{$ip}:" . md5($url);
+            $dedupKey = "security:dedup:{$type}:{$ip}:".md5($url);
             if (Cache::has($dedupKey)) {
                 return null; // Already logged recently, skip
             }
@@ -72,19 +72,20 @@ class SecurityEventLogger
 
         try {
             return SecurityEvent::create([
-                'type'       => $type,
-                'severity'   => $severity,
+                'type' => $type,
+                'severity' => $severity,
                 'ip_address' => $ip,
-                'user_id'    => $userId,
+                'user_id' => $userId,
                 'user_agent' => $ua,
-                'url'        => $url,
-                'method'     => $method,
-                'message'    => $message,
-                'context'    => $safeContext ?: null,
+                'url' => $url,
+                'method' => $method,
+                'message' => $message,
+                'context' => $safeContext ?: null,
             ]);
         } catch (\Throwable $e) {
             // Never let security logging crash the app
-            Log::warning("SecurityEventLogger: failed to write event [{$type}]: " . $e->getMessage());
+            Log::warning("SecurityEventLogger: failed to write event [{$type}]: ".$e->getMessage());
+
             return null;
         }
     }
@@ -135,6 +136,7 @@ class SecurityEventLogger
         foreach ($context as $key => $value) {
             if ($this->isSensitiveKey((string) $key)) {
                 $safe[$key] = '[REDACTED]';
+
                 continue;
             }
 
@@ -148,6 +150,7 @@ class SecurityEventLogger
             }
             // Skip objects/resources silently
         }
+
         return $safe;
     }
 
@@ -159,6 +162,7 @@ class SecurityEventLogger
                 return true;
             }
         }
+
         return false;
     }
 

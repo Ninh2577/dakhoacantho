@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use App\Services\Security\SecurityScannerService;
 use App\Models\FileScanResult;
+use App\Services\Security\SecurityScannerService;
 use Illuminate\Console\Command;
 
 class SecurityScanCommand extends Command
@@ -31,8 +31,9 @@ class SecurityScanCommand extends Command
         $full = $this->option('full');
         $check = $this->option('check');
 
-        if (!$quick && !$full && !$check) {
+        if (! $quick && ! $full && ! $check) {
             $this->error('Bạn phải chọn loại quét: --quick, --full hoặc --check=ten_khoa');
+
             return Command::FAILURE;
         }
 
@@ -59,8 +60,8 @@ class SecurityScanCommand extends Command
 
             $this->info("\n--- KẾT QUẢ QUÉT BẢO MẬT ---");
             $this->info("Scan ID: $scanId");
-            $this->info("Tổng số hạng mục kiểm tra: " . $results->count());
-            $this->info("Số mối đe dọa phát hiện: " . $threats->count());
+            $this->info('Tổng số hạng mục kiểm tra: '.$results->count());
+            $this->info('Số mối đe dọa phát hiện: '.$threats->count());
 
             if ($threats->count() > 0) {
                 foreach ($threats as $threat) {

@@ -12,7 +12,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('articles', function (Blueprint $table) {
-            if (!Schema::hasColumn('articles', 'featured_image')) {
+            if (! Schema::hasColumn('articles', 'featured_image')) {
                 $table->string('featured_image')->nullable()->after('thumbnail_image');
             }
         });

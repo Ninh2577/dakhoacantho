@@ -14,13 +14,13 @@ class DashboardStatsWidget extends BaseWidget
 
     protected function getStats(): array
     {
-        $totalConsultations  = Consultation::count();
-        $pendingCount        = Consultation::where('status', 'pending')->count();
-        $publishedArticles   = Article::where('is_published', true)->count();
-        $lowSeoArticles      = Article::where(function ($q) {
+        $totalConsultations = Consultation::count();
+        $pendingCount = Consultation::where('status', 'pending')->count();
+        $publishedArticles = Article::where('is_published', true)->count();
+        $lowSeoArticles = Article::where(function ($q) {
             $q->where('seo_score', '<', 50)->orWhereNull('seo_score');
         })->count();
-        $avgSeo              = Article::whereNotNull('seo_score')->avg('seo_score');
+        $avgSeo = Article::whereNotNull('seo_score')->avg('seo_score');
         $newPatientsThisWeek = Patient::where('created_at', '>=', now()->subDays(7))->count();
 
         return [
@@ -49,7 +49,7 @@ class DashboardStatsWidget extends BaseWidget
                 ->descriptionIcon('heroicon-m-magnifying-glass')
                 ->color($lowSeoArticles > 0 ? 'warning' : 'success'),
 
-            Stat::make('Điểm SEO trung bình', $avgSeo ? number_format($avgSeo, 1) . '/100' : '—')
+            Stat::make('Điểm SEO trung bình', $avgSeo ? number_format($avgSeo, 1).'/100' : '—')
                 ->description($avgSeo ? ($avgSeo >= 80 ? 'SEO tốt 🟢' : ($avgSeo >= 50 ? 'SEO khá 🟡' : 'Cần cải thiện 🔴')) : 'Chưa có dữ liệu')
                 ->descriptionIcon('heroicon-m-chart-bar')
                 ->color($avgSeo ? ($avgSeo >= 80 ? 'success' : ($avgSeo >= 50 ? 'warning' : 'danger')) : 'gray'),

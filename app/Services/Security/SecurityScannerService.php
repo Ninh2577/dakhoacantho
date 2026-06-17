@@ -3,12 +3,10 @@
 namespace App\Services\Security;
 
 use App\Models\FileScanResult;
-use App\Models\SecurityEvent;
-use App\Models\User;
 use App\Models\LoginAttempt;
+use App\Models\User;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use RecursiveDirectoryIterator;
@@ -17,7 +15,9 @@ use RecursiveIteratorIterator;
 class SecurityScannerService
 {
     protected string $scanId;
+
     protected int $maxScanFileSize = 2 * 1024 * 1024; // 2MB default
+
     protected array $ignoredRecords = [];
 
     public function __construct()
@@ -34,7 +34,7 @@ class SecurityScannerService
         try {
             $records = FileScanResult::where('type', FileScanResult::TYPE_IGNORED)->get();
             foreach ($records as $record) {
-                $key = $record->check_key . ':' . ($record->target ?: $record->path);
+                $key = $record->check_key.':'.($record->target ?: $record->path);
                 $this->ignoredRecords[$key] = [
                     'hash' => $record->hash,
                     'ignored_at' => $record->ignored_at,
@@ -71,7 +71,7 @@ class SecurityScannerService
     public function isExcluded(string $path): bool
     {
         $normalizedPath = str_replace('\\', '/', $path);
-        
+
         // Explicitly exclude any files under storage/app/security/ to prevent self-warnings
         if (str_contains($normalizedPath, 'storage/app/security/')) {
             return true;
@@ -85,7 +85,7 @@ class SecurityScannerService
             $excludedReal = realpath($excluded);
             $excludedRealNormalized = $excludedReal ? str_replace('\\', '/', $excludedReal) : $excludedNormalized;
 
-            if (str_starts_with($normalizedPath, $excludedNormalized) || 
+            if (str_starts_with($normalizedPath, $excludedNormalized) ||
                 str_starts_with($normalizedRealPath, $excludedRealNormalized) ||
                 str_starts_with($normalizedPath, $excludedRealNormalized) ||
                 str_starts_with($normalizedRealPath, $excludedNormalized)
@@ -93,6 +93,7 @@ class SecurityScannerService
                 return true;
             }
         }
+
         return false;
     }
 
@@ -111,11 +112,11 @@ class SecurityScannerService
             if (filesize($file) > $this->maxScanFileSize) {
                 continue;
             }
-            $relativePath = str_replace(base_path() . DIRECTORY_SEPARATOR, '', $file);
+            $relativePath = str_replace(base_path().DIRECTORY_SEPARATOR, '', $file);
             $baseline[$relativePath] = md5_file($file);
         }
 
-        if (!is_dir(storage_path('app/security'))) {
+        if (! is_dir(storage_path('app/security'))) {
             mkdir(storage_path('app/security'), 0755, true);
         }
 
@@ -135,7 +136,7 @@ class SecurityScannerService
         $files = [];
         $dir = base_path();
 
-        if (!is_dir($dir)) {
+        if (! is_dir($dir)) {
             return [];
         }
 
@@ -175,7 +176,7 @@ class SecurityScannerService
             $type = FileScanResult::TYPE_OK;
         }
 
-        $ignoreKey = $checkKey . ':' . ($target ?: '');
+        $ignoreKey = $checkKey.':'.($target ?: '');
         $ignoredAt = null;
         $ignoredReason = null;
 
@@ -321,7 +322,7 @@ class SecurityScannerService
             }
 
             // Exclude the scanner and guidance service from keyword scan to avoid false positives
-            $relativePath = str_replace(base_path() . DIRECTORY_SEPARATOR, '', $file);
+            $relativePath = str_replace(base_path().DIRECTORY_SEPARATOR, '', $file);
             $normalizedPath = str_replace('\\', '/', $relativePath);
             if (str_contains($normalizedPath, 'app/Services/Security/SecurityScannerService.php') ||
                 str_contains($normalizedPath, 'app/Services/Security/SecurityFindingGuidanceService.php')
@@ -351,11 +352,11 @@ class SecurityScannerService
 
                 if ($matchedKeyword) {
                     $foundCount++;
-                    
+
                     // Create evidence metadata
                     $snippet = trim($matchedLine);
                     if (strlen($snippet) > 150) {
-                        $snippet = mb_substr($snippet, 0, 147) . '...';
+                        $snippet = mb_substr($snippet, 0, 147).'...';
                     }
                     $rawSnippet = htmlspecialchars($snippet, ENT_QUOTES, 'UTF-8');
 
@@ -366,14 +367,14 @@ class SecurityScannerService
                         FileScanResult::SEVERITY_MEDIUM,
                         "Phát hiện từ khóa nghi ngờ phát tán spam ($matchedKeyword) trong tệp.",
                         $relativePath,
-                        "Kiểm tra xem mã nguồn tệp có bị chèn liên kết spam hoặc redirect ẩn đến trang web cá cược/dược phẩm hay không.",
+                        'Kiểm tra xem mã nguồn tệp có bị chèn liên kết spam hoặc redirect ẩn đến trang web cá cược/dược phẩm hay không.',
                         md5_file($file),
                         [
                             'evidence' => [
                                 'matched_pattern' => $matchedKeyword,
                                 'line' => $matchedLineNum,
                                 'snippet' => $rawSnippet,
-                            ]
+                            ],
                         ]
                     );
                 }
@@ -400,7 +401,7 @@ class SecurityScannerService
         try {
             $spamKeywords = ['http://', 'https://', 'viagra', 'casino', 'slots', 'chuyển tiền', 'mua bán'];
             $query = DB::table('article_comments');
-            
+
             $spamComments = [];
             foreach ($spamKeywords as $keyword) {
                 $results = (clone $query)->where('content', 'like', "%{$keyword}%")->get();
@@ -415,9 +416,9 @@ class SecurityScannerService
                     'Kiểm tra Spam',
                     'warning',
                     FileScanResult::SEVERITY_MEDIUM,
-                    "Phát hiện " . count($spamComments) . " bình luận có chứa liên kết hoặc từ khóa nghi vấn spam.",
+                    'Phát hiện '.count($spamComments).' bình luận có chứa liên kết hoặc từ khóa nghi vấn spam.',
                     'database:article_comments',
-                    "Duyệt lại danh sách bình luận để phê duyệt hoặc xóa các bình luận rác.",
+                    'Duyệt lại danh sách bình luận để phê duyệt hoặc xóa các bình luận rác.',
                     null,
                     ['comment_ids' => array_keys($spamComments)]
                 );
@@ -458,19 +459,20 @@ class SecurityScannerService
                 FileScanResult::SEVERITY_INFO,
                 'Hệ thống đang chạy local (localhost/127.0.0.1). Bỏ qua kiểm tra danh sách chặn DNSBL.'
             );
+
             return;
         }
 
         try {
             $ip = gethostbyname($host);
-            if (!filter_var($ip, FILTER_VALIDATE_IP)) {
+            if (! filter_var($ip, FILTER_VALIDATE_IP)) {
                 throw new \Exception("Không thể phân giải IP cho host: $host");
             }
 
             $reversedIp = implode('.', array_reverse(explode('.', $ip)));
             $dnsblServers = [
                 'zen.spamhaus.org',
-                'dnsbl.sorbs.net'
+                'dnsbl.sorbs.net',
             ];
 
             $listed = [];
@@ -490,9 +492,9 @@ class SecurityScannerService
                     'Kiểm tra danh sách chặn',
                     'warning',
                     FileScanResult::SEVERITY_LOW,
-                    "IP của máy chủ ($ip) nằm trong danh sách chặn của " . implode(', ', $listed) . " (Kiểm tra này mang tính chất tham khảo, không tự động chặn).",
+                    "IP của máy chủ ($ip) nằm trong danh sách chặn của ".implode(', ', $listed).' (Kiểm tra này mang tính chất tham khảo, không tự động chặn).',
                     $host,
-                    "Yêu cầu nhà cung cấp hosting hỗ trợ gỡ IP khỏi danh sách đen hoặc kiểm tra cấu hình gửi mail của máy chủ."
+                    'Yêu cầu nhà cung cấp hosting hỗ trợ gỡ IP khỏi danh sách đen hoặc kiểm tra cấu hình gửi mail của máy chủ.'
                 );
             } else {
                 $this->addResult(
@@ -509,7 +511,7 @@ class SecurityScannerService
                 'Kiểm tra danh sách chặn',
                 'ok',
                 FileScanResult::SEVERITY_INFO,
-                'Không thể hoàn thành kiểm tra danh sách chặn: ' . $e->getMessage()
+                'Không thể hoàn thành kiểm tra danh sách chặn: '.$e->getMessage()
             );
         }
     }
@@ -523,7 +525,7 @@ class SecurityScannerService
         $phpVersion = PHP_VERSION;
         $phpOk = version_compare($phpVersion, '8.1.0', '>=');
 
-        if (!$phpOk) {
+        if (! $phpOk) {
             $this->addResult(
                 'server_status',
                 'Trạng thái máy chủ',
@@ -531,18 +533,18 @@ class SecurityScannerService
                 FileScanResult::SEVERITY_MEDIUM,
                 "Phiên bản PHP hiện tại ($phpVersion) quá cũ. Khuyến nghị PHP >= 8.1.",
                 'PHP Runtime',
-                "Cập nhật phiên bản PHP của máy chủ lên tối thiểu 8.1 hoặc 8.2."
+                'Cập nhật phiên bản PHP của máy chủ lên tối thiểu 8.1 hoặc 8.2.'
             );
         }
 
         // Check directory write permissions
         $writeDirs = [
             'storage' => storage_path(),
-            'bootstrap/cache' => base_path('bootstrap/cache')
+            'bootstrap/cache' => base_path('bootstrap/cache'),
         ];
 
         foreach ($writeDirs as $name => $path) {
-            if (!is_writable($path)) {
+            if (! is_writable($path)) {
                 $this->addResult(
                     'server_status',
                     'Trạng thái máy chủ',
@@ -562,7 +564,7 @@ class SecurityScannerService
         if ($debug) {
             $severity = ($env === 'production' || $env === 'staging') ? FileScanResult::SEVERITY_CRITICAL : FileScanResult::SEVERITY_INFO;
             $status = ($env === 'production' || $env === 'staging') ? 'warning' : 'ok';
-            
+
             $this->addResult(
                 'server_status',
                 'Trạng thái máy chủ',
@@ -570,7 +572,7 @@ class SecurityScannerService
                 $severity,
                 "Chế độ gỡ lỗi (APP_DEBUG=true) đang bật ở môi trường [$env].",
                 'APP_DEBUG',
-                "Tắt APP_DEBUG trong tệp tin .env (APP_DEBUG=false) để tránh lộ thông tin cấu hình hệ thống khi xảy ra lỗi."
+                'Tắt APP_DEBUG trong tệp tin .env (APP_DEBUG=false) để tránh lộ thông tin cấu hình hệ thống khi xảy ra lỗi.'
             );
         } else {
             $this->addResult(
@@ -589,7 +591,7 @@ class SecurityScannerService
     protected function checkFileChanges(): void
     {
         $baselinePath = storage_path('app/security/baseline.json');
-        if (!file_exists($baselinePath)) {
+        if (! file_exists($baselinePath)) {
             $this->addResult(
                 'file_changes',
                 'Thay đổi tệp',
@@ -599,6 +601,7 @@ class SecurityScannerService
                 'baseline.json',
                 'Tạo baseline để bắt đầu so sánh thay đổi tệp tin mã nguồn.'
             );
+
             return;
         }
 
@@ -614,22 +617,22 @@ class SecurityScannerService
             if (filesize($file) > $this->maxScanFileSize) {
                 continue;
             }
-            $relativePath = str_replace(base_path() . DIRECTORY_SEPARATOR, '', $file);
+            $relativePath = str_replace(base_path().DIRECTORY_SEPARATOR, '', $file);
             $current[$relativePath] = md5_file($file);
         }
 
         // Detect modified or new files
         foreach ($current as $path => $hash) {
-            if (!isset($baseline[$path])) {
+            if (! isset($baseline[$path])) {
                 $changedCount++;
                 $this->addResult(
                     'file_changes',
                     'Thay đổi tệp',
                     'warning',
                     FileScanResult::SEVERITY_MEDIUM,
-                    "Phát hiện tệp tin mới không nằm trong baseline.",
+                    'Phát hiện tệp tin mới không nằm trong baseline.',
                     $path,
-                    "Hãy kiểm tra xem tệp tin mới này có phải là tệp tin hợp pháp hay mã độc vừa bị đẩy lên.",
+                    'Hãy kiểm tra xem tệp tin mới này có phải là tệp tin hợp pháp hay mã độc vừa bị đẩy lên.',
                     $hash
                 );
             } elseif ($baseline[$path] !== $hash) {
@@ -639,9 +642,9 @@ class SecurityScannerService
                     'Thay đổi tệp',
                     'warning',
                     FileScanResult::SEVERITY_HIGH,
-                    "Phát hiện tệp tin bị thay đổi nội dung (sai lệch mã MD5 so với baseline).",
+                    'Phát hiện tệp tin bị thay đổi nội dung (sai lệch mã MD5 so với baseline).',
                     $path,
-                    "Kiểm tra lịch sử git hoặc các thay đổi thủ công gần đây của tệp tin.",
+                    'Kiểm tra lịch sử git hoặc các thay đổi thủ công gần đây của tệp tin.',
                     $hash
                 );
             }
@@ -649,16 +652,16 @@ class SecurityScannerService
 
         // Detect deleted files
         foreach ($baseline as $path => $hash) {
-            if (!isset($current[$path]) && !file_exists(base_path($path))) {
+            if (! isset($current[$path]) && ! file_exists(base_path($path))) {
                 $changedCount++;
                 $this->addResult(
                     'file_changes',
                     'Thay đổi tệp',
                     'warning',
                     FileScanResult::SEVERITY_MEDIUM,
-                    "Phát hiện tệp tin trong baseline đã bị xóa khỏi hệ thống.",
+                    'Phát hiện tệp tin trong baseline đã bị xóa khỏi hệ thống.',
                     $path,
-                    "Khôi phục tệp tin nếu việc xóa này là ngoài ý muốn."
+                    'Khôi phục tệp tin nếu việc xóa này là ngoài ý muốn.'
                 );
             }
         }
@@ -686,7 +689,7 @@ class SecurityScannerService
             '/(?<![a-zA-Z0-9_])system\s*\(/i' => 'Sử dụng system() thực thi lệnh shell',
             '/(?<![a-zA-Z0-9_])passthru\s*\(/i' => 'Sử dụng passthru() thực thi lệnh shell',
             '/(?<![a-zA-Z0-9_])exec\s*\(/i' => 'Sử dụng exec() thực thi lệnh shell',
-            '/(?<![a-zA-Z0-9_])base64_decode\s*\(/i' => 'Sử dụng base64_decode()'
+            '/(?<![a-zA-Z0-9_])base64_decode\s*\(/i' => 'Sử dụng base64_decode()',
         ];
 
         $foundMalware = 0;
@@ -700,23 +703,23 @@ class SecurityScannerService
             foreach ($iterator as $item) {
                 if ($item->isFile() && strtolower($item->getExtension()) === 'php') {
                     $foundMalware++;
-                    $relativePath = str_replace(base_path() . DIRECTORY_SEPARATOR, '', $item->getPathname());
-                    
+                    $relativePath = str_replace(base_path().DIRECTORY_SEPARATOR, '', $item->getPathname());
+
                     $this->addResult(
                         'malware_scan',
                         'Quét mã độc',
                         'warning',
                         FileScanResult::SEVERITY_CRITICAL,
-                        "Phát hiện tệp PHP nằm trong thư mục uploads công khai.",
+                        'Phát hiện tệp PHP nằm trong thư mục uploads công khai.',
                         $relativePath,
-                        "Hệ thống WordPress/Laravel tuyệt đối không cho phép chạy file PHP trong mục tải lên. Hãy kiểm tra và xóa tệp tin này ngay lập tức.",
+                        'Hệ thống WordPress/Laravel tuyệt đối không cho phép chạy file PHP trong mục tải lên. Hãy kiểm tra và xóa tệp tin này ngay lập tức.',
                         md5_file($item->getPathname()),
                         [
                             'evidence' => [
                                 'matched_pattern' => 'php_in_uploads',
                                 'line' => 1,
-                                'snippet' => '[Tệp PHP bị cấm chạy trực tiếp từ thư mục tải lên]'
-                            ]
+                                'snippet' => '[Tệp PHP bị cấm chạy trực tiếp từ thư mục tải lên]',
+                            ],
                         ]
                     );
                 }
@@ -731,16 +734,16 @@ class SecurityScannerService
                 'Quét mã độc',
                 'warning',
                 FileScanResult::SEVERITY_CRITICAL,
-                "Tệp .env cấu hình hệ thống nằm công khai trong thư mục public.",
+                'Tệp .env cấu hình hệ thống nằm công khai trong thư mục public.',
                 'public/.env',
-                "Di chuyển tệp .env ra khỏi thư mục public ngay lập tức.",
+                'Di chuyển tệp .env ra khỏi thư mục public ngay lập tức.',
                 md5_file(public_path('.env')),
                 [
                     'evidence' => [
                         'matched_pattern' => 'public_env_exposed',
                         'line' => 1,
-                        'snippet' => '[Đã ẩn nội dung nhạy cảm để bảo mật]'
-                    ]
+                        'snippet' => '[Đã ẩn nội dung nhạy cảm để bảo mật]',
+                    ],
                 ]
             );
         }
@@ -778,14 +781,14 @@ class SecurityScannerService
 
                 if ($matchedPattern) {
                     $foundMalware++;
-                    $relativePath = str_replace(base_path() . DIRECTORY_SEPARATOR, '', $file);
+                    $relativePath = str_replace(base_path().DIRECTORY_SEPARATOR, '', $file);
 
                     // Determine base severity
                     $severity = FileScanResult::SEVERITY_HIGH;
                     if ($matchedDescription === 'Sử dụng base64_decode()') {
                         $severity = FileScanResult::SEVERITY_MEDIUM;
                     }
-                    if (str_contains($file, 'public' . DIRECTORY_SEPARATOR)) {
+                    if (str_contains($file, 'public'.DIRECTORY_SEPARATOR)) {
                         $severity = FileScanResult::SEVERITY_CRITICAL;
                     }
 
@@ -798,7 +801,7 @@ class SecurityScannerService
                         'app/Console/Commands/ImportOldArticles.php',
                         'app/Console/Commands/RemapArticleCategories.php',
                         'app/Services/WordPress/WordPressImportService.php',
-                        'app/Jobs/RecompileUrlPathsJob.php'
+                        'app/Jobs/RecompileUrlPathsJob.php',
                     ];
                     foreach ($allowlist as $al) {
                         if (str_contains($normalizedRel, $al)) {
@@ -814,7 +817,7 @@ class SecurityScannerService
                     // Format snippet
                     $snippet = trim($matchedLine);
                     if (strlen($snippet) > 150) {
-                        $snippet = mb_substr($snippet, 0, 147) . '...';
+                        $snippet = mb_substr($snippet, 0, 147).'...';
                     }
 
                     // Hide snippets for sensitive files
@@ -831,14 +834,14 @@ class SecurityScannerService
                         $severity,
                         "Phát hiện mẫu lệnh nguy hiểm ($matchedDescription) trong mã nguồn.",
                         $relativePath,
-                        "Kiểm tra xem tệp tin có sử dụng các hàm này một cách an toàn không, hoặc có dấu hiệu bị tiêm mã độc.",
+                        'Kiểm tra xem tệp tin có sử dụng các hàm này một cách an toàn không, hoặc có dấu hiệu bị tiêm mã độc.',
                         md5_file($file),
                         [
                             'evidence' => [
                                 'matched_pattern' => $matchedDescription,
                                 'line' => $matchedLineNum,
                                 'snippet' => $rawSnippet,
-                            ]
+                            ],
                         ]
                     );
                 }
@@ -871,7 +874,7 @@ class SecurityScannerService
                 foreach ($spamKeywords as $kw) {
                     if (str_contains($art->body ?? '', $kw) || str_contains($art->summary ?? '', $kw)) {
                         $foundCount++;
-                        
+
                         $text = str_contains($art->body ?? '', $kw) ? ($art->body ?? '') : ($art->summary ?? '');
                         $rawSnippet = $this->sanitizeDatabaseSnippet($text, $kw);
 
@@ -882,7 +885,7 @@ class SecurityScannerService
                             FileScanResult::SEVERITY_HIGH,
                             "Phát hiện thẻ script hoặc mã script tiêm nhiễm trong nội dung bài viết ID [{$art->id}] (Tiêu đề: {$art->title}).",
                             "database:articles:{$art->id}",
-                            "Chỉnh sửa bài viết để loại bỏ các đoạn mã script đáng ngờ, tránh lỗi tấn công XSS chéo trang.",
+                            'Chỉnh sửa bài viết để loại bỏ các đoạn mã script đáng ngờ, tránh lỗi tấn công XSS chéo trang.',
                             null,
                             [
                                 'evidence' => [
@@ -891,8 +894,8 @@ class SecurityScannerService
                                     'field' => str_contains($art->body ?? '', $kw) ? 'body' : 'summary',
                                     'matched_pattern' => $kw,
                                     'snippet' => $rawSnippet,
-                                    'admin_edit_url' => "/admin/articles/{$art->id}/edit"
-                                ]
+                                    'admin_edit_url' => "/admin/articles/{$art->id}/edit",
+                                ],
                             ]
                         );
                         break;
@@ -915,15 +918,15 @@ class SecurityScannerService
                             FileScanResult::SEVERITY_CRITICAL,
                             "Phát hiện mã script trong cài đặt hệ thống key [{$setting->key}].",
                             "database:settings:{$setting->key}",
-                            "Kiểm tra cấu hình hệ thống xem có bị chèn mã độc quảng cáo hoặc mã độc thu thập cookie.",
+                            'Kiểm tra cấu hình hệ thống xem có bị chèn mã độc quảng cáo hoặc mã độc thu thập cookie.',
                             null,
                             [
                                 'evidence' => [
                                     'field' => 'value',
                                     'matched_pattern' => $kw,
                                     'snippet' => $rawSnippet,
-                                    'admin_edit_url' => "/admin/home-page-settings"
-                                ]
+                                    'admin_edit_url' => '/admin/home-page-settings',
+                                ],
                             ]
                         );
                         break;
@@ -967,7 +970,7 @@ class SecurityScannerService
             'backup.sql',
             'db.sql',
             'data.zip',
-            'backup.zip'
+            'backup.zip',
         ];
 
         $exposedFiles = [];
@@ -984,7 +987,7 @@ class SecurityScannerService
                     FileScanResult::SEVERITY_HIGH,
                     "Phát hiện tệp nhạy cảm ($file) nằm trong thư mục public và có thể truy cập được.",
                     "public/$file",
-                    "Di chuyển tệp tin này ra ngoài thư mục public hoặc cấu hình webserver (.htaccess / nginx config) để chặn truy cập trực tiếp từ trình duyệt."
+                    'Di chuyển tệp tin này ra ngoài thư mục public hoặc cấu hình webserver (.htaccess / nginx config) để chặn truy cập trực tiếp từ trình duyệt.'
                 );
             }
         }
@@ -1020,7 +1023,7 @@ class SecurityScannerService
                         FileScanResult::SEVERITY_CRITICAL,
                         "Người dùng ID [{$user->id}] ({$user->email}) có mã băm mật khẩu rỗng hoặc không hợp lệ.",
                         "user:{$user->id}",
-                        "Cập nhật mật khẩu hợp lệ cho tài khoản này ngay lập tức."
+                        'Cập nhật mật khẩu hợp lệ cho tài khoản này ngay lập tức.'
                     );
                 }
 
@@ -1035,7 +1038,7 @@ class SecurityScannerService
                             FileScanResult::SEVERITY_CRITICAL,
                             "Tài khoản quản trị mặc định (admin@dakhoacantho.com) đang sử dụng mật khẩu mặc định 'password'.",
                             "user:{$user->id}",
-                            "Thay đổi mật khẩu tài khoản quản trị sang một mật khẩu mạnh hơn để tránh bị chiếm quyền điều khiển."
+                            'Thay đổi mật khẩu tài khoản quản trị sang một mật khẩu mạnh hơn để tránh bị chiếm quyền điều khiển.'
                         );
                     }
                 }
@@ -1055,7 +1058,7 @@ class SecurityScannerService
                     FileScanResult::SEVERITY_HIGH,
                     "Phát hiện tần suất đăng nhập thất bại rất cao ($failedCountToday lần) trong ngày hôm nay.",
                     'login_attempts',
-                    "Hệ thống có thể đang bị tấn công dò mật khẩu (brute-force). Hãy kiểm tra IP và cân nhắc kích hoạt chính sách chặn IP tự động."
+                    'Hệ thống có thể đang bị tấn công dò mật khẩu (brute-force). Hãy kiểm tra IP và cân nhắc kích hoạt chính sách chặn IP tự động.'
                 );
             }
 
@@ -1086,7 +1089,7 @@ class SecurityScannerService
     {
         // Run: rtk composer audit
         // Safe check if command can be run
-        if (!function_exists('shell_exec')) {
+        if (! function_exists('shell_exec')) {
             $this->addResult(
                 'vulnerability_scan',
                 'Quét lỗ hổng bảo mật',
@@ -1096,6 +1099,7 @@ class SecurityScannerService
                 'composer audit',
                 'Hãy kiểm tra thủ công các lỗ hổng bảo mật của gói thư viện bằng lệnh: composer audit trên dòng lệnh.'
             );
+
             return;
         }
 
@@ -1105,12 +1109,12 @@ class SecurityScannerService
             if (empty($output) || str_contains($output, 'not found') || str_contains($output, 'is not recognized')) {
                 // If composer command not found, try using direct composer.phar or fallback to raw message
                 if (file_exists(base_path('composer.phar'))) {
-                    $output = @shell_exec('php ' . base_path('composer.phar') . ' audit --format=json 2>&1');
+                    $output = @shell_exec('php '.base_path('composer.phar').' audit --format=json 2>&1');
                 }
             }
 
             if (empty($output)) {
-                throw new \Exception("Không nhận được phản hồi từ Composer CLI.");
+                throw new \Exception('Không nhận được phản hồi từ Composer CLI.');
             }
 
             // Parse json if output is json
@@ -1125,11 +1129,12 @@ class SecurityScannerService
                         FileScanResult::SEVERITY_INFO,
                         'composer audit: Không tìm thấy lỗ hổng bảo mật nào trong các gói thư viện.'
                     );
+
                     return;
                 }
-                
+
                 // Text indicates error or vulnerabilities
-                throw new \Exception("Lỗi phản hồi Composer: " . substr(strip_tags($output), 0, 100));
+                throw new \Exception('Lỗi phản hồi Composer: '.substr(strip_tags($output), 0, 100));
             }
 
             $vulnCount = 0;
@@ -1165,7 +1170,7 @@ class SecurityScannerService
                 'Quét lỗ hổng bảo mật',
                 'warning',
                 FileScanResult::SEVERITY_LOW,
-                'Không thể hoàn thành tự động quét lỗ hổng Composer: ' . $e->getMessage() . '. Trạng thái: Not Checked.',
+                'Không thể hoàn thành tự động quét lỗ hổng Composer: '.$e->getMessage().'. Trạng thái: Not Checked.',
                 'composer audit',
                 'Hãy chạy lệnh "rtk composer audit" thủ công trên máy chủ để xác minh lỗ hổng.'
             );
@@ -1191,7 +1196,7 @@ class SecurityScannerService
                     FileScanResult::SEVERITY_MEDIUM,
                     "Phát hiện số lượng tài khoản Admin khá lớn ({$admins->count()} tài khoản).",
                     'users:admins',
-                    "Rà soát lại danh sách quản trị viên để thu hồi quyền của các tài khoản không cần thiết."
+                    'Rà soát lại danh sách quản trị viên để thu hồi quyền của các tài khoản không cần thiết.'
                 );
             }
 
@@ -1208,9 +1213,9 @@ class SecurityScannerService
                     'Kiểm tra người dùng',
                     'warning',
                     FileScanResult::SEVERITY_HIGH,
-                    "Phát hiện " . $duplicates->count() . " email bị trùng lặp trong bảng người dùng.",
+                    'Phát hiện '.$duplicates->count().' email bị trùng lặp trong bảng người dùng.',
                     'users:emails',
-                    "Xử lý và dọn dẹp các tài khoản có email trùng lặp để tránh xung đột hệ thống đăng nhập."
+                    'Xử lý và dọn dẹp các tài khoản có email trùng lặp để tránh xung đột hệ thống đăng nhập.'
                 );
             }
 
@@ -1220,7 +1225,7 @@ class SecurityScannerService
                     'Kiểm tra người dùng',
                     'ok',
                     FileScanResult::SEVERITY_INFO,
-                    "Cấu trúc tài khoản quản trị bình thường, không có email trùng lặp."
+                    'Cấu trúc tài khoản quản trị bình thường, không có email trùng lặp.'
                 );
             }
         } catch (\Throwable $e) {
@@ -1243,7 +1248,7 @@ class SecurityScannerService
 
         // Check HTTPS
         $url = config('app.url');
-        if (!str_starts_with(strtolower($url), 'https://')) {
+        if (! str_starts_with(strtolower($url), 'https://')) {
             $issueCount++;
             $this->addResult(
                 'security_options',
@@ -1252,22 +1257,22 @@ class SecurityScannerService
                 FileScanResult::SEVERITY_HIGH,
                 "Cấu hình APP_URL trong tệp .env không sử dụng giao thức bảo mật HTTPS ($url).",
                 'APP_URL',
-                "Thay đổi APP_URL thành giao thức HTTPS và cài đặt chứng chỉ SSL cho tên miền."
+                'Thay đổi APP_URL thành giao thức HTTPS và cài đặt chứng chỉ SSL cho tên miền.'
             );
         }
 
         // Check Session Cookie configuration
         $secureCookie = config('session.secure');
-        if (!$secureCookie) {
+        if (! $secureCookie) {
             $issueCount++;
             $this->addResult(
                 'security_options',
                 'Tùy chọn bảo mật',
                 'warning',
                 FileScanResult::SEVERITY_MEDIUM,
-                "Thuộc tính Secure của cookie phiên làm việc (SESSION_SECURE_COOKIE) chưa được kích hoạt.",
+                'Thuộc tính Secure của cookie phiên làm việc (SESSION_SECURE_COOKIE) chưa được kích hoạt.',
                 'session.secure',
-                "Đặt SESSION_SECURE_COOKIE=true trong tệp .env khi chạy trên môi trường HTTPS để bảo vệ phiên đăng nhập khỏi bị đánh cắp."
+                'Đặt SESSION_SECURE_COOKIE=true trong tệp .env khi chạy trên môi trường HTTPS để bảo vệ phiên đăng nhập khỏi bị đánh cắp.'
             );
         }
 
@@ -1288,7 +1293,7 @@ class SecurityScannerService
     public function getLatestSummary(): array
     {
         $latestScan = FileScanResult::orderBy('created_at', 'desc')->first();
-        if (!$latestScan) {
+        if (! $latestScan) {
             return [
                 'has_scan' => false,
                 'scan_id' => null,
@@ -1319,7 +1324,7 @@ class SecurityScannerService
             $high = $results->where('severity', FileScanResult::SEVERITY_HIGH)
                 ->where('type', '!=', FileScanResult::TYPE_IGNORED)
                 ->count();
-            
+
             if ($critical > 0 || $high > 0) {
                 $status = 'danger';
             } else {
@@ -1352,11 +1357,11 @@ class SecurityScannerService
 
         $start = max(0, $pos - 45);
         $snippet = mb_substr($text, $start, 100);
-        
+
         // Truncate markers
         $prefix = ($start > 0) ? '...' : '';
         $suffix = ($pos + strlen($keyword) + 55 < strlen($text)) ? '...' : '';
-        $snippet = $prefix . $snippet . $suffix;
+        $snippet = $prefix.$snippet.$suffix;
 
         // Strip HTML tags to avoid rendering raw HTML in the snippet container, but keep text
         $snippet = strip_tags($snippet);
@@ -1367,18 +1372,18 @@ class SecurityScannerService
             'script', 'iframe', 'onerror', 'onload', 'javascript', 'window', 'location',
             'var', 'let', 'const', 'function', 'http', 'https', 'src', 'href', 'width',
             'height', 'style', 'document', 'cookie', 'alert', 'eval', 'onmouseover',
-            'body', 'summary', 'settings', 'value', 'key'
+            'body', 'summary', 'settings', 'value', 'key',
         ];
 
         $snippet = preg_replace_callback('/[\p{L}\p{N}_]+/u', function ($matches) use ($allowedCodeWords, $keyword) {
             $word = $matches[0];
             $lowerWord = strtolower($word);
-            
+
             // Keep allowed code keywords or words that are part of the target match keyword
             if (stripos($keyword, $word) !== false || in_array($lowerWord, $allowedCodeWords)) {
                 return $word;
             }
-            
+
             // Mask sensitive patient/medical words with *
             return str_repeat('*', min(strlen($word), 5));
         }, $snippet);

@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Article;
 use App\Models\ArticleComment;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
 class ArticleCommentController extends Controller

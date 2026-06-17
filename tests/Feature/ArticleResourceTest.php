@@ -2,12 +2,16 @@
 
 namespace Tests\Feature;
 
-use App\Models\User;
-use App\Models\Category;
 use App\Filament\Resources\ArticleResource;
 use App\Filament\Resources\ArticleResource\Pages\CreateArticle;
+use App\Filament\Resources\ArticleResource\Pages\EditArticle;
 use App\Models\Article;
+use App\Models\Category;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Livewire\Livewire;
 use Tests\TestCase;
 
@@ -153,7 +157,7 @@ class ArticleResourceTest extends TestCase
         ]);
 
         Livewire::actingAs($admin)
-            ->test(\App\Filament\Resources\ArticleResource\Pages\EditArticle::class, [
+            ->test(EditArticle::class, [
                 'record' => $article->getKey(),
             ])
             ->fillForm([
@@ -219,12 +223,12 @@ class ArticleResourceTest extends TestCase
                     'slug' => 'test-post-article-preview',
                     'content' => '<p>POST preview content page</p>',
                     'category_id' => $category->id,
-                ]
+                ],
             ]);
 
         $response->assertStatus(200);
         $response->assertSee('Test POST Article Preview');
-        
+
         $this->assertEquals('Test POST Article Preview', session('article_preview_create.title'));
     }
 
@@ -245,7 +249,7 @@ class ArticleResourceTest extends TestCase
         $this->artisan('migrate:rollback', ['--step' => 1]);
 
         // Insert legacy article with author name string
-        \Illuminate\Support\Facades\DB::table('articles')->insert([
+        DB::table('articles')->insert([
             'title' => 'Legacy Article',
             'slug' => 'legacy-article',
             'content' => '<p>Content</p>',
@@ -277,7 +281,7 @@ class ArticleResourceTest extends TestCase
         $this->artisan('migrate:rollback', ['--step' => 1]);
 
         // Insert legacy article with unknown author name
-        \Illuminate\Support\Facades\DB::table('articles')->insert([
+        DB::table('articles')->insert([
             'title' => 'Legacy Article Unknown',
             'slug' => 'legacy-article-unknown',
             'content' => '<p>Content</p>',
@@ -359,7 +363,7 @@ class ArticleResourceTest extends TestCase
 
         $response->assertStatus(200);
         $response->assertSee('Tác giả: Admin Writer');
-        $response->assertDontSee('Tác giả: ' . $admin->id);
+        $response->assertDontSee('Tác giả: '.$admin->id);
     }
 
     /** @test */
@@ -384,7 +388,7 @@ class ArticleResourceTest extends TestCase
             'is_published' => true,
         ]);
 
-        $response = $this->get('/' . $article->slug);
+        $response = $this->get('/'.$article->slug);
 
         $response->assertStatus(200);
         $response->assertSee('Tác giả: Dr. Jane Watson');
@@ -402,7 +406,7 @@ class ArticleResourceTest extends TestCase
             'slug' => 'general-medicine',
         ]);
 
-        $uuid = (string) \Illuminate\Support\Str::uuid();
+        $uuid = (string) Str::uuid();
         $payload = [
             'preview_uuid' => $uuid,
             'cached_auth_id' => $admin->id,
@@ -413,14 +417,14 @@ class ArticleResourceTest extends TestCase
             'author_id' => $admin->id,
         ];
 
-        \Illuminate\Support\Facades\Cache::put("preview:{$uuid}", $payload, 60);
+        Cache::put("preview:{$uuid}", $payload, 60);
 
         $response = $this->actingAs($admin)
             ->get("/admin/articles/preview/{$uuid}");
 
         $response->assertStatus(200);
         $response->assertSee('Test Cache Preview Article');
-        $this->assertNull(\Illuminate\Support\Facades\Cache::get("preview:{$uuid}")); // Pulled on read
+        $this->assertNull(Cache::get("preview:{$uuid}")); // Pulled on read
     }
 
     /** @test */
@@ -449,7 +453,7 @@ class ArticleResourceTest extends TestCase
             'slug' => 'general-medicine',
         ]);
 
-        $uuid = (string) \Illuminate\Support\Str::uuid();
+        $uuid = (string) Str::uuid();
         $payload = [
             'preview_uuid' => $uuid,
             'cached_auth_id' => 9999, // Mismatched owner
@@ -459,7 +463,7 @@ class ArticleResourceTest extends TestCase
             'category_id' => $category->id,
         ];
 
-        \Illuminate\Support\Facades\Cache::put("preview:{$uuid}", $payload, 60);
+        Cache::put("preview:{$uuid}", $payload, 60);
 
         $response = $this->actingAs($admin)
             ->get("/admin/articles/preview/{$uuid}");
@@ -467,4 +471,3 @@ class ArticleResourceTest extends TestCase
         $response->assertStatus(403);
     }
 }
-

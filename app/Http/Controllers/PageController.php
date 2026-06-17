@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Article;
 use App\Models\Category;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class PageController extends Controller
 {
@@ -13,7 +13,7 @@ class PageController extends Controller
      */
     public function home()
     {
-        $articles = \Illuminate\Support\Facades\Cache::remember('home_latest_articles', now()->addMinutes(15), function () {
+        $articles = Cache::remember('home_latest_articles', now()->addMinutes(15), function () {
             return Article::with('category.parent.parent')
                 ->where('is_published', true)
                 ->latest()
@@ -30,14 +30,14 @@ class PageController extends Controller
     public function category(?string $slug = null)
     {
         $categories = Category::all();
-        
+
         if ($categories->isEmpty()) {
             abort(404, 'No categories found. Please run seeders first.');
         }
 
         // Get the selected category or default to the first one
-        $selectedCategory = $slug 
-            ? Category::where('slug', $slug)->firstOrFail() 
+        $selectedCategory = $slug
+            ? Category::where('slug', $slug)->firstOrFail()
             : $categories->first();
 
         // Paginate articles belonging to the selected category

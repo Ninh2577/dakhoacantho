@@ -28,7 +28,7 @@ class SpecialtiesChart extends ChartWidget
         if ($data->isEmpty()) {
             return [
                 'datasets' => [['label' => 'Chuyên khoa', 'data' => [0], 'backgroundColor' => ['#94a3b8']]],
-                'labels'   => ['Chưa có dữ liệu'],
+                'labels' => ['Chưa có dữ liệu'],
             ];
         }
 
@@ -37,8 +37,8 @@ class SpecialtiesChart extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label'           => 'Số tư vấn',
-                    'data'            => $data->pluck('total')->toArray(),
+                    'label' => 'Số tư vấn',
+                    'data' => $data->pluck('total')->toArray(),
                     'backgroundColor' => array_slice($palette, 0, $data->count()),
                 ],
             ],

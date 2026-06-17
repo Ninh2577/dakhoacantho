@@ -24,6 +24,7 @@ class CreatePatient extends CreateRecord
         if (empty($data['created_by'])) {
             $data['created_by'] = auth()->id();
         }
+
         return $data;
     }
 }

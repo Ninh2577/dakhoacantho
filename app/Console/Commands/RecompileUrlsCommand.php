@@ -32,13 +32,13 @@ class RecompileUrlsCommand extends Command
      */
     public function handle(UrlRoutingService $routingService): int
     {
-        $this->info("Bắt đầu biên dịch đường dẫn URL...");
+        $this->info('Bắt đầu biên dịch đường dẫn URL...');
 
         $articlePattern = Setting::get('url_pattern_article');
         $categoryPattern = Setting::get('url_pattern_category');
 
         if ($this->option('initial')) {
-            $this->info("Đang thiết lập cấu hình mặc định (article: {slug}, category: category/{categories})...");
+            $this->info('Đang thiết lập cấu hình mặc định (article: {slug}, category: category/{categories})...');
             $articlePattern = '{slug}';
             $categoryPattern = 'category/{categories}';
             Setting::set('url_pattern_article', $articlePattern);
@@ -46,7 +46,8 @@ class RecompileUrlsCommand extends Command
         }
 
         if (empty($articlePattern) || empty($categoryPattern)) {
-            $this->error("Lỗi: Chưa cấu hình URL patterns. Vui lòng chạy với tùy chọn --initial hoặc cấu hình trong Admin panel.");
+            $this->error('Lỗi: Chưa cấu hình URL patterns. Vui lòng chạy với tùy chọn --initial hoặc cấu hình trong Admin panel.');
+
             return 1;
         }
 
@@ -55,8 +56,9 @@ class RecompileUrlsCommand extends Command
         if ($conflictResult['conflict_count'] > 0) {
             $this->error("Tìm thấy {$conflictResult['conflict_count']} xung đột đường dẫn. Không thể tiếp tục:");
             foreach ($conflictResult['conflicts'] as $conflict) {
-                $this->line(" - " . $conflict['message']);
+                $this->line(' - '.$conflict['message']);
             }
+
             return 1;
         }
 
@@ -101,7 +103,7 @@ class RecompileUrlsCommand extends Command
                 $category->url_path = $newPath;
                 $category->saveQuietly();
 
-                if (!empty($oldPath) && $oldPath !== $newPath) {
+                if (! empty($oldPath) && $oldPath !== $newPath) {
                     $routingService->registerRedirect($oldPath, $newPath, 'category', $category->id);
                     $history->increment('redirect_count');
                 }
@@ -118,13 +120,14 @@ class RecompileUrlsCommand extends Command
                 }
                 $history->update([
                     'status' => 'failed',
-                    'error_message' => 'Lỗi tại danh mục ID ' . $category->id . ': ' . $e->getMessage(),
+                    'error_message' => 'Lỗi tại danh mục ID '.$category->id.': '.$e->getMessage(),
                     'finished_at' => now(),
                     'processed_items' => $processed,
                     'updated_items' => $updated,
                     'failed_items' => $failed,
                 ]);
-                $this->error("\nBiên dịch thất bại: " . $e->getMessage());
+                $this->error("\nBiên dịch thất bại: ".$e->getMessage());
+
                 return 1;
             }
             $this->output->progressAdvance();
@@ -150,7 +153,7 @@ class RecompileUrlsCommand extends Command
                     $article->url_path = $newPath;
                     $article->saveQuietly();
 
-                    if (!empty($oldPath) && $oldPath !== $newPath) {
+                    if (! empty($oldPath) && $oldPath !== $newPath) {
                         $routingService->registerRedirect($oldPath, $newPath, 'article', $article->id);
                         $history->increment('redirect_count');
                     }
@@ -167,13 +170,13 @@ class RecompileUrlsCommand extends Command
                     }
                     $history->update([
                         'status' => 'failed',
-                        'error_message' => 'Lỗi tại bài viết ID ' . $article->id . ': ' . $e->getMessage(),
+                        'error_message' => 'Lỗi tại bài viết ID '.$article->id.': '.$e->getMessage(),
                         'finished_at' => now(),
                         'processed_items' => $processed,
                         'updated_items' => $updated,
                         'failed_items' => $failed,
                     ]);
-                    $this->error("\nBiên dịch thất bại: " . $e->getMessage());
+                    $this->error("\nBiên dịch thất bại: ".$e->getMessage());
                     throw $e;
                 }
                 $this->output->progressAdvance();
@@ -191,6 +194,7 @@ class RecompileUrlsCommand extends Command
         ]);
 
         $this->info("Hoàn tất biên dịch URL. Tổng số mục: {$processed}. Lỗi: {$failed}.");
+
         return 0;
     }
 }

@@ -3,16 +3,16 @@
 namespace App\Filament\Pages;
 
 use App\Models\FileScanResult;
+use App\Services\Security\SecurityFindingGuidanceService;
 use App\Services\Security\SecurityScannerService;
 use Filament\Actions\Action;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Tables;
-use Filament\Tables\Table;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Actions\Action as TableAction;
-use Filament\Forms\Components\TextInput;
-use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Table;
 
 class SecurityScan extends Page implements Tables\Contracts\HasTable
 {
@@ -113,7 +113,7 @@ class SecurityScan extends Page implements Tables\Contracts\HasTable
                     $this->updateSummary($scannerService);
 
                     Notification::make()
-                        ->title("Đã dọn dẹp thành công!")
+                        ->title('Đã dọn dẹp thành công!')
                         ->body("Đã xóa {$deleted} bản ghi cũ.")
                         ->success()
                         ->send();
@@ -147,21 +147,21 @@ class SecurityScan extends Page implements Tables\Contracts\HasTable
                 TextColumn::make('severity')
                     ->label('Mức độ')
                     ->badge()
-                    ->color(fn (string $state): string => match($state) {
-                        'info'     => 'gray',
-                        'low'      => 'info',
-                        'medium'   => 'warning',
-                        'high'     => 'danger',
+                    ->color(fn (string $state): string => match ($state) {
+                        'info' => 'gray',
+                        'low' => 'info',
+                        'medium' => 'warning',
+                        'high' => 'danger',
                         'critical' => 'danger',
-                        default    => 'gray',
+                        default => 'gray',
                     })
-                    ->formatStateUsing(fn ($state) => match($state) {
-                        'info'     => 'Thông tin',
-                        'low'      => 'Thấp',
-                        'medium'   => 'Trung bình',
-                        'high'     => 'Cao',
+                    ->formatStateUsing(fn ($state) => match ($state) {
+                        'info' => 'Thông tin',
+                        'low' => 'Thấp',
+                        'medium' => 'Trung bình',
+                        'high' => 'Cao',
                         'critical' => 'Nguy hiểm',
-                        default    => $state,
+                        default => $state,
                     })
                     ->sortable(),
 
@@ -173,25 +173,25 @@ class SecurityScan extends Page implements Tables\Contracts\HasTable
                 TextColumn::make('type')
                     ->label('Trạng thái')
                     ->badge()
-                    ->color(fn (string $state): string => match($state) {
-                        'ok'         => 'success',
+                    ->color(fn (string $state): string => match ($state) {
+                        'ok' => 'success',
                         'suspicious' => 'danger',
-                        'modified'   => 'warning',
-                        'new'        => 'info',
-                        'deleted'    => 'danger',
-                        'reviewed'   => 'gray',
-                        'ignored'    => 'gray',
-                        default      => 'gray',
+                        'modified' => 'warning',
+                        'new' => 'info',
+                        'deleted' => 'danger',
+                        'reviewed' => 'gray',
+                        'ignored' => 'gray',
+                        default => 'gray',
                     })
-                    ->formatStateUsing(fn ($state) => match($state) {
-                        'ok'         => 'An toàn',
+                    ->formatStateUsing(fn ($state) => match ($state) {
+                        'ok' => 'An toàn',
                         'suspicious' => 'Đáng ngờ',
-                        'modified'   => 'Đã sửa đổi',
-                        'new'        => 'Tệp mới',
-                        'deleted'    => 'Đã bị xóa',
-                        'reviewed'   => 'Đã duyệt',
-                        'ignored'    => 'Bỏ qua',
-                        default      => $state,
+                        'modified' => 'Đã sửa đổi',
+                        'new' => 'Tệp mới',
+                        'deleted' => 'Đã bị xóa',
+                        'reviewed' => 'Đã duyệt',
+                        'ignored' => 'Bỏ qua',
+                        default => $state,
                     })
                     ->sortable(),
             ])
@@ -207,7 +207,7 @@ class SecurityScan extends Page implements Tables\Contracts\HasTable
                         'filament.security.scan-detail',
                         [
                             'record' => $record,
-                            'guidance' => app(\App\Services\Security\SecurityFindingGuidanceService::class)->build($record)
+                            'guidance' => app(SecurityFindingGuidanceService::class)->build($record),
                         ]
                     )),
 
@@ -222,8 +222,7 @@ class SecurityScan extends Page implements Tables\Contracts\HasTable
                             ->success()
                             ->send();
                     })
-                    ->visible(fn (FileScanResult $record) => 
-                        !in_array($record->type, ['ok', 'reviewed', 'ignored'])
+                    ->visible(fn (FileScanResult $record) => ! in_array($record->type, ['ok', 'reviewed', 'ignored'])
                     ),
 
                 TableAction::make('markIgnored')
@@ -239,7 +238,7 @@ class SecurityScan extends Page implements Tables\Contracts\HasTable
                     ->action(function (FileScanResult $record, array $data) {
                         $user = auth()->user();
                         $by = $user ? "{$user->name} ({$user->email})" : 'Hệ thống';
-                        
+
                         $meta = $record->meta ?: [];
                         $meta['ignored_by'] = $by;
 
@@ -247,7 +246,7 @@ class SecurityScan extends Page implements Tables\Contracts\HasTable
                             'type' => FileScanResult::TYPE_IGNORED,
                             'ignored_at' => now(),
                             'ignored_reason' => $data['ignored_reason'],
-                            'meta' => $meta
+                            'meta' => $meta,
                         ]);
 
                         Notification::make()
@@ -255,8 +254,7 @@ class SecurityScan extends Page implements Tables\Contracts\HasTable
                             ->success()
                             ->send();
                     })
-                    ->visible(fn (FileScanResult $record) => 
-                        !in_array($record->type, ['ok', 'ignored'])
+                    ->visible(fn (FileScanResult $record) => ! in_array($record->type, ['ok', 'ignored'])
                     ),
             ])
             ->defaultSort('severity', 'desc')

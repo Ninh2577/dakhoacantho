@@ -3,8 +3,9 @@
 namespace App\Jobs;
 
 use App\Models\WordPressImportBatch;
-use App\Services\WordPress\WxrParser;
 use App\Services\WordPress\WordPressImportService;
+use App\Services\WordPress\WxrParser;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -12,13 +13,13 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Log;
-use Exception;
 
 class ImportWordPressXmlJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $timeout = 600; // 10 minutes timeout
+
     protected int $batchId;
 
     /**
@@ -35,43 +36,44 @@ class ImportWordPressXmlJob implements ShouldQueue
     public function handle(WxrParser $parser, WordPressImportService $importer): void
     {
         $batch = WordPressImportBatch::find($this->batchId);
-        if (!$batch) {
+        if (! $batch) {
             return;
         }
 
         $batch->update([
-            'status'     => 'processing',
+            'status' => 'processing',
             'started_at' => now(),
         ]);
 
-        $filePath = storage_path('app/' . $batch->file_path);
-        if (!file_exists($filePath)) {
-            $privatePath = storage_path('app/private/' . $batch->file_path);
+        $filePath = storage_path('app/'.$batch->file_path);
+        if (! file_exists($filePath)) {
+            $privatePath = storage_path('app/private/'.$batch->file_path);
             if (file_exists($privatePath)) {
                 $filePath = $privatePath;
             }
         }
 
-        if (!file_exists($filePath)) {
-            $errorMsg = "Không tìm thấy tệp tin XML tại: " . $filePath;
+        if (! file_exists($filePath)) {
+            $errorMsg = 'Không tìm thấy tệp tin XML tại: '.$filePath;
             $batch->update([
-                'status'        => 'failed',
-                'finished_at'   => now(),
+                'status' => 'failed',
+                'finished_at' => now(),
                 'error_message' => $errorMsg,
             ]);
             $importer->logAction($batch->id, null, 'system', null, null, 'failed', 'error', $errorMsg);
+
             return;
         }
 
         try {
             // 1. Run Database Backup first (only for real runs)
-            if (!$batch->dry_run) {
+            if (! $batch->dry_run) {
                 $backupFile = null;
                 $backupSuccess = $importer->runBackup($backupFile);
-                if (!$backupSuccess) {
-                    throw new Exception("Sao lưu cơ sở dữ liệu trước khi import thất bại! Hủy tiến trình để bảo vệ dữ liệu.");
+                if (! $backupSuccess) {
+                    throw new Exception('Sao lưu cơ sở dữ liệu trước khi import thất bại! Hủy tiến trình để bảo vệ dữ liệu.');
                 }
-                $importer->logAction($batch->id, null, 'system', null, null, 'backup_success', 'success', 'Sao lưu cơ sở dữ liệu thành công tại: ' . basename($backupFile));
+                $importer->logAction($batch->id, null, 'system', null, null, 'backup_success', 'success', 'Sao lưu cơ sở dữ liệu thành công tại: '.basename($backupFile));
             }
 
             // 2. Detect namespaces dynamically
@@ -80,7 +82,7 @@ class ImportWordPressXmlJob implements ShouldQueue
 
             // 3. Parse and Map Categories
             $wpCategories = $parser->parseCategories($filePath, $ns);
-            $importer->logAction($batch->id, null, 'system', null, null, 'info', 'success', 'Tìm thấy ' . count($wpCategories) . ' danh mục trong tệp XML.');
+            $importer->logAction($batch->id, null, 'system', null, null, 'info', 'success', 'Tìm thấy '.count($wpCategories).' danh mục trong tệp XML.');
 
             $slugToIdMap = [];
             foreach ($wpCategories as $slug => $wpCat) {
@@ -102,15 +104,15 @@ class ImportWordPressXmlJob implements ShouldQueue
             if ($warningMsg) {
                 $importer->logAction($batch->id, null, 'system', null, null, 'warning', 'warning', $warningMsg);
             }
-            $importer->logAction($batch->id, null, 'system', null, null, 'info', 'success', 'Đã tải bản đồ tệp đính kèm với ' . count($attachmentMap) . ' mục.');
+            $importer->logAction($batch->id, null, 'system', null, null, 'info', 'success', 'Đã tải bản đồ tệp đính kèm với '.count($attachmentMap).' mục.');
 
             // 5. Stream and Import Posts / Pages
             $items = $parser->streamItems($filePath, $ns);
-            
+
             // Calculate total items in WXR for tracking (quick pass or estimation)
             // Since streaming doesn't give size upfront, we do a quick count of <item> nodes in the file
             $totalCount = 0;
-            $xmlReader = new \XMLReader();
+            $xmlReader = new \XMLReader;
             if ($xmlReader->open($filePath)) {
                 while ($xmlReader->read()) {
                     if ($xmlReader->nodeType === \XMLReader::ELEMENT && $xmlReader->name === 'item') {
@@ -145,7 +147,7 @@ class ImportWordPressXmlJob implements ShouldQueue
                         $processedCount++;
                     }
                 } catch (\Throwable $e) {
-                    Log::error("Failed to import WXR item ID {$postId}: " . $e->getMessage());
+                    Log::error("Failed to import WXR item ID {$postId}: ".$e->getMessage());
                     $importer->logAction(
                         $batch->id,
                         (string) ($wpNs->post_id ?? 'N/A'),
@@ -154,29 +156,29 @@ class ImportWordPressXmlJob implements ShouldQueue
                         (string) ($item->title ?? 'N/A'),
                         'failed',
                         'error',
-                        'Lỗi khi xử lý bài viết: ' . $e->getMessage()
+                        'Lỗi khi xử lý bài viết: '.$e->getMessage()
                     );
                 }
             }
 
             // Set final counts
             $batch->update([
-                'status'      => 'completed',
+                'status' => 'completed',
                 'finished_at' => now(),
             ]);
 
             $importer->logAction($batch->id, null, 'system', null, null, 'completed', 'success', 'Hoàn tất quá trình nhập dữ liệu WordPress.');
 
         } catch (\Throwable $e) {
-            Log::error("WordPress Import Job failed: " . $e->getMessage());
-            
+            Log::error('WordPress Import Job failed: '.$e->getMessage());
+
             $batch->update([
-                'status'        => 'failed',
-                'finished_at'   => now(),
+                'status' => 'failed',
+                'finished_at' => now(),
                 'error_message' => $e->getMessage(),
             ]);
 
-            $importer->logAction($batch->id, null, 'system', null, null, 'failed', 'error', 'Import thất bại: ' . $e->getMessage());
+            $importer->logAction($batch->id, null, 'system', null, null, 'failed', 'error', 'Import thất bại: '.$e->getMessage());
         } finally {
             // Rebuild Caches and clear optimization configurations as requested
             try {
@@ -184,7 +186,7 @@ class ImportWordPressXmlJob implements ShouldQueue
                 Artisan::call('cache:clear');
                 Artisan::call('view:clear');
             } catch (\Throwable $e) {
-                Log::warning("Failed to clear caches after import job: " . $e->getMessage());
+                Log::warning('Failed to clear caches after import job: '.$e->getMessage());
             }
         }
     }

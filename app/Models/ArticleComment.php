@@ -25,21 +25,21 @@ class ArticleComment extends Model
     public static function statusOptions(): array
     {
         return [
-            'pending'  => 'Chờ duyệt',
+            'pending' => 'Chờ duyệt',
             'approved' => 'Đã duyệt',
             'rejected' => 'Từ chối',
-            'spam'     => 'Spam',
+            'spam' => 'Spam',
         ];
     }
 
     public static function statusColor(string $status): string
     {
         return match ($status) {
-            'pending'  => 'warning',
+            'pending' => 'warning',
             'approved' => 'success',
             'rejected' => 'danger',
-            'spam'     => 'gray',
-            default    => 'gray',
+            'spam' => 'gray',
+            default => 'gray',
         };
     }
 }

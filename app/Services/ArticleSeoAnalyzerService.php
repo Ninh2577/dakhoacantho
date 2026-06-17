@@ -12,7 +12,7 @@ class ArticleSeoAnalyzerService
     public function analyze(Article $article): array
     {
         $score = 0;
-        
+
         $keyword = trim($article->focus_keyword ?? '');
         $title = trim($article->title ?? '');
         $metaTitle = trim($article->meta_title ?? '');
@@ -24,7 +24,7 @@ class ArticleSeoAnalyzerService
         $thumbnail = trim($article->featured_image ?: ($article->thumbnail_image ?? ''));
         $canonical = trim($article->canonical_url ?? '');
         $schemaType = trim($article->schema_type ?? 'Article');
-        
+
         $ogTitle = trim($article->og_title ?? '');
         $ogDesc = trim($article->og_description ?? '');
         $ogImage = trim($article->og_image ?? '');
@@ -51,15 +51,15 @@ class ArticleSeoAnalyzerService
             // ==========================================
             // A. SEO CƠ BẢN — 30 điểm
             // ==========================================
-            
+
             // 1. Có từ khóa chính (5 điểm)
             $score += 5;
             $basicGroup['checks'][] = [
                 'key' => 'focus_keyword',
                 'label' => 'Từ khóa chính',
                 'status' => 'pass',
-                'message' => 'Đã cấu hình từ khóa chính: "' . $keyword . '"',
-                'points' => 5
+                'message' => 'Đã cấu hình từ khóa chính: "'.$keyword.'"',
+                'points' => 5,
             ];
 
             // 2. Từ khóa chính có trong tiêu đề bài viết (H1) (5 điểm)
@@ -72,7 +72,7 @@ class ArticleSeoAnalyzerService
                 'label' => 'Từ khóa chính trong H1',
                 'status' => $titleKwPass ? 'pass' : 'fail',
                 'message' => $titleKwPass ? 'Từ khóa chính xuất hiện trong Tiêu đề bài viết.' : 'Tiêu đề bài viết không chứa từ khóa chính.',
-                'points' => 5
+                'points' => 5,
             ];
 
             // 3. Từ khóa chính có trong SEO Title (meta_title) (5 điểm)
@@ -85,7 +85,7 @@ class ArticleSeoAnalyzerService
                 'label' => 'Từ khóa chính trong SEO Title',
                 'status' => $seoTitleKwPass ? 'pass' : 'fail',
                 'message' => $seoTitleKwPass ? 'Từ khóa chính xuất hiện trong SEO Title.' : 'SEO Title không chứa từ khóa chính.',
-                'points' => 5
+                'points' => 5,
             ];
 
             // 4. Từ khóa chính có trong Meta Description (5 điểm)
@@ -98,7 +98,7 @@ class ArticleSeoAnalyzerService
                 'label' => 'Từ khóa chính trong Meta Description',
                 'status' => $descKwPass ? 'pass' : 'fail',
                 'message' => $descKwPass ? 'Từ khóa chính xuất hiện trong Meta Description.' : 'Meta Description không chứa từ khóa chính.',
-                'points' => 5
+                'points' => 5,
             ];
 
             // 5. Từ khóa chính có trong Slug (5 điểm)
@@ -115,7 +115,7 @@ class ArticleSeoAnalyzerService
                 'label' => 'Từ khóa chính trong Slug URL',
                 'status' => $slugKwPass ? 'pass' : 'fail',
                 'message' => $slugKwPass ? 'Từ khóa chính xuất hiện trong URL.' : 'URL không chứa từ khóa chính.',
-                'points' => 5
+                'points' => 5,
             ];
 
             // 6. Có canonical URL hợp lệ hoặc tự canonical về URL bài viết (5 điểm)
@@ -125,10 +125,9 @@ class ArticleSeoAnalyzerService
                 'key' => 'canonical_check',
                 'label' => 'Thẻ Canonical',
                 'status' => 'pass',
-                'message' => $canonical !== '' ? 'Đã thiết lập Canonical URL: ' . $canonical : 'Tự động Canonical về URL bài viết.',
-                'points' => 5
+                'message' => $canonical !== '' ? 'Đã thiết lập Canonical URL: '.$canonical : 'Tự động Canonical về URL bài viết.',
+                'points' => 5,
             ];
-
 
             // ==========================================
             // B. TIÊU ĐỀ & META — 20 điểm
@@ -145,7 +144,7 @@ class ArticleSeoAnalyzerService
                 'label' => 'Độ dài Tiêu đề bài viết',
                 'status' => $titleLenPass ? 'pass' : 'fail',
                 'message' => "Độ dài Tiêu đề bài viết nên từ 40-70 ký tự. Hiện tại: $titleLength ký tự.",
-                'points' => 5
+                'points' => 5,
             ];
 
             // 2. SEO Title (meta_title) dài 50-60 ký tự (5 điểm)
@@ -159,7 +158,7 @@ class ArticleSeoAnalyzerService
                 'label' => 'Độ dài SEO Title',
                 'status' => $seoTitleLenPass ? 'pass' : 'fail',
                 'message' => "Độ dài SEO Title tốt nhất là 50-60 ký tự. Hiện tại: $seoTitleLength ký tự.",
-                'points' => 5
+                'points' => 5,
             ];
 
             // 3. Meta Description dài 140-160 ký tự (5 điểm)
@@ -173,7 +172,7 @@ class ArticleSeoAnalyzerService
                 'label' => 'Độ dài Meta Description',
                 'status' => $descLenPass ? 'pass' : 'fail',
                 'message' => "Độ dài Meta Description tốt nhất là 140-160 ký tự. Hiện tại: $descLength ký tự.",
-                'points' => 5
+                'points' => 5,
             ];
 
             // 4. Meta Description có CTA/lợi ích rõ ràng (5 điểm)
@@ -193,9 +192,8 @@ class ArticleSeoAnalyzerService
                 'label' => 'Từ kêu gọi hành động (CTA) / Lợi ích',
                 'status' => $hasCta ? 'pass' : 'fail',
                 'message' => $hasCta ? 'Thẻ Meta Description chứa từ kêu gọi hành động hoặc lợi ích.' : 'Nên thêm các từ kích thích click (ví dụ: ngay, nhanh chóng, an toàn, uy tín, liên hệ, miễn phí...).',
-                'points' => 5
+                'points' => 5,
             ];
-
 
             // ==========================================
             // C. NỘI DUNG — 25 điểm
@@ -211,7 +209,7 @@ class ArticleSeoAnalyzerService
                 'label' => 'Độ dài bài viết',
                 'status' => $wordCountPass ? 'pass' : 'fail',
                 'message' => "Độ dài khuyên dùng từ 800 từ trở lên. Hiện tại: $wordCount từ.",
-                'points' => 5
+                'points' => 5,
             ];
 
             // 2. Có ít nhất một H2 (5 điểm)
@@ -224,7 +222,7 @@ class ArticleSeoAnalyzerService
                 'label' => 'Sử dụng thẻ Heading H2',
                 'status' => $hasH2 ? 'pass' : 'fail',
                 'message' => $hasH2 ? 'Bài viết có chứa tiêu đề phụ H2.' : 'Vui lòng bổ sung ít nhất một tiêu đề phụ H2.',
-                'points' => 5
+                'points' => 5,
             ];
 
             // 3. Có 2-6 H2/H3 hợp lý (5 điểm)
@@ -240,7 +238,7 @@ class ArticleSeoAnalyzerService
                 'label' => 'Số lượng Heading H2 & H3',
                 'status' => $headingsPass ? 'pass' : 'fail',
                 'message' => "Nên có từ 2-6 thẻ H2/H3 trong bài viết. Hiện tại: $totalHeadings thẻ H2/H3.",
-                'points' => 5
+                'points' => 5,
             ];
 
             // 4. Mật độ từ khóa chính khoảng 0.5% - 2.5% (5 điểm)
@@ -254,8 +252,8 @@ class ArticleSeoAnalyzerService
                 'key' => 'keyword_density',
                 'label' => 'Mật độ từ khóa chính',
                 'status' => $densityPass ? 'pass' : 'warning',
-                'message' => "Mật độ khuyên dùng là 0.5% - 2.5%. Hiện tại: " . number_format($density, 2) . "% ($keywordCount lần).",
-                'points' => 5
+                'message' => 'Mật độ khuyên dùng là 0.5% - 2.5%. Hiện tại: '.number_format($density, 2)."% ($keywordCount lần).",
+                'points' => 5,
             ];
 
             // 5. Từ khóa xuất hiện trong 150 từ đầu (5 điểm)
@@ -269,9 +267,8 @@ class ArticleSeoAnalyzerService
                 'label' => 'Từ khóa ở đoạn mở đầu',
                 'status' => $first150Pass ? 'pass' : 'fail',
                 'message' => $first150Pass ? 'Từ khóa chính xuất hiện trong 150 từ đầu tiên.' : 'Từ khóa chính không được tìm thấy trong 150 từ đầu tiên.',
-                'points' => 5
+                'points' => 5,
             ];
-
 
             // ==========================================
             // D. LIÊN KẾT & HÌNH ẢNH — 15 điểm
@@ -287,7 +284,7 @@ class ArticleSeoAnalyzerService
                 'label' => 'Ảnh đại diện (Thumbnail)',
                 'status' => $hasThumbnail ? 'pass' : 'fail',
                 'message' => $hasThumbnail ? 'Đã cài đặt ảnh đại diện.' : 'Chưa cài đặt ảnh đại diện cho bài viết.',
-                'points' => 3
+                'points' => 3,
             ];
 
             // 2. Có ít nhất 1 ảnh trong nội dung (3 điểm)
@@ -302,7 +299,7 @@ class ArticleSeoAnalyzerService
                 'label' => 'Ảnh trong nội dung',
                 'status' => $hasContentImg ? 'pass' : 'fail',
                 'message' => $hasContentImg ? "Bài viết có $totalContentImgs ảnh trong nội dung." : 'Nên có ít nhất 1 ảnh minh họa trong phần nội dung.',
-                'points' => 3
+                'points' => 3,
             ];
 
             // 3. Ảnh có alt (3 điểm)
@@ -310,7 +307,7 @@ class ArticleSeoAnalyzerService
             $missingAltCount = 0;
             if ($totalContentImgs > 0) {
                 foreach ($contentImgs[0] as $imgTag) {
-                    if (!preg_match('/alt=["\'][^"\']+["\']/i', $imgTag)) {
+                    if (! preg_match('/alt=["\'][^"\']+["\']/i', $imgTag)) {
                         $missingAltCount++;
                     }
                 }
@@ -319,7 +316,7 @@ class ArticleSeoAnalyzerService
                 // If there are no images at all, they fail this check as well
                 $hasAltOnImages = false;
             }
-            
+
             if ($totalContentImgs > 0 && $hasAltOnImages) {
                 $score += 3;
             }
@@ -328,18 +325,18 @@ class ArticleSeoAnalyzerService
                 'label' => 'Thuộc tính Alt của hình ảnh',
                 'status' => ($totalContentImgs > 0 && $hasAltOnImages) ? 'pass' : 'warning',
                 'message' => ($totalContentImgs > 0 && $hasAltOnImages) ? 'Tất cả hình ảnh nội dung đều có Alt tag.' : ($totalContentImgs > 0 ? "Có $missingAltCount hình ảnh bị thiếu thuộc tính Alt." : 'Không có hình ảnh nội dung nào để kiểm tra Alt tag.'),
-                'points' => 3
+                'points' => 3,
             ];
 
             // 4. Có ít nhất 1 internal link (3 điểm)
             $hasInternalLink = false;
             $hasExternalLink = false;
             preg_match_all('/href=["\']([^"\']+)["\']/i', $content, $linksMatches);
-            if (!empty($linksMatches[1])) {
+            if (! empty($linksMatches[1])) {
                 foreach ($linksMatches[1] as $href) {
                     if (str_starts_with($href, '/') || str_contains($href, request()->getHost())) {
                         $hasInternalLink = true;
-                    } else if (str_starts_with($href, 'http') || str_starts_with($href, 'https')) {
+                    } elseif (str_starts_with($href, 'http') || str_starts_with($href, 'https')) {
                         $hasExternalLink = true;
                     }
                 }
@@ -352,7 +349,7 @@ class ArticleSeoAnalyzerService
                 'label' => 'Liên kết nội bộ (Internal Link)',
                 'status' => $hasInternalLink ? 'pass' : 'fail',
                 'message' => $hasInternalLink ? 'Bài viết chứa liên kết nội bộ.' : 'Cần thêm ít nhất 1 liên kết nội bộ hướng tới bài viết/trang khác của phòng khám.',
-                'points' => 3
+                'points' => 3,
             ];
 
             // 5. Có ít nhất 1 external link (3 điểm)
@@ -364,9 +361,8 @@ class ArticleSeoAnalyzerService
                 'label' => 'Liên kết ngoài (External Link)',
                 'status' => $hasExternalLink ? 'pass' : 'fail',
                 'message' => $hasExternalLink ? 'Bài viết chứa liên kết ngoài.' : 'Cần thêm ít nhất 1 liên kết ngoài hướng tới trang web uy tín để kiểm chứng dữ liệu.',
-                'points' => 3
+                'points' => 3,
             ];
-
 
             // ==========================================
             // E. KỸ THUẬT — 10 điểm
@@ -383,7 +379,7 @@ class ArticleSeoAnalyzerService
                 'label' => 'Độ dài Slug URL',
                 'status' => $slugLenPass ? 'pass' : 'fail',
                 'message' => "Slug nên ngắn gọn dưới 80 ký tự. Hiện tại: $slugLen ký tự.",
-                'points' => 3
+                'points' => 3,
             ];
 
             // 2. Không trùng SEO title với bài khác (2 điểm)
@@ -392,7 +388,7 @@ class ArticleSeoAnalyzerService
                 $titleQuery->where('id', '!=', $article->id);
             }
             $isTitleDuplicate = ($metaTitle !== '') && $titleQuery->exists();
-            if (!$isTitleDuplicate) {
+            if (! $isTitleDuplicate) {
                 $score += 2;
             }
             $technicalGroup['checks'][] = [
@@ -400,7 +396,7 @@ class ArticleSeoAnalyzerService
                 'label' => 'Độc nhất SEO Title',
                 'status' => $isTitleDuplicate ? 'fail' : 'pass',
                 'message' => $isTitleDuplicate ? 'Cảnh báo: SEO Title đã bị trùng với bài viết khác.' : 'SEO Title là độc nhất, không bị trùng lặp.',
-                'points' => 2
+                'points' => 2,
             ];
 
             // 3. Không trùng meta description với bài khác (2 điểm)
@@ -409,7 +405,7 @@ class ArticleSeoAnalyzerService
                 $descQuery->where('id', '!=', $article->id);
             }
             $isDescDuplicate = ($metaDesc !== '') && $descQuery->exists();
-            if (!$isDescDuplicate) {
+            if (! $isDescDuplicate) {
                 $score += 2;
             }
             $technicalGroup['checks'][] = [
@@ -417,11 +413,11 @@ class ArticleSeoAnalyzerService
                 'label' => 'Độc nhất Meta Description',
                 'status' => $isDescDuplicate ? 'fail' : 'pass',
                 'message' => $isDescDuplicate ? 'Cảnh báo: Meta Description bị trùng lặp với bài viết khác.' : 'Meta Description là độc nhất, không bị trùng lặp.',
-                'points' => 2
+                'points' => 2,
             ];
 
             // 4. Có schema type phù hợp (khác None) (3 điểm)
-            $hasSchema = !in_array(strtolower($schemaType), ['none', '']);
+            $hasSchema = ! in_array(strtolower($schemaType), ['none', '']);
             if ($hasSchema) {
                 $score += 3;
             }
@@ -430,7 +426,7 @@ class ArticleSeoAnalyzerService
                 'label' => 'Chọn cấu hình Schema JSON-LD',
                 'status' => $hasSchema ? 'pass' : 'fail',
                 'message' => $hasSchema ? "Đang sử dụng loại Schema: $schemaType" : 'Bạn chưa cấu hình Schema JSON-LD (nên chọn Article/MedicalWebPage).',
-                'points' => 3
+                'points' => 3,
             ];
 
         } else {
@@ -483,8 +479,8 @@ class ArticleSeoAnalyzerService
                 $titleMetaGroup,
                 $contentGroup,
                 $linkImageGroup,
-                $technicalGroup
-            ]
+                $technicalGroup,
+            ],
         ];
     }
 
@@ -509,10 +505,11 @@ class ArticleSeoAnalyzerService
             'U' => 'Ú|Ù|Ủ|Ũ|Ụ|Ư|Ứ|Ừ|Ử|Ữ|Ự',
             'Y' => 'Ý|À|Ỷ|Ỹ|Ỵ',
         ];
-        
+
         foreach ($unicode as $nonUnicode => $uni) {
             $str = preg_replace("/($uni)/i", $nonUnicode, $str);
         }
+
         return $str;
     }
 }

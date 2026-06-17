@@ -3,22 +3,23 @@
 namespace App\Filament\Pages;
 
 use App\Models\Setting;
-use Filament\Pages\Page;
-
-use Filament\Forms\Form;
+use Filament\Actions\Action;
 use Filament\Forms\Components\Builder;
 use Filament\Forms\Components\Builder\Block;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
-use Filament\Actions\Action;
-use Filament\Support\Exceptions\Halt;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Forms\Form;
 use Filament\Notifications\Notification;
+use Filament\Pages\Page;
+use Filament\Support\Exceptions\Halt;
 
-class HomePageSettings extends Page implements \Filament\Forms\Contracts\HasForms
+class HomePageSettings extends Page implements HasForms
 {
-    use \Filament\Forms\Concerns\InteractsWithForms;
+    use InteractsWithForms;
 
     protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
 
@@ -98,7 +99,7 @@ class HomePageSettings extends Page implements \Filament\Forms\Contracts\HasForm
         try {
             $data = $this->form->getState();
             Setting::set('homepage_layout', $data);
-            
+
             Notification::make()
                 ->title('Cấu hình đã được lưu!')
                 ->success()

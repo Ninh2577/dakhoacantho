@@ -36,25 +36,25 @@ class Consultation extends Model
     public static function statusOptions(): array
     {
         return [
-            'pending'   => 'Chờ xử lý',
+            'pending' => 'Chờ xử lý',
             'contacted' => 'Đã liên hệ',
-            'booked'    => 'Đã đặt lịch',
-            'visited'   => 'Đã đến khám',
+            'booked' => 'Đã đặt lịch',
+            'visited' => 'Đã đến khám',
             'cancelled' => 'Đã hủy',
-            'spam'      => 'Spam',
+            'spam' => 'Spam',
         ];
     }
 
     public static function statusColor(string $status): string
     {
         return match ($status) {
-            'pending'   => 'warning',
+            'pending' => 'warning',
             'contacted' => 'info',
-            'booked'    => 'primary',
-            'visited'   => 'success',
+            'booked' => 'primary',
+            'visited' => 'success',
             'cancelled' => 'danger',
-            'spam'      => 'gray',
-            default     => 'gray',
+            'spam' => 'gray',
+            default => 'gray',
         };
     }
 }

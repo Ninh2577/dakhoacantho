@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class FileScanResult extends Model
 {
@@ -33,18 +33,28 @@ class FileScanResult extends Model
 
     // Type constants
     const TYPE_SUSPICIOUS = 'suspicious';
-    const TYPE_MODIFIED   = 'modified';
-    const TYPE_NEW        = 'new';
-    const TYPE_DELETED    = 'deleted';
-    const TYPE_OK         = 'ok';
-    const TYPE_REVIEWED   = 'reviewed';
-    const TYPE_IGNORED    = 'ignored';
+
+    const TYPE_MODIFIED = 'modified';
+
+    const TYPE_NEW = 'new';
+
+    const TYPE_DELETED = 'deleted';
+
+    const TYPE_OK = 'ok';
+
+    const TYPE_REVIEWED = 'reviewed';
+
+    const TYPE_IGNORED = 'ignored';
 
     // Severity constants (mirrors SecurityEvent)
-    const SEVERITY_INFO     = 'info';
-    const SEVERITY_LOW      = 'low';
-    const SEVERITY_MEDIUM   = 'medium';
-    const SEVERITY_HIGH     = 'high';
+    const SEVERITY_INFO = 'info';
+
+    const SEVERITY_LOW = 'low';
+
+    const SEVERITY_MEDIUM = 'medium';
+
+    const SEVERITY_HIGH = 'high';
+
     const SEVERITY_CRITICAL = 'critical';
 
     public function scopeByScan(Builder $query, string $scanId): Builder
@@ -55,7 +65,7 @@ class FileScanResult extends Model
     public function scopeSuspicious(Builder $query): Builder
     {
         return $query->whereIn('type', [self::TYPE_SUSPICIOUS, self::TYPE_MODIFIED, self::TYPE_NEW])
-                     ->whereNull('ignored_at');
+            ->whereNull('ignored_at');
     }
 
     public function scopeCriticalOrHigh(Builder $query): Builder
@@ -85,5 +95,4 @@ class FileScanResult extends Model
             'ignored_reason' => $reason,
         ]);
     }
-
 }

@@ -6,11 +6,12 @@ use App\Filament\Resources\ArticleCommentResource\Pages;
 use App\Models\ArticleComment;
 use Filament\Forms;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
-use Filament\Notifications\Notification;
+use Illuminate\Database\Eloquent\Collection;
 
 class ArticleCommentResource extends Resource
 {
@@ -120,7 +121,7 @@ class ArticleCommentResource extends Resource
             ])
             ->actions([
                 Tables\Actions\EditAction::make()->label('Sửa'),
-                
+
                 Tables\Actions\Action::make('approve')
                     ->label('Duyệt')
                     ->icon('heroicon-o-check')
@@ -159,7 +160,7 @@ class ArticleCommentResource extends Resource
                             ->success()
                             ->send();
                     }),
-                
+
                 Tables\Actions\DeleteAction::make()->label('Xóa'),
             ])
             ->bulkActions([
@@ -169,7 +170,7 @@ class ArticleCommentResource extends Resource
                         ->label('Duyệt hàng loạt')
                         ->icon('heroicon-o-check')
                         ->color('success')
-                        ->action(fn (\Illuminate\Database\Eloquent\Collection $records) => $records->each->update(['status' => 'approved'])),
+                        ->action(fn (Collection $records) => $records->each->update(['status' => 'approved'])),
                 ]),
             ])
             ->emptyStateIcon('heroicon-o-chat-bubble-left-right')
@@ -185,9 +186,9 @@ class ArticleCommentResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListArticleComments::route('/'),
+            'index' => Pages\ListArticleComments::route('/'),
             'create' => Pages\CreateArticleComment::route('/create'),
-            'edit'   => Pages\EditArticleComment::route('/{record}/edit'),
+            'edit' => Pages\EditArticleComment::route('/{record}/edit'),
         ];
     }
 }

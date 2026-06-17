@@ -7,15 +7,17 @@ use App\Models\Consultation;
 use App\Models\Patient;
 use App\Models\User;
 use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Forms\Components\Grid;
 use Filament\Forms\Components\Section;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Form;
 use Filament\Notifications\Notification;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Table;
 use Filament\Tables\Actions\Action;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Collection;
 
 class ConsultationResource extends Resource
 {
@@ -49,7 +51,7 @@ class ConsultationResource extends Resource
                                     Forms\Components\TextInput::make('department')
                                         ->label('Chuyên khoa')
                                         ->maxLength(255),
-                                    Forms\Components\Select::make('assigned_to')
+                                    Select::make('assigned_to')
                                         ->label('Người phụ trách')
                                         ->options(User::pluck('name', 'id'))
                                         ->searchable()
@@ -73,7 +75,7 @@ class ConsultationResource extends Resource
                     Grid::make(1)->columnSpan(1)->schema([
                         Section::make('📋 Trạng thái xử lý')
                             ->schema([
-                                Forms\Components\Select::make('status')
+                                Select::make('status')
                                     ->label('Trạng thái')
                                     ->options(Consultation::statusOptions())
                                     ->required()
@@ -160,19 +162,19 @@ class ConsultationResource extends Resource
 
                         // Create patient from consultation data
                         $patient = Patient::create([
-                            'full_name'       => $record->name,
-                            'phone'           => $record->phone,
-                            'notes'           => $record->symptoms,
-                            'status'          => 'new',
-                            'source'          => 'Tư vấn online',
+                            'full_name' => $record->name,
+                            'phone' => $record->phone,
+                            'notes' => $record->symptoms,
+                            'status' => 'new',
+                            'source' => 'Tư vấn online',
                             'consultation_id' => $record->id,
-                            'created_by'      => auth()->id(),
+                            'created_by' => auth()->id(),
                         ]);
 
                         // Link consultation back to patient
                         $record->update([
-                            'patient_id'               => $patient->id,
-                            'converted_to_patient_at'  => now(),
+                            'patient_id' => $patient->id,
+                            'converted_to_patient_at' => now(),
                         ]);
 
                         Notification::make()
@@ -193,12 +195,12 @@ class ConsultationResource extends Resource
                         ->label('Đổi trạng thái')
                         ->icon('heroicon-o-arrow-path')
                         ->form([
-                            \Filament\Forms\Components\Select::make('status')
+                            Select::make('status')
                                 ->label('Trạng thái mới')
                                 ->options(Consultation::statusOptions())
                                 ->required(),
                         ])
-                        ->action(function (\Illuminate\Database\Eloquent\Collection $records, array $data): void {
+                        ->action(function (Collection $records, array $data): void {
                             $records->each->update(['status' => $data['status']]);
                         }),
                 ]),
@@ -213,9 +215,9 @@ class ConsultationResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index'  => Pages\ListConsultations::route('/'),
+            'index' => Pages\ListConsultations::route('/'),
             'create' => Pages\CreateConsultation::route('/create'),
-            'edit'   => Pages\EditConsultation::route('/{record}/edit'),
+            'edit' => Pages\EditConsultation::route('/{record}/edit'),
         ];
     }
 }

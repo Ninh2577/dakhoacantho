@@ -4,12 +4,12 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\LoginAttemptResource\Pages;
 use App\Models\LoginAttempt;
+use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Table;
-use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
-use Filament\Forms\Form;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 
 class LoginAttemptResource extends Resource
@@ -113,6 +113,7 @@ class LoginAttemptResource extends Resource
     {
         try {
             $count = LoginAttempt::failed()->today()->count();
+
             return $count > 0 ? (string) $count : null;
         } catch (\Throwable) {
             return null;

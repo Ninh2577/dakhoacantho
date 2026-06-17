@@ -16,7 +16,7 @@ class TinyMCEUploadController extends Controller
     public function upload(Request $request)
     {
         // 1. Authorize - only logged in users with admin role
-        if (!auth()->check() || auth()->user()->role !== 'admin') {
+        if (! auth()->check() || auth()->user()->role !== 'admin') {
             return response()->json(['error' => 'Unauthorized access.'], 403);
         }
 
@@ -37,31 +37,31 @@ class TinyMCEUploadController extends Controller
         }
 
         $file = $request->file($fileKey);
-        if (!$file->isValid()) {
+        if (! $file->isValid()) {
             return response()->json(['error' => 'Invalid file upload.'], 400);
         }
 
         // 3. Define directory path: uploads/articles/YYYY/MM
         $year = date('Y');
         $month = date('m');
-        
+
         // Sanitize original filename and append timestamp
         $originalName = pathinfo($file->getClientOriginalName(), PATHINFO_FILENAME);
         $extension = $file->getClientOriginalExtension();
-        $fileName = Str::slug($originalName) . '-' . time() . '.' . $extension;
+        $fileName = Str::slug($originalName).'-'.time().'.'.$extension;
 
         // Store file on the public disk
         $path = $file->storeAs("uploads/articles/{$year}/{$month}", $fileName, 'public');
 
-        if (!$path) {
+        if (! $path) {
             return response()->json(['error' => 'Failed to store uploaded file.'], 500);
         }
 
         // 4. Return correct JSON structure expected by TinyMCE
         $url = Storage::disk('public')->url($path);
 
-        if (!str_starts_with($url, 'http://') && !str_starts_with($url, 'https://')) {
-            $url = rtrim(config('app.url'), '/') . '/' . ltrim($url, '/');
+        if (! str_starts_with($url, 'http://') && ! str_starts_with($url, 'https://')) {
+            $url = rtrim(config('app.url'), '/').'/'.ltrim($url, '/');
         }
 
         // Force HTTPS if APP_URL is configured as HTTPS to avoid mixed content
@@ -70,7 +70,7 @@ class TinyMCEUploadController extends Controller
         }
 
         return response()->json([
-            'location' => $url
+            'location' => $url,
         ]);
     }
 }

@@ -14,11 +14,11 @@ return [
     | Login Brute-Force Protection
     |--------------------------------------------------------------------------
     */
-    'max_failed_logins_per_ip'    => (int) env('SECURITY_MAX_FAILED_IP', 10),
+    'max_failed_logins_per_ip' => (int) env('SECURITY_MAX_FAILED_IP', 10),
     'max_failed_logins_per_email' => (int) env('SECURITY_MAX_FAILED_EMAIL', 5),
-    'lockout_minutes'             => (int) env('SECURITY_LOCKOUT_MINUTES', 15),
-    'auto_block_enabled'          => (bool) env('SECURITY_AUTO_BLOCK', false),
-    'permanent_block_enabled'     => (bool) env('SECURITY_PERMANENT_BLOCK', false),
+    'lockout_minutes' => (int) env('SECURITY_LOCKOUT_MINUTES', 15),
+    'auto_block_enabled' => (bool) env('SECURITY_AUTO_BLOCK', false),
+    'permanent_block_enabled' => (bool) env('SECURITY_PERMANENT_BLOCK', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -32,9 +32,9 @@ return [
     | File Scanner
     |--------------------------------------------------------------------------
     */
-    'scan_uploads'           => (bool) env('SECURITY_SCAN_UPLOADS', true),
-    'scan_public'            => (bool) env('SECURITY_SCAN_PUBLIC', true),
-    'max_scan_file_size_mb'  => (int) env('SECURITY_MAX_SCAN_FILE_MB', 2),
+    'scan_uploads' => (bool) env('SECURITY_SCAN_UPLOADS', true),
+    'scan_public' => (bool) env('SECURITY_SCAN_PUBLIC', true),
+    'max_scan_file_size_mb' => (int) env('SECURITY_MAX_SCAN_FILE_MB', 2),
 
     /*
     |--------------------------------------------------------------------------
@@ -49,12 +49,12 @@ return [
     | Log Retention (days)
     |--------------------------------------------------------------------------
     */
-    'retention_days_info'     => (int) env('SECURITY_RETENTION_INFO', 30),
-    'retention_days_low'      => (int) env('SECURITY_RETENTION_LOW', 30),
-    'retention_days_medium'   => (int) env('SECURITY_RETENTION_MEDIUM', 60),
-    'retention_days_high'     => (int) env('SECURITY_RETENTION_HIGH', 180),
+    'retention_days_info' => (int) env('SECURITY_RETENTION_INFO', 30),
+    'retention_days_low' => (int) env('SECURITY_RETENTION_LOW', 30),
+    'retention_days_medium' => (int) env('SECURITY_RETENTION_MEDIUM', 60),
+    'retention_days_high' => (int) env('SECURITY_RETENTION_HIGH', 180),
     'retention_days_critical' => (int) env('SECURITY_RETENTION_CRITICAL', 365),
-    'retention_days_login'    => (int) env('SECURITY_RETENTION_LOGIN', 60),
+    'retention_days_login' => (int) env('SECURITY_RETENTION_LOGIN', 60),
 
     /*
     |--------------------------------------------------------------------------

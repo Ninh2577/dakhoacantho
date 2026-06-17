@@ -3,8 +3,9 @@
 namespace App\Filament\Resources\CategoryResource\Pages;
 
 use App\Filament\Resources\CategoryResource;
-use SolutionForest\FilamentTree\Resources\Pages\TreePage;
 use SolutionForest\FilamentTree\Actions;
+use SolutionForest\FilamentTree\Components\Tree;
+use SolutionForest\FilamentTree\Resources\Pages\TreePage;
 
 class ListCategories extends TreePage
 {
@@ -26,7 +27,7 @@ class ListCategories extends TreePage
         ];
     }
 
-    public static function tree(\SolutionForest\FilamentTree\Components\Tree $tree): \SolutionForest\FilamentTree\Components\Tree
+    public static function tree(Tree $tree): Tree
     {
         return CategoryResource::tree($tree);
     }

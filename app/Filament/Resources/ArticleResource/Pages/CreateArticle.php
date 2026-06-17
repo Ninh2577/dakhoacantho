@@ -3,8 +3,13 @@
 namespace App\Filament\Resources\ArticleResource\Pages;
 
 use App\Filament\Resources\ArticleResource;
+use App\Models\Article;
+use App\Services\ArticleSeoAnalyzerService;
 use Filament\Actions;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Str;
 
 class CreateArticle extends CreateRecord
 {
@@ -29,11 +34,11 @@ class CreateArticle extends CreateRecord
                 ->color('info')
                 ->url('#')
                 ->extraAttributes([
-                    'x-on:click' => "
-                        \$event.preventDefault();
-                        \$event.stopImmediatePropagation();
-                        window.triggerArticlePreview(\$wire, \$el);
-                    "
+                    'x-on:click' => '
+                        $event.preventDefault();
+                        $event.stopImmediatePropagation();
+                        window.triggerArticlePreview($wire, $el);
+                    ',
                 ]),
             Actions\Action::make('save_draft')
                 ->label('Lưu nháp')
@@ -65,7 +70,7 @@ class CreateArticle extends CreateRecord
             $title = $this->data['title'] ?? '';
             if (empty($title)) {
                 $title = 'Bản xem trước';
-                \Filament\Notifications\Notification::make()
+                Notification::make()
                     ->title('Cảnh báo xem trước')
                     ->body('Tiêu đề đang trống, sử dụng tên tạm "Bản xem trước" để hiển thị.')
                     ->warning()
@@ -73,11 +78,11 @@ class CreateArticle extends CreateRecord
             }
 
             // FileUpload fields may return array on some hosting environments — extract scalar
-            $featuredImage  = $this->extractFileUploadPath($this->data['featured_image'] ?? null);
-            $ogImage        = $this->extractFileUploadPath($this->data['og_image'] ?? null);
-            $twitterImage   = $this->extractFileUploadPath($this->data['twitter_image'] ?? null);
+            $featuredImage = $this->extractFileUploadPath($this->data['featured_image'] ?? null);
+            $ogImage = $this->extractFileUploadPath($this->data['og_image'] ?? null);
+            $twitterImage = $this->extractFileUploadPath($this->data['twitter_image'] ?? null);
 
-            $previewUuid = (string) \Illuminate\Support\Str::uuid();
+            $previewUuid = (string) Str::uuid();
 
             \Illuminate\Support\Facades\Log::info('CreateArticle PREVIEW_BEFORE_SAVE', [
                 'preview_uuid' => $previewUuid,
@@ -90,30 +95,30 @@ class CreateArticle extends CreateRecord
             ]);
 
             $payload = [
-                'preview_uuid'        => $previewUuid,
-                'cached_auth_id'      => auth()->id(),
-                'title'               => $title,
-                'slug'                => $this->data['slug'] ?? '',
-                'content'             => $this->data['content'] ?? '',
-                'excerpt'             => $this->data['excerpt'] ?? '',
-                'featured_image'      => $featuredImage,
-                'category_id'         => $this->data['category_id'] ?? null,
-                'author_id'           => $this->data['author_id'] ?? auth()->id(),
-                'meta_title'          => $this->data['meta_title'] ?? null,
-                'meta_description'    => $this->data['meta_description'] ?? null,
-                'canonical_url'       => $this->data['canonical_url'] ?? null,
-                'schema_type'         => $this->data['schema_type'] ?? 'Article',
-                'og_title'            => $this->data['og_title'] ?? null,
-                'og_description'      => $this->data['og_description'] ?? null,
-                'og_image'            => $ogImage,
-                'twitter_title'       => $this->data['twitter_title'] ?? null,
+                'preview_uuid' => $previewUuid,
+                'cached_auth_id' => auth()->id(),
+                'title' => $title,
+                'slug' => $this->data['slug'] ?? '',
+                'content' => $this->data['content'] ?? '',
+                'excerpt' => $this->data['excerpt'] ?? '',
+                'featured_image' => $featuredImage,
+                'category_id' => $this->data['category_id'] ?? null,
+                'author_id' => $this->data['author_id'] ?? auth()->id(),
+                'meta_title' => $this->data['meta_title'] ?? null,
+                'meta_description' => $this->data['meta_description'] ?? null,
+                'canonical_url' => $this->data['canonical_url'] ?? null,
+                'schema_type' => $this->data['schema_type'] ?? 'Article',
+                'og_title' => $this->data['og_title'] ?? null,
+                'og_description' => $this->data['og_description'] ?? null,
+                'og_image' => $ogImage,
+                'twitter_title' => $this->data['twitter_title'] ?? null,
                 'twitter_description' => $this->data['twitter_description'] ?? null,
-                'twitter_image'       => $twitterImage,
-                'previewed_at'        => now()->toDateTimeString(),
+                'twitter_image' => $twitterImage,
+                'previewed_at' => now()->toDateTimeString(),
             ];
 
             // Write to Cache
-            \Illuminate\Support\Facades\Cache::put("preview:{$previewUuid}", $payload, now()->addMinutes(10));
+            Cache::put("preview:{$previewUuid}", $payload, now()->addMinutes(10));
 
             // Write to Session (for backwards compatibility)
             session()->put('article_preview_create', $payload);
@@ -144,14 +149,14 @@ class CreateArticle extends CreateRecord
             $this->dispatch('open-preview-failed');
             \Log::error('CREATE_PREVIEW_ARTICLE_ERROR', [
                 'message' => $e->getMessage(),
-                'file'    => $e->getFile(),
-                'line'    => $e->getLine(),
-                'trace'   => $e->getTraceAsString(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
             ]);
 
-            \Filament\Notifications\Notification::make()
+            Notification::make()
                 ->title('Lỗi xem trước')
-                ->body('Không thể tạo bản xem trước: ' . $e->getMessage())
+                ->body('Không thể tạo bản xem trước: '.$e->getMessage())
                 ->danger()
                 ->send();
         }
@@ -175,8 +180,10 @@ class CreateArticle extends CreateRecord
                 ->flatten()
                 ->filter(fn ($item) => is_string($item) && $item !== '')
                 ->first();
+
             return $first ?? null;
         }
+
         return null;
     }
 
@@ -195,8 +202,8 @@ class CreateArticle extends CreateRecord
             $data['author_id'] = auth()->id();
         }
 
-        $article = new \App\Models\Article($data);
-        $analyzer = new \App\Services\ArticleSeoAnalyzerService();
+        $article = new Article($data);
+        $analyzer = new ArticleSeoAnalyzerService;
         $result = $analyzer->analyze($article);
 
         $data['seo_score'] = $result['score'];

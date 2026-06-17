@@ -2,14 +2,13 @@
 
 namespace App\Console\Commands;
 
+use App\Models\Article;
+use App\Models\Category;
+use App\Services\ArticleSeoAnalyzerService;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
-use App\Models\Category;
-use App\Models\Article;
-use App\Services\ArticleSeoAnalyzerService;
 
 class ImportOldArticles extends Command
 {
@@ -31,10 +30,15 @@ class ImportOldArticles extends Command
 
     // Statistics trackers
     protected $totalWpFound = 0;
+
     protected $importedCount = 0;
+
     protected $skippedCount = 0;
+
     protected $failedCount = 0;
+
     protected $missingImagesCount = 0;
+
     protected $createdCategoriesCount = 0;
 
     /**
@@ -45,9 +49,9 @@ class ImportOldArticles extends Command
         $dryRun = $this->option('dry-run');
         $limit = $this->option('limit') ? (int) $this->option('limit') : null;
 
-        $this->info("=== Starting WordPress Migration ===");
+        $this->info('=== Starting WordPress Migration ===');
         if ($dryRun) {
-            $this->warn("!!! RUNNING IN DRY-RUN MODE (No database writes or file copies will occur) !!!");
+            $this->warn('!!! RUNNING IN DRY-RUN MODE (No database writes or file copies will occur) !!!');
         }
 
         // Initialize log file (clear old logs or create a header)
@@ -58,33 +62,35 @@ class ImportOldArticles extends Command
         // Step 1: Check Connection to old database
         try {
             DB::connection('old_mysql')->getPdo();
-            $this->info("Connected successfully to old WordPress database (connection: old_mysql).");
+            $this->info('Connected successfully to old WordPress database (connection: old_mysql).');
         } catch (\Exception $e) {
-            $this->error("Failed to connect to old database connection 'old_mysql'. Error: " . $e->getMessage());
+            $this->error("Failed to connect to old database connection 'old_mysql'. Error: ".$e->getMessage());
             $this->logAction('SYSTEM', 'N/A', 'N/A', 'DB_CONN_FAIL', null, $e->getMessage());
+
             return 1;
         }
 
         // Step 2: Database Backup (only if NOT dry-run)
-        if (!$dryRun) {
+        if (! $dryRun) {
             if ($this->runBackup() !== 0) {
-                $this->error("Halting migration: Backup failed. Database safety is a critical priority.");
+                $this->error('Halting migration: Backup failed. Database safety is a critical priority.');
+
                 return 1;
             }
         }
 
         // Step 3: Verify Public Storage Link (only if NOT dry-run)
-        if (!$dryRun) {
+        if (! $dryRun) {
             $storageLinkExists = File::exists(public_path('storage'));
-            if (!$storageLinkExists) {
-                $this->info("Creating public storage symlink...");
+            if (! $storageLinkExists) {
+                $this->info('Creating public storage symlink...');
                 try {
                     $this->call('storage:link');
                 } catch (\Exception $e) {
-                    $this->warn("Failed to create storage symlink automatically: " . $e->getMessage());
+                    $this->warn('Failed to create storage symlink automatically: '.$e->getMessage());
                 }
             } else {
-                $this->info("Public storage link exists and is stable.");
+                $this->info('Public storage link exists and is stable.');
             }
         }
 
@@ -105,13 +111,14 @@ class ImportOldArticles extends Command
             }
             $this->table($headers, $rows);
         } catch (\Exception $e) {
-            $this->error("Failed to fetch post status counts: " . $e->getMessage());
+            $this->error('Failed to fetch post status counts: '.$e->getMessage());
             $this->logAction('SYSTEM', 'N/A', 'N/A', 'STATUS_REPORT_FAIL', null, $e->getMessage());
+
             return 1;
         }
 
         // Step 5: Load and Map Categories Hierarchically
-        $this->info("Fetching and mapping WordPress categories...");
+        $this->info('Fetching and mapping WordPress categories...');
         try {
             $wpCategories = DB::connection('old_mysql')
                 ->table('bqtdbhah0_terms as t')
@@ -120,8 +127,9 @@ class ImportOldArticles extends Command
                 ->select('t.term_id', 't.name', 't.slug', 'tt.description', 'tt.parent')
                 ->get();
         } catch (\Exception $e) {
-            $this->error("Failed to load WordPress categories: " . $e->getMessage());
+            $this->error('Failed to load WordPress categories: '.$e->getMessage());
             $this->logAction('SYSTEM', 'N/A', 'N/A', 'FETCH_CATEGORIES_FAIL', null, $e->getMessage());
+
             return 1;
         }
 
@@ -133,13 +141,13 @@ class ImportOldArticles extends Command
                 'slug' => $wpCat->slug,
                 'description' => $wpCat->description,
                 'parent' => (int) $wpCat->parent,
-                'depth' => -1 // placeholder
+                'depth' => -1, // placeholder
             ];
         }
 
         // Compute hierarchy depth recursively
         $computeDepth = function ($termId) use (&$categoriesByWpId, &$computeDepth) {
-            if (!isset($categoriesByWpId[$termId])) {
+            if (! isset($categoriesByWpId[$termId])) {
                 return 0;
             }
             if ($categoriesByWpId[$termId]['depth'] !== -1) {
@@ -147,10 +155,12 @@ class ImportOldArticles extends Command
             }
             if ($categoriesByWpId[$termId]['parent'] === 0) {
                 $categoriesByWpId[$termId]['depth'] = 0;
+
                 return 0;
             }
             $parentDepth = $computeDepth($categoriesByWpId[$termId]['parent']);
             $categoriesByWpId[$termId]['depth'] = 1 + $parentDepth;
+
             return $categoriesByWpId[$termId]['depth'];
         };
 
@@ -160,18 +170,18 @@ class ImportOldArticles extends Command
 
         // Category matching & creation mapping logic
         $targetCategoryIdMap = []; // wp_term_id => target_category_id
-        
+
         // Ensure default category exists in target
         $defaultCategory = Category::where('slug', 'khong-phan-loai')
             ->orWhere('name', 'Chưa được phân loại')
             ->first();
-        if (!$defaultCategory) {
-            if (!$dryRun) {
+        if (! $defaultCategory) {
+            if (! $dryRun) {
                 $defaultCategory = Category::create([
                     'name' => 'Chưa được phân loại',
                     'slug' => 'khong-phan-loai',
                     'parent_id' => -1,
-                    'order' => 1
+                    'order' => 1,
                 ]);
             } else {
                 $defaultCategory = (object) ['id' => 1, 'name' => 'Chưa được phân loại', 'slug' => 'khong-phan-loai'];
@@ -189,7 +199,7 @@ class ImportOldArticles extends Command
                 return $targetCategoryIdMap[$wpTermId];
             }
 
-            if (!isset($categoriesByWpId[$wpTermId])) {
+            if (! isset($categoriesByWpId[$wpTermId])) {
                 return $defaultCategory->id;
             }
 
@@ -208,13 +218,14 @@ class ImportOldArticles extends Command
             $targetCat = Category::where('slug', $slug)->first();
 
             // Match by name if slug not found
-            if (!$targetCat) {
+            if (! $targetCat) {
                 $targetCat = Category::where('name', $name)->first();
             }
 
             if ($targetCat) {
                 $targetCategoryIdMap[$wpTermId] = $targetCat->id;
                 $this->logAction($wpTermId, $slug, $name, 'matched_category', $targetCat->id);
+
                 return $targetCat->id;
             }
 
@@ -224,6 +235,7 @@ class ImportOldArticles extends Command
                 $targetCategoryIdMap[$wpTermId] = $simulatedId;
                 $this->logAction($wpTermId, $slug, $name, 'created_category (simulated)', $simulatedId);
                 $this->createdCategoriesCount++;
+
                 return $simulatedId;
             }
 
@@ -231,7 +243,7 @@ class ImportOldArticles extends Command
             $originalSlug = $slug;
             $suffix = 1;
             while (Category::where('slug', $slug)->exists()) {
-                $slug = $originalSlug . '-' . $suffix;
+                $slug = $originalSlug.'-'.$suffix;
                 $suffix++;
             }
 
@@ -240,12 +252,13 @@ class ImportOldArticles extends Command
                 'slug' => $slug,
                 'description' => $wpCat['description'] ?? '',
                 'parent_id' => $parentTargetId,
-                'order' => 1
+                'order' => 1,
             ]);
 
             $targetCategoryIdMap[$wpTermId] = $newCat->id;
             $this->logAction($wpTermId, $slug, $name, 'created_category', $newCat->id);
             $this->createdCategoriesCount++;
+
             return $newCat->id;
         };
 
@@ -256,7 +269,7 @@ class ImportOldArticles extends Command
         $this->info("Categories mapping complete. Created {$this->createdCategoriesCount} new categories.");
 
         // Step 6: Query and Import Articles (using chunking to limit memory usage)
-        $this->info("Fetching WordPress published posts...");
+        $this->info('Fetching WordPress published posts...');
         try {
             $postsQuery = DB::connection('old_mysql')
                 ->table('bqtdbhah0_posts')
@@ -272,13 +285,15 @@ class ImportOldArticles extends Command
             $this->totalWpFound = $postsQuery->count();
             $this->info("Found {$this->totalWpFound} posts matching criteria.");
         } catch (\Exception $e) {
-            $this->error("Failed to query published posts: " . $e->getMessage());
+            $this->error('Failed to query published posts: '.$e->getMessage());
             $this->logAction('SYSTEM', 'N/A', 'N/A', 'QUERY_POSTS_FAIL', null, $e->getMessage());
+
             return 1;
         }
 
         if ($this->totalWpFound === 0) {
-            $this->warn("No published posts found to migrate.");
+            $this->warn('No published posts found to migrate.');
+
             return 0;
         }
 
@@ -290,10 +305,10 @@ class ImportOldArticles extends Command
         $chunkSize = 50;
         $processedCount = 0;
 
-        $postsQuery->chunk($chunkSize, function ($posts) use ($migrateCategory, $targetCategoryIdMap, $categoriesByWpId, $defaultCategory, $dryRun, $progressBar, &$processedCount, $limit) {
+        $postsQuery->chunk($chunkSize, function ($posts) use ($migrateCategory, $categoriesByWpId, $defaultCategory, $dryRun, $progressBar, &$processedCount, $limit) {
             // Bulk fetch term relationships for these posts
             $postIds = $posts->pluck('ID')->toArray();
-            
+
             $relationships = DB::connection('old_mysql')
                 ->table('bqtdbhah0_term_relationships as tr')
                 ->join('bqtdbhah0_term_taxonomy as tt', 'tr.term_taxonomy_id', '=', 'tt.term_taxonomy_id')
@@ -314,7 +329,7 @@ class ImportOldArticles extends Command
                     'rank_math_title',
                     'rank_math_description',
                     'rank_math_focus_keyword',
-                    '_thumbnail_id'
+                    '_thumbnail_id',
                 ])
                 ->get()
                 ->groupBy('post_id');
@@ -330,7 +345,7 @@ class ImportOldArticles extends Command
             $thumbnailIds = array_unique(array_filter($thumbnailIds));
 
             $attachmentPaths = [];
-            if (!empty($thumbnailIds)) {
+            if (! empty($thumbnailIds)) {
                 $attachmentPaths = DB::connection('old_mysql')
                     ->table('bqtdbhah0_postmeta')
                     ->whereIn('post_id', $thumbnailIds)
@@ -354,14 +369,15 @@ class ImportOldArticles extends Command
                     $this->skippedCount++;
                     $progressBar->advance();
                     $processedCount++;
+
                     continue;
                 }
 
                 // Determine category (deepest child preferred)
                 $chosenCategoryId = $defaultCategory->id;
                 $associatedWpTermIds = isset($relationships[$post->ID]) ? $relationships[$post->ID]->pluck('term_id')->toArray() : [];
-                
-                if (!empty($associatedWpTermIds)) {
+
+                if (! empty($associatedWpTermIds)) {
                     $validCats = [];
                     foreach ($associatedWpTermIds as $termId) {
                         if (isset($categoriesByWpId[$termId])) {
@@ -369,7 +385,7 @@ class ImportOldArticles extends Command
                         }
                     }
 
-                    if (!empty($validCats)) {
+                    if (! empty($validCats)) {
                         // Sort by depth descending
                         usort($validCats, function ($a, $b) {
                             return $b['depth'] <=> $a['depth'];
@@ -381,7 +397,7 @@ class ImportOldArticles extends Command
 
                 // Retrieve SEO Metadata
                 $metaGroup = $postmetas->get($post->ID) ?: collect();
-                
+
                 $metaTitle = $metaGroup->where('meta_key', 'rank_math_title')->first()->meta_value ??
                              $metaGroup->where('meta_key', '_yoast_wpseo_title')->first()->meta_value ??
                              null;
@@ -426,8 +442,8 @@ class ImportOldArticles extends Command
                 // 1. Convert WordPress [caption] shortcodes into standard HTML <figure>
                 $content = preg_replace_callback('/\[caption[^\]]*\](.*?)\[\/caption\]/is', function ($matches) {
                     return '<figure class="wp-caption flex flex-col items-center justify-center my-6 p-2 bg-slate-50 border border-slate-100 rounded-2xl max-w-full mx-auto">'
-                         . trim($matches[1])
-                         . '</figure>';
+                         .trim($matches[1])
+                         .'</figure>';
                 }, $content);
 
                 // 2. Clean content: Strip script tags
@@ -468,7 +484,7 @@ class ImportOldArticles extends Command
                 // Integrate SEO analyzer inside try-catch block
                 try {
                     $tempArticle = new Article($articleData);
-                    $analyzer = new ArticleSeoAnalyzerService();
+                    $analyzer = new ArticleSeoAnalyzerService;
                     $seoResult = $analyzer->analyze($tempArticle);
                     $articleData['seo_score'] = $seoResult['score'] ?? 0;
                     $articleData['seo_checks'] = json_encode($seoResult);
@@ -480,7 +496,7 @@ class ImportOldArticles extends Command
 
                 // Insert into Target Database if not in dry-run
                 try {
-                    if (!$dryRun) {
+                    if (! $dryRun) {
                         $newArticle = Article::create($articleData);
                         $targetId = $newArticle->id;
                         $this->logAction($post->ID, $slug, $title, 'imported_article', $targetId);
@@ -503,19 +519,19 @@ class ImportOldArticles extends Command
         $this->newLine(2);
 
         // Step 7: Clear Caches (only if NOT dry-run and imported anything)
-        if (!$dryRun && $this->importedCount > 0) {
-            $this->info("Clearing application view and cache files...");
+        if (! $dryRun && $this->importedCount > 0) {
+            $this->info('Clearing application view and cache files...');
             try {
                 $this->call('view:clear');
                 $this->call('cache:clear');
-                $this->info("Caches cleared successfully.");
+                $this->info('Caches cleared successfully.');
             } catch (\Exception $e) {
-                $this->warn("Failed to clear caches: " . $e->getMessage());
+                $this->warn('Failed to clear caches: '.$e->getMessage());
             }
         }
 
         // Display Migration Summary
-        $this->info("=== Migration Summary ===");
+        $this->info('=== Migration Summary ===');
         $summaryHeaders = ['Metric', 'Count'];
         $summaryRows = [
             ['Total Published WP Posts Found', $this->totalWpFound],
@@ -526,8 +542,8 @@ class ImportOldArticles extends Command
             ['Categories Created / Matched', $this->createdCategoriesCount],
         ];
         $this->table($summaryHeaders, $summaryRows);
-        $this->info("Detailed audit logs are written to: storage/logs/article-import.log");
-        $this->info("=== WordPress Migration Finished ===");
+        $this->info('Detailed audit logs are written to: storage/logs/article-import.log');
+        $this->info('=== WordPress Migration Finished ===');
 
         return 0;
     }
@@ -538,13 +554,13 @@ class ImportOldArticles extends Command
     protected function runBackup(): int
     {
         $backupDir = storage_path('backups');
-        if (!File::exists($backupDir)) {
+        if (! File::exists($backupDir)) {
             File::makeDirectory($backupDir, 0755, true);
         }
-        $backupFile = $backupDir . '/dakhoacantho_web_before_import.sql';
+        $backupFile = $backupDir.'/dakhoacantho_web_before_import.sql';
 
         $mysqlDumpPath = 'C:\\xampp\\mysql\\bin\\mysqldump.exe';
-        if (!File::exists($mysqlDumpPath)) {
+        if (! File::exists($mysqlDumpPath)) {
             $mysqlDumpPath = 'mysqldump'; // Try to resolve via PATH
         }
 
@@ -554,7 +570,7 @@ class ImportOldArticles extends Command
         $dbUser = config('database.connections.mysql.username', 'root');
         $dbPass = config('database.connections.mysql.password', '');
 
-        $passwordOption = $dbPass !== '' ? "-p" . escapeshellarg($dbPass) : '';
+        $passwordOption = $dbPass !== '' ? '-p'.escapeshellarg($dbPass) : '';
 
         // Safely build shell redirect command for Windows/PowerShell
         $command = sprintf(
@@ -569,16 +585,18 @@ class ImportOldArticles extends Command
         );
 
         $this->info("Creating database backup file at: {$backupFile}");
-        
+
         exec($command, $output, $resultCode);
 
         if ($resultCode !== 0) {
             $this->logAction('SYSTEM', 'N/A', 'N/A', 'BACKUP_FAIL', null, "mysqldump exit code: {$resultCode}");
+
             return $resultCode;
         }
 
-        $this->info("Database backup created successfully.");
+        $this->info('Database backup created successfully.');
         $this->logAction('SYSTEM', 'N/A', 'N/A', 'BACKUP_SUCCESS', null, "Backup created at {$backupFile}");
+
         return 0;
     }
 
@@ -593,26 +611,27 @@ class ImportOldArticles extends Command
         $relPath = ltrim($relPath, '/');
 
         $srcUploadsDir = 'C:\\xampp\\htdocs\\dakhoacantho\\wp-content\\uploads\\';
-        $srcFile = $srcUploadsDir . str_replace('/', '\\', $relPath);
+        $srcFile = $srcUploadsDir.str_replace('/', '\\', $relPath);
 
-        $dstFile = storage_path('app/public/uploads/' . $relPath);
-        $targetDbPath = 'uploads/' . $relPath;
+        $dstFile = storage_path('app/public/uploads/'.$relPath);
+        $targetDbPath = 'uploads/'.$relPath;
 
-        if (!File::exists($srcFile)) {
+        if (! File::exists($srcFile)) {
             $this->logAction($wpPostId, $slug, $title, 'missing_image_warning', null, "Source image not found: {$srcFile}");
             $this->missingImagesCount++;
+
             return $targetDbPath; // Still return the expected target path so we don't drop image reference
         }
 
         // If file exists, copy it
-        if (!$dryRun) {
+        if (! $dryRun) {
             try {
                 File::ensureDirectoryExists(dirname($dstFile));
-                if (!File::exists($dstFile)) {
+                if (! File::exists($dstFile)) {
                     File::copy($srcFile, $dstFile);
                 }
             } catch (\Exception $e) {
-                $this->logAction($wpPostId, $slug, $title, 'image_copy_error', null, "Failed to copy image to: {$dstFile}. Error: " . $e->getMessage());
+                $this->logAction($wpPostId, $slug, $title, 'image_copy_error', null, "Failed to copy image to: {$dstFile}. Error: ".$e->getMessage());
                 $this->missingImagesCount++;
             }
         }
@@ -635,13 +654,13 @@ class ImportOldArticles extends Command
             // Check if it belongs to WordPress uploads directory
             if (str_contains($imgUrl, 'wp-content/uploads/')) {
                 $decodedUrl = urldecode($imgUrl);
-                
+
                 // Extract relative path after wp-content/uploads/
                 $parts = explode('wp-content/uploads/', $decodedUrl);
                 if (count($parts) < 2) {
                     continue;
                 }
-                
+
                 $relPath = $parts[1];
                 // Strip query parameters if any (e.g. ?v=1.2)
                 $relPath = explode('?', $relPath)[0];
@@ -650,21 +669,21 @@ class ImportOldArticles extends Command
 
                 // Copy the local file if it exists
                 $srcUploadsDir = 'C:\\xampp\\htdocs\\dakhoacantho\\wp-content\\uploads\\';
-                $srcFile = $srcUploadsDir . str_replace('/', '\\', $relPath);
-                $dstFile = storage_path('app/public/uploads/' . $relPath);
+                $srcFile = $srcUploadsDir.str_replace('/', '\\', $relPath);
+                $dstFile = storage_path('app/public/uploads/'.$relPath);
 
-                if (!File::exists($srcFile)) {
+                if (! File::exists($srcFile)) {
                     $this->logAction($wpPostId, $slug, $title, 'missing_inline_image', null, "Inline image file not found: {$srcFile}");
                     $this->missingImagesCount++;
                 } else {
-                    if (!$dryRun) {
+                    if (! $dryRun) {
                         try {
                             File::ensureDirectoryExists(dirname($dstFile));
-                            if (!File::exists($dstFile)) {
+                            if (! File::exists($dstFile)) {
                                 File::copy($srcFile, $dstFile);
                             }
                         } catch (\Exception $e) {
-                            $this->logAction($wpPostId, $slug, $title, 'inline_image_copy_error', null, "Failed to copy inline image: " . $e->getMessage());
+                            $this->logAction($wpPostId, $slug, $title, 'inline_image_copy_error', null, 'Failed to copy inline image: '.$e->getMessage());
                             $this->missingImagesCount++;
                         }
                     }
@@ -672,7 +691,7 @@ class ImportOldArticles extends Command
 
                 // Replace in content
                 // Resolve using relative path /storage/uploads/ which works fine on local and production
-                $newImgUrl = '/storage/uploads/' . $relPath;
+                $newImgUrl = '/storage/uploads/'.$relPath;
                 $content = str_replace($imgUrl, $newImgUrl, $content);
             }
         }

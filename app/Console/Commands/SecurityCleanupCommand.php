@@ -32,7 +32,7 @@ class SecurityCleanupCommand extends Command
         $latestScanId = $latestScan ? $latestScan->scan_id : null;
 
         $query = FileScanResult::where('created_at', '<', now()->subDays(30));
-        
+
         if ($latestScanId) {
             $query->where('scan_id', '!=', $latestScanId);
         }

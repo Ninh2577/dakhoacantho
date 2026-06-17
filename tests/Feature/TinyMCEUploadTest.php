@@ -66,7 +66,7 @@ class TinyMCEUploadTest extends TestCase
             $storagePath = $matches[1];
             Storage::disk('public')->assertExists($storagePath);
         } else {
-            $this->fail("Could not extract relative storage path from location: " . $location);
+            $this->fail('Could not extract relative storage path from location: '.$location);
         }
     }
 

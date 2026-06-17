@@ -19,35 +19,35 @@ class SecuritySetting extends Model
      */
     public static array $defaults = [
         // Firewall
-        'firewall_mode'                => 'log_only',   // log_only | block
-        'allowlisted_ips'              => [],
+        'firewall_mode' => 'log_only',   // log_only | block
+        'allowlisted_ips' => [],
 
         // Login protection
-        'max_failed_logins_per_ip'     => 10,
-        'max_failed_logins_per_email'  => 5,
-        'lockout_minutes'              => 15,
-        'auto_block_enabled'           => false,        // must be opt-in
-        'permanent_block_enabled'      => false,
+        'max_failed_logins_per_ip' => 10,
+        'max_failed_logins_per_email' => 5,
+        'lockout_minutes' => 15,
+        'auto_block_enabled' => false,        // must be opt-in
+        'permanent_block_enabled' => false,
 
         // Traffic logging
-        'traffic_logging'              => 'suspicious_only', // off | suspicious_only | all
+        'traffic_logging' => 'suspicious_only', // off | suspicious_only | all
 
         // File scanner
-        'scan_uploads'                 => true,
-        'scan_public'                  => true,
-        'max_scan_file_size_mb'        => 2,
+        'scan_uploads' => true,
+        'scan_public' => true,
+        'max_scan_file_size_mb' => 2,
 
         // Alerts
-        'email_alerts_enabled'         => false,
-        'admin_security_email'         => '',
+        'email_alerts_enabled' => false,
+        'admin_security_email' => '',
 
         // Retention (days)
-        'retention_days_info'          => 30,
-        'retention_days_low'           => 30,
-        'retention_days_medium'        => 60,
-        'retention_days_high'          => 180,
-        'retention_days_critical'      => 365,
-        'retention_days_login'         => 60,
+        'retention_days_info' => 30,
+        'retention_days_low' => 30,
+        'retention_days_medium' => 60,
+        'retention_days_high' => 180,
+        'retention_days_critical' => 365,
+        'retention_days_login' => 60,
     ];
 
     private static string $cacheKey = 'security:settings:all';
@@ -64,6 +64,7 @@ class SecuritySetting extends Model
         if ($default !== null) {
             return $default;
         }
+
         return static::$defaults[$key] ?? null;
     }
 

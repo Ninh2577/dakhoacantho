@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Cache;
 
 class BlockedIp extends Model
@@ -18,7 +18,7 @@ class BlockedIp extends Model
 
     protected $casts = [
         'blocked_until' => 'datetime',
-        'is_permanent'  => 'boolean',
+        'is_permanent' => 'boolean',
     ];
 
     /**
@@ -48,6 +48,7 @@ class BlockedIp extends Model
             if (! $block) {
                 return false;
             }
+
             return $block->isActive();
         });
     }
@@ -76,10 +77,10 @@ class BlockedIp extends Model
         $block = static::updateOrCreate(
             ['ip_address' => $ip],
             [
-                'reason'       => $reason,
+                'reason' => $reason,
                 'blocked_until' => $blockedUntil,
                 'is_permanent' => $permanent,
-                'created_by'   => $createdBy,
+                'created_by' => $createdBy,
             ]
         );
 
@@ -98,8 +99,8 @@ class BlockedIp extends Model
     {
         return $query->where(function ($q) {
             $q->where('is_permanent', true)
-              ->orWhereNull('blocked_until')
-              ->orWhere('blocked_until', '>', now());
+                ->orWhereNull('blocked_until')
+                ->orWhere('blocked_until', '>', now());
         });
     }
 }

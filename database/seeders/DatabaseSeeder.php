@@ -2,6 +2,8 @@
 
 namespace Database\Seeders;
 
+use App\Models\Article;
+use App\Models\Category;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -16,21 +18,21 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         // Create Admin User for Filament
-        \App\Models\User::create([
+        User::create([
             'name' => 'Admin',
             'email' => 'admin@dakhoacantho.com',
             'password' => bcrypt('password'),
             'role' => 'admin',
         ]);
 
-        \App\Models\User::create([
+        User::create([
             'name' => 'Admin VN',
             'email' => 'admin@dakhoacantho.vn',
             'password' => bcrypt('password123@#'),
             'role' => 'admin',
         ]);
 
-        \App\Models\User::create([
+        User::create([
             'name' => 'IGF Admin',
             'email' => 'igf@dakhoacantho.vn',
             'password' => bcrypt('igf'),
@@ -40,38 +42,38 @@ class DatabaseSeeder extends Seeder
         // User::factory(10)->create();
 
         // Create categories matching the mockups
-        $catNamKhoa = \App\Models\Category::create([
+        $catNamKhoa = Category::create([
             'name' => 'Nam Khoa',
             'slug' => 'nam-khoa',
             'description' => 'Chuyên mục tư vấn và điều trị các bệnh lý nam khoa.',
         ]);
 
-        $catPhuKhoa = \App\Models\Category::create([
+        $catPhuKhoa = Category::create([
             'name' => 'Phụ Khoa',
             'slug' => 'phu-khoa',
             'description' => 'Chăm sóc sức khỏe phụ nữ toàn diện và tầm soát bệnh lý phụ khoa định kỳ.',
         ]);
 
-        $catBenhXaHoi = \App\Models\Category::create([
+        $catBenhXaHoi = Category::create([
             'name' => 'Bệnh Xã Hội',
             'slug' => 'benh-xa-hoi',
             'description' => 'Xét nghiệm bảo mật tuyệt đối, điều trị dứt điểm sùi mào gà, lậu, giang mai.',
         ]);
 
-        $catHauMon = \App\Models\Category::create([
+        $catHauMon = Category::create([
             'name' => 'Hậu Môn - Trực Tràng',
             'slug' => 'hau-mon-truc-trang',
             'description' => 'Chẩn đoán trĩ nội, trĩ ngoại và rò hậu môn bằng phương pháp PPH, HCPT không đau.',
         ]);
 
-        $catNgoaiKhoa = \App\Models\Category::create([
+        $catNgoaiKhoa = Category::create([
             'name' => 'Ngoại Khoa',
             'slug' => 'ngoai-khoa',
             'description' => 'Điều trị các bệnh ngoại khoa tiểu phẫu.',
         ]);
 
         // Create a test article under Nam Khoa
-        \App\Models\Article::create([
+        Article::create([
             'category_id' => $catNamKhoa->id,
             'title' => 'Bệnh yếu sinh lý ở nam giới và phương pháp điều trị hiệu quả',
             'slug' => 'benh-yeu-sinh-ly-nam-gioi',
@@ -83,7 +85,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Create a test article under Phu Khoa
-        \App\Models\Article::create([
+        Article::create([
             'category_id' => $catPhuKhoa->id,
             'title' => 'Viêm nhiễm phụ khoa và những điều chị em phụ nữ cần đặc biệt lưu ý',
             'slug' => 'viem-nhiem-phu-khoa-luu-y',
@@ -95,7 +97,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Create a test article under Benh Xa Hoi
-        \App\Models\Article::create([
+        Article::create([
             'category_id' => $catBenhXaHoi->id,
             'title' => 'Xét nghiệm sùi mào gà chính xác, an toàn và bảo mật tại Cần Thơ',
             'slug' => 'xet-nghiem-sui-mao-ga-can-tho',
@@ -107,7 +109,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         // Create a test article under Hau Mon
-        \App\Models\Article::create([
+        Article::create([
             'category_id' => $catHauMon->id,
             'title' => 'Điều trị bệnh trĩ hiệu quả bằng công nghệ hiện đại PPH và HCPT',
             'slug' => 'dieu-tri-benh-tri-pph-hcpt',

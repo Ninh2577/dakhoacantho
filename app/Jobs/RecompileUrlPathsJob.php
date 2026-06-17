@@ -17,15 +17,17 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Log;
-use Exception;
 
 class RecompileUrlPathsJob implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $timeout = 900; // 15 minutes
+
     protected string $newArticlePattern;
+
     protected string $newCategoryPattern;
+
     protected int $historyId;
 
     /**
@@ -44,7 +46,7 @@ class RecompileUrlPathsJob implements ShouldQueue
     public function handle(UrlRoutingService $routingService): void
     {
         $history = UrlSettingHistory::find($this->historyId);
-        if (!$history) {
+        if (! $history) {
             return;
         }
 
@@ -57,13 +59,14 @@ class RecompileUrlPathsJob implements ShouldQueue
         // 1. Database Backup
         $backupFile = null;
         $backupSuccess = $this->runBackup($backupFile);
-        if (!$backupSuccess) {
-            $errorMsg = "Database backup failed before recompile. Recompilation halted.";
+        if (! $backupSuccess) {
+            $errorMsg = 'Database backup failed before recompile. Recompilation halted.';
             $history->update([
                 'status' => 'failed',
                 'error_message' => $errorMsg,
                 'finished_at' => now(),
             ]);
+
             return;
         }
 
@@ -101,7 +104,7 @@ class RecompileUrlPathsJob implements ShouldQueue
                     $category->saveQuietly();
 
                     // Register redirect if old path exists
-                    if (!empty($oldPath) && $oldPath !== $newPath) {
+                    if (! empty($oldPath) && $oldPath !== $newPath) {
                         $routingService->registerRedirect($oldPath, $newPath, 'category', $category->id);
                         $history->increment('redirect_count');
                     }
@@ -119,11 +122,11 @@ class RecompileUrlPathsJob implements ShouldQueue
                     DB::rollBack();
                     $failed++;
                     $history->update(['failed_items' => $failed]);
-                    
+
                     if (isset($recompileItem)) {
                         $recompileItem->update([
                             'status' => 'failed',
-                            'error_message' => $e->getMessage()
+                            'error_message' => $e->getMessage(),
                         ]);
                     }
                     throw $e; // Re-throw to trigger job failure
@@ -153,7 +156,7 @@ class RecompileUrlPathsJob implements ShouldQueue
                         $article->saveQuietly();
 
                         // Register redirect if old path exists
-                        if (!empty($oldPath) && $oldPath !== $newPath) {
+                        if (! empty($oldPath) && $oldPath !== $newPath) {
                             $routingService->registerRedirect($oldPath, $newPath, 'article', $article->id);
                             $history->increment('redirect_count');
                         }
@@ -175,7 +178,7 @@ class RecompileUrlPathsJob implements ShouldQueue
                         if (isset($recompileItem)) {
                             $recompileItem->update([
                                 'status' => 'failed',
-                                'error_message' => $e->getMessage()
+                                'error_message' => $e->getMessage(),
                             ]);
                         }
                         throw $e; // Re-throw to trigger job failure and stop subsequent chunks
@@ -198,12 +201,12 @@ class RecompileUrlPathsJob implements ShouldQueue
                 Artisan::call('cache:clear');
                 Artisan::call('view:clear');
             } catch (\Throwable $cacheEx) {
-                Log::warning("Failed to clear cache after URL recompilation: " . $cacheEx->getMessage());
+                Log::warning('Failed to clear cache after URL recompilation: '.$cacheEx->getMessage());
             }
 
         } catch (\Throwable $e) {
-            Log::error("URL Recompilation Job failed: " . $e->getMessage());
-            
+            Log::error('URL Recompilation Job failed: '.$e->getMessage());
+
             $history->update([
                 'status' => 'failed',
                 'error_message' => $e->getMessage(),
@@ -213,7 +216,8 @@ class RecompileUrlPathsJob implements ShouldQueue
             // Flush caches even on failure to ensure consistent state
             try {
                 Artisan::call('optimize:clear');
-            } catch (\Throwable $ex) {}
+            } catch (\Throwable $ex) {
+            }
         }
     }
 
@@ -223,15 +227,15 @@ class RecompileUrlPathsJob implements ShouldQueue
     protected function runBackup(?string &$backupFile): bool
     {
         $backupDir = storage_path('backups');
-        if (!File::exists($backupDir)) {
+        if (! File::exists($backupDir)) {
             File::makeDirectory($backupDir, 0755, true);
         }
 
         $timestamp = date('Ymd_His');
-        $backupFile = $backupDir . "/dakhoacantho_web_before_url_recompile_{$timestamp}.sql";
+        $backupFile = $backupDir."/dakhoacantho_web_before_url_recompile_{$timestamp}.sql";
 
         $mysqlDumpPath = 'C:\\xampp\\mysql\\bin\\mysqldump.exe';
-        if (!File::exists($mysqlDumpPath)) {
+        if (! File::exists($mysqlDumpPath)) {
             $mysqlDumpPath = 'mysqldump';
         }
 
@@ -244,7 +248,7 @@ class RecompileUrlPathsJob implements ShouldQueue
         if ($dbPass === '') {
             $passwordOption = '';
         } else {
-            $passwordOption = '--password=' . escapeshellarg($dbPass);
+            $passwordOption = '--password='.escapeshellarg($dbPass);
         }
 
         $command = sprintf(

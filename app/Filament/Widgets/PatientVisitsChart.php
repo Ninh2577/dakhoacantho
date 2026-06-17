@@ -18,7 +18,7 @@ class PatientVisitsChart extends ChartWidget
 
     protected function getData(): array
     {
-        $days   = collect(range(6, 0))->map(fn ($i) => Carbon::today()->subDays($i));
+        $days = collect(range(6, 0))->map(fn ($i) => Carbon::today()->subDays($i));
         $labels = $days->map(fn ($d) => $d->format('d/m'))->toArray();
 
         $data = $days->map(function ($day) {
@@ -28,14 +28,14 @@ class PatientVisitsChart extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label'           => 'Lượt tư vấn',
-                    'data'            => $data,
+                    'label' => 'Lượt tư vấn',
+                    'data' => $data,
                     'backgroundColor' => 'rgba(30, 64, 175, 0.08)',
-                    'borderColor'     => '#1e40af',
-                    'borderWidth'     => 2,
-                    'pointRadius'     => 4,
-                    'fill'            => 'start',
-                    'tension'         => 0.3,
+                    'borderColor' => '#1e40af',
+                    'borderWidth' => 2,
+                    'pointRadius' => 4,
+                    'fill' => 'start',
+                    'tension' => 0.3,
                 ],
             ],
             'labels' => $labels,

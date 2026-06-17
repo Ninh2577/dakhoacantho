@@ -2,32 +2,38 @@
 
 namespace App\Filament\Pages;
 
+use App\Jobs\ImportWordPressXmlJob;
 use App\Models\WordPressImportBatch;
 use App\Models\WordPressImportLog;
-use App\Jobs\ImportWordPressXmlJob;
-use Filament\Pages\Page;
-use Filament\Forms\Form;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Select;
 use Filament\Forms\Components\CheckboxList;
-use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Section;
-use Filament\Actions\Action;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Forms\Form;
 use Filament\Notifications\Notification;
+use Filament\Pages\Page;
 use Livewire\WithPagination;
 
-class WordPressImporter extends Page implements \Filament\Forms\Contracts\HasForms
+class WordPressImporter extends Page implements HasForms
 {
-    use \Filament\Forms\Concerns\InteractsWithForms;
+    use InteractsWithForms;
     use WithPagination;
 
-    protected static ?string $navigationIcon  = 'heroicon-o-arrow-down-tray';
+    protected static ?string $navigationIcon = 'heroicon-o-arrow-down-tray';
+
     protected static ?string $navigationLabel = 'Nhập dữ liệu WordPress';
-    protected static ?string $title           = 'Nhập dữ liệu WordPress';
-    protected static ?string $slug            = 'wordpress-importer';
+
+    protected static ?string $title = 'Nhập dữ liệu WordPress';
+
+    protected static ?string $slug = 'wordpress-importer';
+
     protected static ?string $navigationGroup = 'Công cụ hệ thống';
-    protected static ?int    $navigationSort  = 9;
+
+    protected static ?int $navigationSort = 9;
 
     protected static string $view = 'filament.pages.wordpress-importer';
 
@@ -39,21 +45,23 @@ class WordPressImporter extends Page implements \Filament\Forms\Contracts\HasFor
 
     // Filters for logs
     public string $logSearch = '';
+
     public string $logAction = '';
+
     public string $logStatus = '';
 
     public function mount(): void
     {
         $this->form->fill([
-            'old_domain'            => 'https://dakhoacantho.com',
-            'media_mode'            => 'storage_uploads',
+            'old_domain' => 'https://dakhoacantho.com',
+            'media_mode' => 'storage_uploads',
             'local_media_base_path' => 'public/wp-content/uploads',
-            'import_post_types'     => ['post', 'page'],
-            'import_statuses'       => ['publish'],
-            'duplicate_mode'        => 'skip',
-            'dry_run'               => true,
+            'import_post_types' => ['post', 'page'],
+            'import_statuses' => ['publish'],
+            'duplicate_mode' => 'skip',
+            'dry_run' => true,
         ]);
-        
+
         $this->activeBatchId = request()->query('batch_id') ? (int) request()->query('batch_id') : null;
     }
 
@@ -87,9 +95,9 @@ class WordPressImporter extends Page implements \Filament\Forms\Contracts\HasFor
                         Select::make('media_mode')
                             ->label('Chế độ lưu trữ ảnh')
                             ->options([
-                                'keep_remote'        => 'Giữ nguyên URL cũ (Tải từ WordPress cũ)',
-                                'public_wp_uploads'  => 'Đổi sang thư mục /wp-content/uploads/...',
-                                'storage_uploads'    => 'Đổi sang Laravel Storage /storage/uploads/...',
+                                'keep_remote' => 'Giữ nguyên URL cũ (Tải từ WordPress cũ)',
+                                'public_wp_uploads' => 'Đổi sang thư mục /wp-content/uploads/...',
+                                'storage_uploads' => 'Đổi sang Laravel Storage /storage/uploads/...',
                             ])
                             ->required()
                             ->live(),
@@ -107,8 +115,8 @@ class WordPressImporter extends Page implements \Filament\Forms\Contracts\HasFor
                         CheckboxList::make('import_post_types')
                             ->label('Loại bài viết')
                             ->options([
-                                'post'       => 'Bài viết (Posts)',
-                                'page'       => 'Trang tĩnh (Pages)',
+                                'post' => 'Bài viết (Posts)',
+                                'page' => 'Trang tĩnh (Pages)',
                                 'attachment' => 'Tệp đính kèm (Attachments)',
                             ])
                             ->required()
@@ -118,7 +126,7 @@ class WordPressImporter extends Page implements \Filament\Forms\Contracts\HasFor
                             ->label('Trạng thái bài viết')
                             ->options([
                                 'publish' => 'Đã xuất bản (Publish)',
-                                'draft'   => 'Bản nháp (Draft)',
+                                'draft' => 'Bản nháp (Draft)',
                             ])
                             ->required()
                             ->columns(2),
@@ -126,7 +134,7 @@ class WordPressImporter extends Page implements \Filament\Forms\Contracts\HasFor
                         Select::make('duplicate_mode')
                             ->label('Xử lý bài viết trùng Slug')
                             ->options([
-                                'skip'   => 'Bỏ qua không cập nhật (Khuyên dùng)',
+                                'skip' => 'Bỏ qua không cập nhật (Khuyên dùng)',
                                 'update' => 'Cập nhật lại nội dung',
                                 'unique' => 'Tạo slug mới duy nhất (Thêm hậu tố -wp-{id})',
                             ])
@@ -155,18 +163,18 @@ class WordPressImporter extends Page implements \Filament\Forms\Contracts\HasFor
         $formData = $this->form->getState();
 
         $batch = WordPressImportBatch::create([
-            'file_path'             => $formData['xml_file'],
-            'original_file_name'    => basename($formData['xml_file']),
-            'old_domain'            => $formData['old_domain'],
-            'media_mode'            => $formData['media_mode'],
+            'file_path' => $formData['xml_file'],
+            'original_file_name' => basename($formData['xml_file']),
+            'old_domain' => $formData['old_domain'],
+            'media_mode' => $formData['media_mode'],
             'local_media_base_path' => $formData['local_media_base_path'] ?? null,
-            'import_post_types'     => $formData['import_post_types'],
-            'import_statuses'       => $formData['import_statuses'],
-            'duplicate_mode'        => $formData['duplicate_mode'],
-            'dry_run'               => $formData['dry_run'],
-            'limit'                 => $formData['limit'] ? (int) $formData['limit'] : null,
-            'status'                => 'pending',
-            'created_by'            => auth()->id(),
+            'import_post_types' => $formData['import_post_types'],
+            'import_statuses' => $formData['import_statuses'],
+            'duplicate_mode' => $formData['duplicate_mode'],
+            'dry_run' => $formData['dry_run'],
+            'limit' => $formData['limit'] ? (int) $formData['limit'] : null,
+            'status' => 'pending',
+            'created_by' => auth()->id(),
         ]);
 
         // Dispatch background job
@@ -182,13 +190,13 @@ class WordPressImporter extends Page implements \Filament\Forms\Contracts\HasFor
 
         // Reset form
         $this->form->fill([
-            'old_domain'            => 'https://dakhoacantho.com',
-            'media_mode'            => 'storage_uploads',
+            'old_domain' => 'https://dakhoacantho.com',
+            'media_mode' => 'storage_uploads',
             'local_media_base_path' => 'public/wp-content/uploads',
-            'import_post_types'     => ['post', 'page'],
-            'import_statuses'       => ['publish'],
-            'duplicate_mode'        => 'skip',
-            'dry_run'               => true,
+            'import_post_types' => ['post', 'page'],
+            'import_statuses' => ['publish'],
+            'duplicate_mode' => 'skip',
+            'dry_run' => true,
         ]);
     }
 
@@ -219,7 +227,7 @@ class WordPressImporter extends Page implements \Filament\Forms\Contracts\HasFor
 
     public function getLogsProperty()
     {
-        if (!$this->activeBatchId) {
+        if (! $this->activeBatchId) {
             return collect();
         }
 
@@ -227,10 +235,10 @@ class WordPressImporter extends Page implements \Filament\Forms\Contracts\HasFor
 
         if ($this->logSearch) {
             $query->where(function ($q) {
-                $q->where('source_title', 'like', '%' . $this->logSearch . '%')
-                  ->orWhere('source_slug', 'like', '%' . $this->logSearch . '%')
-                  ->orWhere('message', 'like', '%' . $this->logSearch . '%')
-                  ->orWhere('source_post_id', $this->logSearch);
+                $q->where('source_title', 'like', '%'.$this->logSearch.'%')
+                    ->orWhere('source_slug', 'like', '%'.$this->logSearch.'%')
+                    ->orWhere('message', 'like', '%'.$this->logSearch.'%')
+                    ->orWhere('source_post_id', $this->logSearch);
             });
         }
 
@@ -254,7 +262,7 @@ class WordPressImporter extends Page implements \Filament\Forms\Contracts\HasFor
     {
         return [
             'activeBatch' => $this->getActiveBatchProperty(),
-            'logs'        => $this->getLogsProperty(),
+            'logs' => $this->getLogsProperty(),
             'pastBatches' => $this->getPastBatchesProperty(),
         ];
     }

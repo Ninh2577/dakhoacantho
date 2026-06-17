@@ -3,7 +3,8 @@
         state: $wire.entangle('{{ $getStatePath() }}'),
         statePath: '{{ $getStatePath() }}',
         uploadUrl: '{{ route('admin.tinymce.upload-image') }}',
-        csrfToken: '{{ csrf_token() }}'
+        csrfToken: '{{ csrf_token() }}',
+        excludeId: '{{ optional($this->record)->id ?? '' }}'
     })"
     x-init="init()"
     x-on:destroy="destroy()"
@@ -44,7 +45,6 @@
             placeholder="Nhập nội dung bài viết..."
         ></textarea>
     </div>
-</div>
 
 <script>
 (function() {
@@ -55,6 +55,7 @@
             statePath: config.statePath,
             uploadUrl: config.uploadUrl,
             csrfToken: config.csrfToken,
+            excludeId: config.excludeId || '',
             editorInstanceId: null,
             activeTab: 'visual',
             editorReady: false,
@@ -174,7 +175,7 @@
                                     reject({ message: 'Lỗi 403: Không có quyền truy cập', remove: true });
                                     return;
                                 }
-                                if (xhr.status < 200 || xhr.status >= 300) {
+                                if (xhr.status <= 199 || xhr.status >= 300) {
                                     reject('Lỗi HTTP: ' + xhr.status);
                                     return;
                                 }
@@ -199,137 +200,481 @@
                         // Save instance ID to refer in destroy() and watches
                         this.editorInstanceId = editor.id;
 
-                        // Helper: apply content and force editable design mode
-                        const ensureEditorReady = () => {
-                            try {
-                                editor.mode.set('design');
-                                let body = editor.getBody();
-                                if (body) {
-                                    body.setAttribute('contenteditable', 'true');
+                        // Intercept default mceLink command execution to show custom dialog
+                        console.log('CUSTOM MCE LINK REGISTERED');
+                        editor.on('BeforeExecCommand', (e) => {
+                            if (e.command === 'mceLink') {
+                                e.preventDefault();
+                                console.log('CUSTOM MCE LINK EXECUTED');
+                                let selectedNode = editor.selection.getNode();
+                                let urlVal = '';
+                                let textVal = '';
+                                let targetVal = false;
+                                let relNofollowVal = false;
+                                let isLink = false;
+
+                                let anchorNode = editor.dom.getParent(selectedNode, 'a');
+                                if (anchorNode) {
+                                    urlVal = anchorNode.getAttribute('href') || '';
+                                    textVal = anchorNode.innerText || anchorNode.textContent || '';
+                                    targetVal = anchorNode.getAttribute('target') === '_blank';
+                                    relNofollowVal = (anchorNode.getAttribute('rel') || '').includes('nofollow');
+                                    isLink = true;
+                                } else {
+                                    textVal = editor.selection.getContent({ format: 'text' }) || '';
                                 }
-                            } catch (e) {}
-                        };
 
-                        // Load initial value with delayed retries
-                        // The iframe body needs time to fully render before it becomes editable
-                        editor.on('init', () => {
-                            // Phase 1: Immediate attempt
-                            editor.setContent(this.state || '');
-                            ensureEditorReady();
+                                let excludeId = this.excludeId || '';
 
-                            // Phase 2: Retry after iframe is fully rendered (fixes blank Visual tab)
-                            setTimeout(() => {
-                                if (this.state && editor.getContent() !== this.state) {
-                                    editor.setContent(this.state || '');
-                                }
-                                ensureEditorReady();
-                                this.editorReady = true;
-                            }, 150);
+                                let dialogApi = editor.windowManager.open({
+                                    title: 'Chèn/Sửa liên kết',
+                                    body: {
+                                        type: 'panel',
+                                        items: [
+                                            {
+                                                type: 'input',
+                                                name: 'url',
+                                                label: 'Đường dẫn (URL)',
+                                                placeholder: 'Nhập địa chỉ URL hoặc chọn bài viết bên dưới...'
+                                            },
+                                            {
+                                                type: 'input',
+                                                name: 'text',
+                                                label: 'Văn bản hiển thị',
+                                                placeholder: 'Văn bản hiển thị liên kết...'
+                                            },
+                                            {
+                                                type: 'input',
+                                                name: 'search_article',
+                                                label: 'Tìm bài viết nội bộ',
+                                                placeholder: 'Nhập tiêu đề hoặc đường dẫn để tìm...'
+                                            },
+                                            {
+                                                type: 'htmlpanel',
+                                                html: `\x3cdiv id="tinymce-article-search-results" role="listbox" style="max-height: 180px; overflow-y: auto; border: 1px solid #cbd5e1; border-radius: 6px; margin-top: 4px; background: #fff; display: none;"\x3e\x3c/div\x3e`
+                                            },
+                                            {
+                                                type: 'checkbox',
+                                                name: 'target',
+                                                label: 'Mở liên kết trong thẻ mới (_blank)'
+                                            },
+                                            {
+                                                type: 'checkbox',
+                                                name: 'nofollow',
+                                                label: 'Thêm thuộc tính rel="nofollow" (Khuyên dùng cho liên kết ngoài)'
+                                            }
+                                        ]
+                                    },
+                                    buttons: [
+                                        { type: 'cancel', text: 'Hủy' },
+                                        { type: 'submit', text: 'Đồng ý', primary: true }
+                                    ],
+                                    onSubmit: (api) => {
+                                        const data = api.getData();
+                                        let href = data.url.trim();
+                                        let text = data.text.trim() || href;
 
-                            // Phase 3: Final retry for slow Livewire hydration on edit pages
-                            setTimeout(() => {
-                                if (this.state && editor.getContent() !== this.state) {
-                                    editor.setContent(this.state || '');
-                                }
-                                ensureEditorReady();
-                            }, 600);
-                        });
+                                        if (!href) {
+                                            alert('Đường dẫn (URL) không được để trống.');
+                                            return;
+                                        }
 
-                        // Debounced state sync on typing
-                        let debouncedUpdate = this.debounce(() => {
-                            this.state = editor.getContent();
-                        }, 300);
+                                        let targetAttr = data.target ? '_blank' : null;
+                                        let relAttr = data.nofollow ? 'nofollow' : null;
 
-                        editor.on('change keyup undo redo input', () => {
-                            debouncedUpdate();
-                        });
-
-                        editor.on('blur', () => {
-                            this.state = editor.getContent();
-                        });
-
-                        // Form submit sync fallback
-                        editor.on('submit', () => {
-                            this.state = editor.getContent();
-                        });
-
-                        // Bind to parent form submit to immediately sync state before Livewire submits
-                        this.$nextTick(() => {
-                            let form = this.$el.closest('form');
-                            if (form) {
-                                form.addEventListener('submit', () => {
-                                    if (this.activeTab === 'visual') {
-                                        this.state = editor.getContent();
-                                    } else {
-                                        this.state = this.$refs.editor.value;
+                                        if (isLink && anchorNode) {
+                                            anchorNode.setAttribute('href', href);
+                                            anchorNode.textContent = text;
+                                            if (targetAttr) {
+                                                anchorNode.setAttribute('target', targetAttr);
+                                            } else {
+                                                anchorNode.removeAttribute('target');
+                                            }
+                                            if (relAttr) {
+                                                anchorNode.setAttribute('rel', relAttr);
+                                            } else {
+                                                anchorNode.removeAttribute('rel');
+                                            }
+                                        } else {
+                                            let link = document.createElement('a');
+                                            link.setAttribute('href', href);
+                                            link.textContent = text;
+                                            if (targetAttr) {
+                                                link.setAttribute('target', targetAttr);
+                                            }
+                                            if (relAttr) {
+                                                link.setAttribute('rel', relAttr);
+                                            }
+                                            editor.insertContent(link.outerHTML);
+                                        }
+                                        api.close();
                                     }
                                 });
+
+                                dialogApi.setData({
+                                    url: urlVal,
+                                    text: textVal,
+                                    target: targetVal,
+                                    nofollow: relNofollowVal
+                                });
+
+                                console.log('CUSTOM LINK DIALOG OPENED');
+
+                                // Setup search-as-you-type and keyboard navigation
+                                setTimeout(() => {
+                                    const dialogEl = document.querySelector('.tox-dialog');
+                                    if (!dialogEl) return;
+
+                                    const searchInput = dialogEl.querySelector('input[placeholder="Nhập tiêu đề hoặc đường dẫn để tìm..."]');
+                                    const resultsDiv = dialogEl.querySelector('#tinymce-article-search-results');
+
+                                    if (!searchInput || !resultsDiv) return;
+
+                                    let activeAbortController = null;
+                                    let debounceTimeout = null;
+                                    let selectedIndex = -1;
+
+                                    // Helper to escape HTML to prevent XSS
+                                    function escapeHtml(text) {
+                                        if (!text) return '';
+                                        return text
+                                            .replace(/&/g, '&amp;')
+                                            .replace(/</g, '&lt;')
+                                            .replace(/>/g, '&gt;')
+                                            .replace(/"/g, '&quot;')
+                                            .replace(/'/g, '&#039;');
+                                    }
+
+                                    // Helper to highlight search keywords safely
+                                    function highlightText(text, query) {
+                                        if (!query) return text;
+                                        const escapedQuery = query.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+                                        const regex = new RegExp(`(${escapedQuery})`, 'gi');
+                                        return text.replace(regex, '\x3cmark style="background-color: #fef08a; color: #0f172a; padding: 0 2px; border-radius: 2px;"\x3e$1\x3c/mark\x3e');
+                                    }
+
+                                    // Helper to highlight current selection in list box
+                                    function highlightListItem(index) {
+                                        const items = resultsDiv.querySelectorAll('.tinymce-search-item');
+                                        items.forEach((item, i) => {
+                                            if (i === index) {
+                                                item.style.backgroundColor = '#e2e8f0';
+                                                item.setAttribute('aria-selected', 'true');
+                                                item.scrollIntoView({ block: 'nearest' });
+                                            } else {
+                                                item.style.backgroundColor = 'transparent';
+                                                item.setAttribute('aria-selected', 'false');
+                                            }
+                                        });
+                                    }
+
+                                    // Render links list helper
+                                    function renderLinksList(links, isSearch = false, query = '') {
+                                        if (links.length === 0) {
+                                            resultsDiv.innerHTML = '\x3cdiv style="padding: 10px; text-align: center; color: #64748b;"\x3eKhông tìm thấy kết quả\x3c/div\x3e';
+                                            return;
+                                        }
+
+                                        let html = '';
+                                        const typeLabels = {
+                                            'article': 'Bài viết',
+                                            'category': 'Danh mục',
+                                            'doctor': 'Bác sĩ',
+                                            'service': 'Dịch vụ',
+                                            'page': 'Trang tĩnh'
+                                        };
+
+                                        links.forEach((link, idx) => {
+                                            const typeLabel = typeLabels[link.type] || link.type || 'Nội dung';
+                                            const escapedTitle = escapeHtml(link.title);
+                                            const displayTitle = isSearch ? highlightText(escapedTitle, query) : escapedTitle;
+                                            const displayUrl = escapeHtml(link.url);
+
+                                            html += `
+                                                \x3cdiv class="tinymce-search-item" 
+                                                     role="option"
+                                                     aria-selected="false"
+                                                     data-url="${escapeHtml(link.url)}" 
+                                                     data-title="${escapedTitle.replace(/"/g, '&quot;')}"
+                                                     style="padding: 8px 12px; cursor: pointer; border-bottom: 1px solid #f1f5f9; transition: background 0.2s;"
+                                                     onmouseover="this.style.backgroundColor='#f8fafc'"
+                                                     onmouseout="this.style.backgroundColor='transparent'"\x3e
+                                                    \x3cdiv style="font-weight: 600; color: #1e293b; font-size: 14px;"\x3e${displayTitle}\x3c/div\x3e
+                                                    \x3cdiv style="display: flex; justify-content: space-between; align-items: center; margin-top: 2px;"\x3e
+                                                        \x3cspan style="color: #64748b; font-size: 12px;"\x3e${displayUrl}\x3c/span\x3e
+                                                        \x3cspan style="background: #e0f2fe; color: #0369a1; font-size: 11px; padding: 2px 6px; border-radius: 4px; font-weight: 500;"\x3e${typeLabel}\x3c/span\x3e
+                                                    \x3c/div\x3e
+                                                \x3c/div\x3e
+                                            `;
+                                        });
+
+                                        resultsDiv.innerHTML = html;
+                                        selectedIndex = -1;
+
+                                        // Bind click event to selection
+                                        const items = resultsDiv.querySelectorAll('.tinymce-search-item');
+                                        items.forEach(item => {
+                                            item.addEventListener('click', () => {
+                                                const url = item.getAttribute('data-url');
+                                                const title = item.getAttribute('data-title');
+                                                const currentData = dialogApi.getData();
+
+                                                dialogApi.setData({
+                                                    url: url,
+                                                    text: currentData.text.trim() === '' ? title : currentData.text,
+                                                    search_article: ''
+                                                });
+
+                                                // Hide search list
+                                                resultsDiv.style.display = 'none';
+                                                resultsDiv.innerHTML = '';
+                                            });
+                                        });
+                                    }
+
+                                    // Load and render Recent Articles helper
+                                    function loadRecentArticles() {
+                                        // Check memory cache first
+                                        const cached = window.tinymceRecentLinksCache;
+                                        if (cached && cached.data && (Date.now() - cached.timestamp <= 299999)) {
+                                            resultsDiv.style.display = 'block';
+                                            renderLinksList(cached.data, false);
+                                            return;
+                                        }
+
+                                        resultsDiv.style.display = 'block';
+                                        resultsDiv.innerHTML = '\x3cdiv style="padding: 10px; text-align: center; color: #64748b;"\x3eĐang tải bài viết gần đây...\x3c/div\x3e';
+
+                                        fetch(`/admin/api/internal-links/search?exclude_id=${excludeId}`)
+                                            .then(res => {
+                                                if (!res.ok) throw new Error('API Error');
+                                                return res.json();
+                                            })
+                                            .then(data => {
+                                                // Save to cache
+                                                window.tinymceRecentLinksCache = {
+                                                    data: data,
+                                                    timestamp: Date.now()
+                                                };
+                                                renderLinksList(data, false);
+                                            })
+                                            .catch(err => {
+                                                console.error(err);
+                                                resultsDiv.innerHTML = '\x3cdiv style="padding: 10px; text-align: center; color: #ef4444;"\x3eKhông thể kết nối máy chủ\x3c/div\x3e';
+                                            });
+                                    }
+
+                                    // 1. Load initial Recent Articles
+                                    loadRecentArticles();
+
+                                    // 2. Listen to input events
+                                    searchInput.addEventListener('input', (e) => {
+                                        const query = e.target.value.trim();
+                                        clearTimeout(debounceTimeout);
+
+                                        // Cancel any in-flight requests
+                                        if (activeAbortController) {
+                                            activeAbortController.abort();
+                                            activeAbortController = null;
+                                        }
+
+                                        if (query === '') {
+                                            loadRecentArticles();
+                                            return;
+                                        }
+
+                                        if (query.length <= 1) {
+                                            resultsDiv.style.display = 'none';
+                                            resultsDiv.innerHTML = '';
+                                            return;
+                                        }
+
+                                        resultsDiv.style.display = 'block';
+                                        resultsDiv.innerHTML = '\x3cdiv style="padding: 10px; text-align: center; color: #64748b;"\x3eĐang tìm kiếm...\x3c/div\x3e';
+
+                                        debounceTimeout = setTimeout(() => {
+                                            activeAbortController = new AbortController();
+
+                                            fetch(`/admin/api/internal-links/search?q=${encodeURIComponent(query)}&exclude_id=${excludeId}`, {
+                                                signal: activeAbortController.signal
+                                            })
+                                                .then(res => {
+                                                    if (!res.ok) throw new Error('API Error');
+                                                    return res.json();
+                                                })
+                                                .then(data => {
+                                                    renderLinksList(data, true, query);
+                                                })
+                                                .catch(err => {
+                                                    if (err.name === 'AbortError') return;
+                                                    console.error(err);
+                                                    resultsDiv.innerHTML = '\x3cdiv style="padding: 10px; text-align: center; color: #ef4444;"\x3eKhông thể kết nối máy chủ\x3c/div\x3e';
+                                                });
+                                        }, 300);
+                                    });
+
+                                    // 3. Keydown navigation listener
+                                    searchInput.addEventListener('keydown', (e) => {
+                                        const items = resultsDiv.querySelectorAll('.tinymce-search-item');
+                                        if (items.length === 0) return;
+
+                                        if (e.key === 'ArrowDown') {
+                                            e.preventDefault();
+                                            selectedIndex++;
+                                            if (selectedIndex >= items.length) selectedIndex = 0;
+                                            highlightListItem(selectedIndex);
+                                        } else if (e.key === 'ArrowUp') {
+                                            e.preventDefault();
+                                            selectedIndex--;
+                                            if (selectedIndex <= -1) selectedIndex = items.length - 1;
+                                            highlightListItem(selectedIndex);
+                                        } else if (e.key === 'Enter') {
+                                            if (selectedIndex >= 0 && selectedIndex <= items.length - 1) {
+                                                e.preventDefault();
+                                                e.stopPropagation();
+                                                items[selectedIndex].click();
+                                            }
+                                        } else if (e.key === 'Escape') {
+                                            e.preventDefault();
+                                            resultsDiv.style.display = 'none';
+                                            resultsDiv.innerHTML = '';
+                                        }
+                                    });
+                                }, 50);
                             }
                         });
-                    }
-                });
-            },
-            
-            switchTab(tab) {
-                if (this.activeTab === tab) return;
-                
-                let editor = this.editorInstanceId ? tinymce.get(this.editorInstanceId) : null;
-                
-                if (tab === 'text') {
-                    if (editor) {
-                        editor.save(); // Sync content to textarea
-                        this.state = editor.getContent();
-                        editor.hide(); // Hide visual editor and show styled textarea
-                    }
-                    this.activeTab = 'text';
-                } else {
-                    if (editor) {
-                        editor.show(); // Hide textarea and show visual editor
-                        editor.setContent(this.state || '');
-                        // Force design mode and contenteditable
+
+                        // Helper: apply content and force editable design mode
+                    const ensureEditorReady = () => {
                         try {
                             editor.mode.set('design');
-                            editor.getBody().setAttribute('contenteditable', 'true');
+                            let body = editor.getBody();
+                            if (body) {
+                                body.setAttribute('contenteditable', 'true');
+                            }
                         } catch (e) {}
-                        setTimeout(() => {
-                            editor.focus();
-                        }, 100);
-                    }
-                    this.activeTab = 'visual';
-                }
-            },
-            
-            destroy() {
-                // Clean up TinyMCE instance when leaving the page (essential for Filament SPA navigation)
-                if (this._syncAbortController) {
-                    this._syncAbortController.abort();
-                    this._syncAbortController = null;
-                }
-                if (this.editorInstanceId) {
-                    let editor = tinymce.get(this.editorInstanceId);
-                    if (editor) {
-                        editor.remove();
-                    }
-                }
-            },
-            
-            debounce(func, wait) {
-                let timeout;
-                return function () {
-                    let context = this, args = arguments;
-                    clearTimeout(timeout);
-                    timeout = setTimeout(() => {
-                        func.apply(context, args);
-                    }, wait);
-                };
-            }
-        }));
-    }
+                    };
 
-    if (typeof Alpine !== 'undefined') {
-        registerTinyMceEditor();
-    }
-    document.addEventListener('alpine:init', registerTinyMceEditor);
+                    // Load initial value with delayed retries
+                    // The iframe body needs time to fully render before it becomes editable
+                    editor.on('init', () => {
+                        // Phase 1: Immediate attempt
+                        editor.setContent(this.state || '');
+                        ensureEditorReady();
+
+                        // Phase 2: Retry after iframe is fully rendered (fixes blank Visual tab)
+                        setTimeout(() => {
+                            if (this.state && editor.getContent() !== this.state) {
+                                editor.setContent(this.state || '');
+                            }
+                            ensureEditorReady();
+                            this.editorReady = true;
+                        }, 150);
+
+                        // Phase 3: Final retry for slow Livewire hydration on edit pages
+                        setTimeout(() => {
+                            if (this.state && editor.getContent() !== this.state) {
+                                editor.setContent(this.state || '');
+                            }
+                            ensureEditorReady();
+                        }, 600);
+                    });
+
+                    // Debounced state sync on typing
+                    let debouncedUpdate = this.debounce(() => {
+                        this.state = editor.getContent();
+                    }, 300);
+
+                    editor.on('change keyup undo redo input', () => {
+                        debouncedUpdate();
+                    });
+
+                    editor.on('blur', () => {
+                        this.state = editor.getContent();
+                    });
+
+                    // Form submit sync fallback
+                    editor.on('submit', () => {
+                        this.state = editor.getContent();
+                    });
+
+                    // Bind to parent form submit to immediately sync state before Livewire submits
+                    this.$nextTick(() => {
+                        let form = this.$el.closest('form');
+                        if (form) {
+                            form.addEventListener('submit', () => {
+                                if (this.activeTab === 'visual') {
+                                    this.state = editor.getContent();
+                                } else {
+                                    this.state = this.$refs.editor.value;
+                                }
+                            });
+                        }
+                    });
+                }
+            });
+        },
+        
+        switchTab(tab) {
+            if (this.activeTab === tab) return;
+            
+            let editor = this.editorInstanceId ? tinymce.get(this.editorInstanceId) : null;
+            
+            if (tab === 'text') {
+                if (editor) {
+                    editor.save(); // Sync content to textarea
+                    this.state = editor.getContent();
+                    editor.hide(); // Hide visual editor and show styled textarea
+                }
+                this.activeTab = 'text';
+            } else {
+                if (editor) {
+                    editor.show(); // Hide textarea and show visual editor
+                    editor.setContent(this.state || '');
+                    // Force design mode and contenteditable
+                    try {
+                        editor.mode.set('design');
+                        editor.getBody().setAttribute('contenteditable', 'true');
+                    } catch (e) {}
+                    setTimeout(() => {
+                        editor.focus();
+                    }, 100);
+                }
+                this.activeTab = 'visual';
+            }
+        },
+        
+        destroy() {
+            // Clean up TinyMCE instance when leaving the page (essential for Filament SPA navigation)
+            if (this._syncAbortController) {
+                this._syncAbortController.abort();
+                this._syncAbortController = null;
+            }
+            if (this.editorInstanceId) {
+                let editor = tinymce.get(this.editorInstanceId);
+                if (editor) {
+                    editor.remove();
+                }
+            }
+        },
+        
+        debounce(func, wait) {
+            let timeout;
+            return function () {
+                let context = this, args = arguments;
+                clearTimeout(timeout);
+                timeout = setTimeout(() => {
+                    func.apply(context, args);
+                }, wait);
+            };
+        }
+    }));
+}
+
+if (typeof Alpine !== 'undefined') {
+    registerTinyMceEditor();
+}
+document.addEventListener('alpine:init', registerTinyMceEditor);
 })();
 </script>
-
+</div>

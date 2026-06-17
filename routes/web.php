@@ -1,24 +1,34 @@
 <?php
 
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\PageController;
-use App\Http\Controllers\CategoryController;
-use App\Http\Controllers\ArticleController;
-use App\Http\Controllers\ConsultationController;
-use App\Http\Controllers\SitemapController;
-use App\Http\Controllers\SearchController;
+use App\Http\Controllers\Admin\ArticlePreviewController;
+use App\Http\Controllers\Admin\InternalLinkSearchController;
+use App\Http\Controllers\Admin\TinyMCEUploadController;
 use App\Http\Controllers\ArticleCommentController;
+use App\Http\Controllers\ArticleController;
+use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\ConsultationController;
+use App\Http\Controllers\DynamicRouterController;
+use App\Http\Controllers\PageController;
+use App\Http\Controllers\SearchController;
+use App\Http\Controllers\SitemapController;
+use App\Models\User;
+use Filament\Facades\Filament;
+use Filament\Models\Contracts\FilamentUser;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Route;
 
 // Diagnostic routes
 Route::get('/native-session-test', function () {
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
-    if (!isset($_SESSION['test_count'])) {
+    if (! isset($_SESSION['test_count'])) {
         $_SESSION['test_count'] = 1;
     } else {
         $_SESSION['test_count']++;
     }
+
     return response()->json([
         'engine' => 'Native PHP Session',
         'session_id' => session_id(),
@@ -54,24 +64,26 @@ Route::get('/laravel-session-test', function () {
 });
 
 Route::get('/db-test', function () {
-    $user = \App\Models\User::where('email', 'admin@dakhoacantho.com')->first();
-    
+    $user = User::where('email', 'admin@dakhoacantho.com')->first();
+
     if (request()->has('reset')) {
-        if (!$user) {
-            $user = \App\Models\User::create([
+        if (! $user) {
+            $user = User::create([
                 'name' => 'Admin',
                 'email' => 'admin@dakhoacantho.com',
-                'password' => \Illuminate\Support\Facades\Hash::make('password'),
+                'password' => Hash::make('password'),
                 'role' => 'admin',
             ]);
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Admin user created successfully with password "password"!',
                 'user' => $user,
             ]);
         } else {
-            $user->password = \Illuminate\Support\Facades\Hash::make('password');
+            $user->password = Hash::make('password');
             $user->save();
+
             return response()->json([
                 'status' => 'success',
                 'message' => 'Admin user password reset to "password" successfully!',
@@ -79,38 +91,38 @@ Route::get('/db-test', function () {
             ]);
         }
     }
-    
-    if (!$user) {
+
+    if (! $user) {
         return response()->json([
             'status' => 'error',
             'message' => 'User admin@dakhoacantho.com does not exist in the database! Go to /db-test?reset=1 to create it.',
         ]);
     }
-    
-    $password_matches = \Illuminate\Support\Facades\Hash::check('password', $user->password);
-    
-    $implements_filament_user = $user instanceof \Filament\Models\Contracts\FilamentUser;
+
+    $password_matches = Hash::check('password', $user->password);
+
+    $implements_filament_user = $user instanceof FilamentUser;
     $can_access_panel = 'N/A';
     if ($implements_filament_user) {
         try {
-            $panel = \Filament\Facades\Filament::getCurrentPanel();
-            if (!$panel) {
-                $panel = \Filament\Facades\Filament::getPanel('admin');
+            $panel = Filament::getCurrentPanel();
+            if (! $panel) {
+                $panel = Filament::getPanel('admin');
             }
             $can_access_panel = $user->canAccessPanel($panel) ? 'YES' : 'NO';
-        } catch (\Exception $e) {
-            $can_access_panel = 'ERROR: ' . $e->getMessage();
+        } catch (Exception $e) {
+            $can_access_panel = 'ERROR: '.$e->getMessage();
         }
     }
 
     $tables = [];
     try {
-        $dbTables = \Illuminate\Support\Facades\DB::select('SHOW TABLES');
-        $tables = array_map(function($table) {
-            return array_values((array)$table)[0];
+        $dbTables = DB::select('SHOW TABLES');
+        $tables = array_map(function ($table) {
+            return array_values((array) $table)[0];
         }, $dbTables);
-    } catch (\Exception $e) {
-        $tables = 'ERROR: ' . $e->getMessage();
+    } catch (Exception $e) {
+        $tables = 'ERROR: '.$e->getMessage();
     }
 
     return response()->json([
@@ -133,7 +145,7 @@ Route::get('/request-test', function () {
         'is_secure' => request()->isSecure(),
         'base_path' => request()->getBasePath(),
         'base_url' => request()->getBaseUrl(),
-        'filament_url' => \Filament\Facades\Filament::getUrl(),
+        'filament_url' => Filament::getUrl(),
         'intended_url' => session()->get('url.intended'),
         'header_host' => request()->header('host'),
         'header_x_forwarded_proto' => request()->header('x-forwarded-proto'),
@@ -143,19 +155,19 @@ Route::get('/request-test', function () {
     ]);
 });
 
-Route::get('/debug-login-run', function() {
-    $user = \App\Models\User::where('email', 'admin@dakhoacantho.com')->first();
-    if (!$user) {
-        return "User not found";
+Route::get('/debug-login-run', function () {
+    $user = User::where('email', 'admin@dakhoacantho.com')->first();
+    if (! $user) {
+        return 'User not found';
     }
-    
+
     // Log the user in
     auth()->login($user);
-    
+
     // Set a session value
     session(['test_auth' => 'authenticated_ok']);
     session()->save();
-    
+
     return response()->json([
         'authenticated' => auth()->check(),
         'user_id' => auth()->id(),
@@ -164,7 +176,7 @@ Route::get('/debug-login-run', function() {
     ]);
 });
 
-Route::get('/debug-login-check', function() {
+Route::get('/debug-login-check', function () {
     return response()->json([
         'authenticated' => auth()->check(),
         'user_id' => auth()->id(),
@@ -173,18 +185,18 @@ Route::get('/debug-login-check', function() {
     ]);
 });
 
-Route::get('/debug-logs', function() {
+Route::get('/debug-logs', function () {
     $routingServiceFile = app_path('Services/UrlRoutingService.php');
     $mtime = file_exists($routingServiceFile) ? date('Y-m-d H:i:s', filemtime($routingServiceFile)) : 'unknown';
-    
+
     $logFile = storage_path('logs/laravel.log');
-    if (!file_exists($logFile)) {
-        return "Routing service mtime: " . $mtime . "\nLog file not found at " . $logFile;
+    if (! file_exists($logFile)) {
+        return 'Routing service mtime: '.$mtime."\nLog file not found at ".$logFile;
     }
-    
+
     $lines = file($logFile);
     $output = [];
-    $output[] = "Routing service mtime: " . $mtime . "\n";
+    $output[] = 'Routing service mtime: '.$mtime."\n";
     // Look at last 2000 lines, keep error messages and timestamps
     $recentLines = array_slice($lines, -2000);
     foreach ($recentLines as $line) {
@@ -192,22 +204,27 @@ Route::get('/debug-logs', function() {
             $output[] = $line;
         }
     }
-    
-    return response(implode("", $output), 200, ['Content-Type' => 'text/plain']);
+
+    return response(implode('', $output), 200, ['Content-Type' => 'text/plain']);
 });
 
 // TinyMCE admin image upload route
-Route::post('/admin/tinymce/upload-image', [\App\Http\Controllers\Admin\TinyMCEUploadController::class, 'upload'])
+Route::post('/admin/tinymce/upload-image', [TinyMCEUploadController::class, 'upload'])
     ->name('admin.tinymce.upload-image')
     ->middleware(['web', 'auth']);
 
+// TinyMCE admin internal links search API route
+Route::get('/admin/api/internal-links/search', [InternalLinkSearchController::class, 'search'])
+    ->name('admin.internal-links.search')
+    ->middleware(['web', 'auth']);
+
 // Article preview create route (supports POST for synchronous preview form submits)
-Route::match(['get', 'post'], '/admin/articles/preview-create', [\App\Http\Controllers\Admin\ArticlePreviewController::class, 'createPreview'])
+Route::match(['get', 'post'], '/admin/articles/preview-create', [ArticlePreviewController::class, 'createPreview'])
     ->name('admin.articles.preview-create')
     ->middleware(['web', 'auth']);
 
 // Article preview show route using cache token
-Route::get('/admin/articles/preview/{uuid}', [\App\Http\Controllers\Admin\ArticlePreviewController::class, 'showCachePreview'])
+Route::get('/admin/articles/preview/{uuid}', [ArticlePreviewController::class, 'showCachePreview'])
     ->name('admin.articles.preview-show')
     ->middleware(['web', 'auth']);
 
@@ -257,4 +274,4 @@ Route::get('/{slug}', [ArticleController::class, 'show'])
     ->name('articles.show');
 
 // 9. Fallback Dynamic Router catch-all
-Route::fallback([App\Http\Controllers\DynamicRouterController::class, 'resolve']);
+Route::fallback([DynamicRouterController::class, 'resolve']);

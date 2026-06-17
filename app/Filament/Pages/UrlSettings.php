@@ -2,30 +2,36 @@
 
 namespace App\Filament\Pages;
 
-use App\Models\Setting;
-use App\Models\UrlSettingHistory;
 use App\Jobs\RecompileUrlPathsJob;
-use App\Services\UrlRoutingService;
-use Filament\Pages\Page;
-use Filament\Forms\Form;
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\Section;
-use Filament\Forms\Components\Placeholder;
-use Filament\Notifications\Notification;
-use Illuminate\Support\Facades\DB;
 use App\Models\Article;
 use App\Models\Category;
+use App\Models\Setting;
+use App\Models\UrlSettingHistory;
+use App\Services\UrlRoutingService;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Concerns\InteractsWithForms;
+use Filament\Forms\Contracts\HasForms;
+use Filament\Forms\Form;
+use Filament\Notifications\Notification;
+use Filament\Pages\Page;
+use Illuminate\Support\Facades\Artisan;
 
-class UrlSettings extends Page implements \Filament\Forms\Contracts\HasForms
+class UrlSettings extends Page implements HasForms
 {
-    use \Filament\Forms\Concerns\InteractsWithForms;
+    use InteractsWithForms;
 
-    protected static ?string $navigationIcon  = 'heroicon-o-link';
+    protected static ?string $navigationIcon = 'heroicon-o-link';
+
     protected static ?string $navigationLabel = 'Cấu hình URL động';
-    protected static ?string $title           = 'Cấu hình URL động';
-    protected static ?string $slug            = 'url-settings';
+
+    protected static ?string $title = 'Cấu hình URL động';
+
+    protected static ?string $slug = 'url-settings';
+
     protected static ?string $navigationGroup = 'Công cụ hệ thống';
-    protected static ?int    $navigationSort  = 10;
+
+    protected static ?int $navigationSort = 10;
 
     protected static string $view = 'filament.pages.url-settings';
 
@@ -33,9 +39,13 @@ class UrlSettings extends Page implements \Filament\Forms\Contracts\HasForms
 
     // Preview state
     public bool $hasPreviewed = false;
+
     public int $conflictCount = 0;
+
     public int $redirectCount = 0;
+
     public array $conflicts = [];
+
     public array $previewExamples = [];
 
     // Job active state
@@ -107,21 +117,23 @@ class UrlSettings extends Page implements \Filament\Forms\Contracts\HasForms
         $service = app(UrlRoutingService::class);
 
         // 1. Validate pattern allowlist
-        if (!$service->validateArticlePattern($artPattern)) {
+        if (! $service->validateArticlePattern($artPattern)) {
             Notification::make()
                 ->title('Định dạng bài viết không hợp lệ')
                 ->body('Vui lòng chọn hoặc nhập định dạng bài viết trong danh sách được hỗ trợ.')
                 ->danger()
                 ->send();
+
             return;
         }
 
-        if (!$service->validateCategoryPattern($catPattern)) {
+        if (! $service->validateCategoryPattern($catPattern)) {
             Notification::make()
                 ->title('Định dạng danh mục không hợp lệ')
                 ->body('Vui lòng chọn hoặc nhập định dạng danh mục trong danh sách được hỗ trợ.')
                 ->danger()
                 ->send();
+
             return;
         }
 
@@ -136,16 +148,16 @@ class UrlSettings extends Page implements \Filament\Forms\Contracts\HasForms
 
         $categories = Category::take(10)->get();
         foreach ($categories as $cat) {
-            $oldPath = $cat->url_path ?: 'category/' . $cat->full_path;
+            $oldPath = $cat->url_path ?: 'category/'.$cat->full_path;
             $newPath = $service->compileCategoryPath($cat, $catPattern);
-            if ($oldPath !== $newPath && !empty($oldPath)) {
+            if ($oldPath !== $newPath && ! empty($oldPath)) {
                 $this->redirectCount++;
             }
             $this->previewExamples[] = [
                 'type' => 'Danh mục',
                 'name' => $cat->name,
-                'old' => '/' . ltrim($oldPath, '/'),
-                'new' => '/' . ltrim($newPath, '/'),
+                'old' => '/'.ltrim($oldPath, '/'),
+                'new' => '/'.ltrim($newPath, '/'),
             ];
         }
 
@@ -153,14 +165,14 @@ class UrlSettings extends Page implements \Filament\Forms\Contracts\HasForms
         foreach ($articles as $art) {
             $oldPath = $art->url_path ?: $art->slug;
             $newPath = $service->compileArticlePath($art, $artPattern);
-            if ($oldPath !== $newPath && !empty($oldPath)) {
+            if ($oldPath !== $newPath && ! empty($oldPath)) {
                 $this->redirectCount++;
             }
             $this->previewExamples[] = [
                 'type' => 'Bài viết',
                 'name' => $art->title,
-                'old' => '/' . ltrim($oldPath, '/'),
-                'new' => '/' . ltrim($newPath, '/'),
+                'old' => '/'.ltrim($oldPath, '/'),
+                'new' => '/'.ltrim($newPath, '/'),
             ];
         }
 
@@ -178,12 +190,13 @@ class UrlSettings extends Page implements \Filament\Forms\Contracts\HasForms
      */
     public function applyChanges(): void
     {
-        if (!$this->hasPreviewed || $this->conflictCount > 0) {
+        if (! $this->hasPreviewed || $this->conflictCount > 0) {
             Notification::make()
                 ->title('Không thể áp dụng cấu trúc')
                 ->body('Bạn cần chạy xem trước và xử lý toàn bộ xung đột trước khi áp dụng.')
                 ->danger()
                 ->send();
+
             return;
         }
 
@@ -199,6 +212,7 @@ class UrlSettings extends Page implements \Filament\Forms\Contracts\HasForms
                 ->body('Có một tiến trình biên dịch đang chạy dưới nền. Vui lòng đợi.')
                 ->warning()
                 ->send();
+
             return;
         }
 
@@ -239,8 +253,8 @@ class UrlSettings extends Page implements \Filament\Forms\Contracts\HasForms
      */
     public function triggerRollback(): void
     {
-        $exitCode = \Illuminate\Support\Facades\Artisan::call('urls:rollback-last');
-        
+        $exitCode = Artisan::call('urls:rollback-last');
+
         if ($exitCode === 0) {
             Notification::make()
                 ->title('Khôi phục thành công!')

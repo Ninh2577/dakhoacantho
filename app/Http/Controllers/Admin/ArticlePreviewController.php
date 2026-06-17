@@ -5,7 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Article;
 use App\Models\Category;
+use App\Models\User;
+use App\Services\Content\ContentImageUrlNormalizer;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 
 class ArticlePreviewController extends Controller
 {
@@ -16,7 +20,7 @@ class ArticlePreviewController extends Controller
             $postData = $request->input('data');
 
             // If 'data' key not found, try to collect from individual form fields
-            if (!is_array($postData) || empty($postData)) {
+            if (! is_array($postData) || empty($postData)) {
                 $postData = [];
                 // Map common form field names
                 $fieldNames = [
@@ -37,7 +41,7 @@ class ArticlePreviewController extends Controller
                     'twitter_title',
                     'twitter_description',
                     'twitter_image',
-                    'is_published'
+                    'is_published',
                 ];
 
                 foreach ($fieldNames as $field) {
@@ -48,7 +52,7 @@ class ArticlePreviewController extends Controller
                 }
             }
 
-            if (!empty($postData)) {
+            if (! empty($postData)) {
                 session()->put('article_preview_create', $postData);
                 session()->save();
             }
@@ -60,7 +64,7 @@ class ArticlePreviewController extends Controller
 
         $requestQueryUuid = $request->query('preview');
 
-        \Illuminate\Support\Facades\Log::info('ArticlePreviewController PREVIEW_READ', [
+        Log::info('ArticlePreviewController PREVIEW_READ', [
             'preview_uuid_from_url' => $requestQueryUuid,
             'session_driver' => config('session.driver'),
             'session_key_name' => 'article_preview_create',
@@ -76,14 +80,14 @@ class ArticlePreviewController extends Controller
 
         $dbArticleId = $data['id'] ?? ($data['article_id'] ?? null);
         $dbTitle = null;
-        if (!empty($dbArticleId)) {
+        if (! empty($dbArticleId)) {
             $dbArticle = Article::find($dbArticleId);
             if ($dbArticle) {
                 $dbTitle = $dbArticle->title;
             }
         }
 
-        \Illuminate\Support\Facades\Log::info('ArticlePreviewController PREVIEW_AFTER_LOAD', [
+        Log::info('ArticlePreviewController PREVIEW_AFTER_LOAD', [
             'preview_uuid_from_url' => $requestQueryUuid,
             'preview_uuid_from_session' => $data['preview_uuid'] ?? null,
             'title_from_session' => $data['title'] ?? null,
@@ -92,7 +96,7 @@ class ArticlePreviewController extends Controller
             'session_key_name' => 'article_preview_create',
         ]);
 
-        if (!$data) {
+        if (! $data) {
             return redirect('/admin/articles/create')
                 ->with('error', 'Chưa có dữ liệu xem trước. Vui lòng bấm Xem trước từ trang tạo mới bài viết.');
         }
@@ -116,7 +120,7 @@ class ArticlePreviewController extends Controller
         $twitterImage = $this->scalarString($data['twitter_image'] ?? null);
 
         // Create temporary unsaved Article model
-        $article = new Article();
+        $article = new Article;
         $article->forceFill([
             'id' => 0,
             'title' => $title,
@@ -145,10 +149,10 @@ class ArticlePreviewController extends Controller
 
         // Load Category relation
         $categoryId = is_array($data['category_id'] ?? null)
-            ? collect($data['category_id'])->flatten()->filter(fn($item) => is_scalar($item))->first()
+            ? collect($data['category_id'])->flatten()->filter(fn ($item) => is_scalar($item))->first()
             : ($data['category_id'] ?? null);
 
-        if (!empty($categoryId)) {
+        if (! empty($categoryId)) {
             $category = Category::find($categoryId);
             if ($category) {
                 $article->setRelation('category', $category);
@@ -156,14 +160,14 @@ class ArticlePreviewController extends Controller
         }
 
         $authorUser = null;
-        if (!empty($authorId)) {
-            $authorUser = \App\Models\User::find($authorId);
+        if (! empty($authorId)) {
+            $authorUser = User::find($authorId);
         }
         if ($authorUser) {
             $article->setRelation('author', $authorUser);
         }
 
-        if (!$article->category) {
+        if (! $article->category) {
             $fallbackCategory = new Category(['name' => 'Chuyên khoa', 'slug' => 'chuyen-khoa']);
             $article->setRelation('category', $fallbackCategory);
         }
@@ -195,13 +199,13 @@ class ArticlePreviewController extends Controller
         }
 
         // Process storage upload path replacements using the unified normalizer service
-        $article->content = app(\App\Services\Content\ContentImageUrlNormalizer::class)->normalize($article->content);
+        $article->content = app(ContentImageUrlNormalizer::class)->normalize($article->content);
 
         // Safe server-side Inline CTA injection after the second paragraph (approx 35% of content)
         $paragraphs = explode('</p>', $article->content);
         if (count($paragraphs) > 3) {
             $ctaHtml = view('components.article-inline-cta')->render();
-            $paragraphs[1] .= '</p>' . $ctaHtml;
+            $paragraphs[1] .= '</p>'.$ctaHtml;
             $article->content = implode('</p>', $paragraphs);
         } else {
             $ctaHtml = view('components.article-inline-cta')->render();
@@ -219,7 +223,7 @@ class ArticlePreviewController extends Controller
                 $attributes .= ' decoding="async"';
             }
 
-            return '<img ' . $attributes;
+            return '<img '.$attributes;
         }, $article->content);
 
         return response()
@@ -237,7 +241,7 @@ class ArticlePreviewController extends Controller
     {
         $cacheKey = "preview:{$uuid}";
 
-        \Illuminate\Support\Facades\Log::info('ArticlePreviewController PREVIEW_READ', [
+        Log::info('ArticlePreviewController PREVIEW_READ', [
             'preview_uuid' => $uuid,
             'session_driver' => config('session.driver'),
             'session_id' => session()->getId(),
@@ -245,19 +249,20 @@ class ArticlePreviewController extends Controller
             'source' => 'cache',
         ]);
 
-        $data = \Illuminate\Support\Facades\Cache::get($cacheKey);
+        $data = Cache::get($cacheKey);
 
-        if (!$data) {
-            \Illuminate\Support\Facades\Log::warning('ArticlePreviewController PREVIEW_EXPIRED', [
+        if (! $data) {
+            Log::warning('ArticlePreviewController PREVIEW_EXPIRED', [
                 'preview_uuid' => $uuid,
             ]);
+
             return response()->view('errors.preview-expired', [], 404);
         }
 
         // Validate user ownership: bind cache entry to auth user id
         $cachedAuthId = $data['cached_auth_id'] ?? null;
         if ($cachedAuthId !== auth()->id()) {
-            \Illuminate\Support\Facades\Log::warning('ArticlePreviewController PREVIEW_UNAUTHORIZED', [
+            Log::warning('ArticlePreviewController PREVIEW_UNAUTHORIZED', [
                 'preview_uuid' => $uuid,
                 'cached_auth_id' => $cachedAuthId,
                 'auth_id' => auth()->id(),
@@ -266,18 +271,18 @@ class ArticlePreviewController extends Controller
         }
 
         // Pull/delete cache after loading to prevent lingering preview memory
-        $data = \Illuminate\Support\Facades\Cache::pull($cacheKey);
+        $data = Cache::pull($cacheKey);
 
         $dbArticleId = $data['id'] ?? ($data['article_id'] ?? null);
         $dbTitle = null;
-        if (!empty($dbArticleId)) {
+        if (! empty($dbArticleId)) {
             $dbArticle = Article::find($dbArticleId);
             if ($dbArticle) {
                 $dbTitle = $dbArticle->title;
             }
         }
 
-        \Illuminate\Support\Facades\Log::info('ArticlePreviewController PREVIEW_AFTER_LOAD', [
+        Log::info('ArticlePreviewController PREVIEW_AFTER_LOAD', [
             'preview_uuid_from_url' => $uuid,
             'preview_uuid_from_session' => $data['preview_uuid'] ?? null,
             'title_from_session' => $data['title'] ?? null,
@@ -304,7 +309,7 @@ class ArticlePreviewController extends Controller
         $twitterImage = $this->scalarString($data['twitter_image'] ?? null);
 
         // Create temporary unsaved Article model
-        $article = new Article();
+        $article = new Article;
         $article->forceFill([
             'id' => 0,
             'title' => $title,
@@ -333,10 +338,10 @@ class ArticlePreviewController extends Controller
 
         // Load Category relation
         $categoryId = is_array($data['category_id'] ?? null)
-            ? collect($data['category_id'])->flatten()->filter(fn($item) => is_scalar($item))->first()
+            ? collect($data['category_id'])->flatten()->filter(fn ($item) => is_scalar($item))->first()
             : ($data['category_id'] ?? null);
 
-        if (!empty($categoryId)) {
+        if (! empty($categoryId)) {
             $category = Category::find($categoryId);
             if ($category) {
                 $article->setRelation('category', $category);
@@ -344,14 +349,14 @@ class ArticlePreviewController extends Controller
         }
 
         $authorUser = null;
-        if (!empty($authorId)) {
-            $authorUser = \App\Models\User::find($authorId);
+        if (! empty($authorId)) {
+            $authorUser = User::find($authorId);
         }
         if ($authorUser) {
             $article->setRelation('author', $authorUser);
         }
 
-        if (!$article->category) {
+        if (! $article->category) {
             $fallbackCategory = new Category(['name' => 'Chuyên khoa', 'slug' => 'chuyen-khoa']);
             $article->setRelation('category', $fallbackCategory);
         }
@@ -383,13 +388,13 @@ class ArticlePreviewController extends Controller
         }
 
         // Process storage upload path replacements using the unified normalizer service
-        $article->content = app(\App\Services\Content\ContentImageUrlNormalizer::class)->normalize($article->content);
+        $article->content = app(ContentImageUrlNormalizer::class)->normalize($article->content);
 
         // Safe server-side Inline CTA injection after the second paragraph (approx 35% of content)
         $paragraphs = explode('</p>', $article->content);
         if (count($paragraphs) > 3) {
             $ctaHtml = view('components.article-inline-cta')->render();
-            $paragraphs[1] .= '</p>' . $ctaHtml;
+            $paragraphs[1] .= '</p>'.$ctaHtml;
             $article->content = implode('</p>', $paragraphs);
         } else {
             $ctaHtml = view('components.article-inline-cta')->render();
@@ -407,10 +412,10 @@ class ArticlePreviewController extends Controller
                 $attributes .= ' decoding="async"';
             }
 
-            return '<img ' . $attributes;
+            return '<img '.$attributes;
         }, $article->content);
 
-        \Illuminate\Support\Facades\Log::info('ArticlePreviewController PREVIEW_RENDER', [
+        Log::info('ArticlePreviewController PREVIEW_RENDER', [
             'title' => $article->title,
             'slug' => $article->slug,
             'article_id' => $dbArticleId,
@@ -443,7 +448,7 @@ class ArticlePreviewController extends Controller
         }
 
         if (is_array($value)) {
-            $first = collect($value)->flatten()->filter(fn($item) => is_scalar($item))->first();
+            $first = collect($value)->flatten()->filter(fn ($item) => is_scalar($item))->first();
 
             return $first !== null ? (string) $first : $default;
         }

@@ -14,22 +14,22 @@ return new class extends Migration
     {
         Schema::table('articles', function (Blueprint $table) {
             // excerpt — short summary for SEO and excerpts
-            if (!Schema::hasColumn('articles', 'excerpt')) {
+            if (! Schema::hasColumn('articles', 'excerpt')) {
                 $table->text('excerpt')->nullable()->after('content');
             }
 
             // published_at — precise publish timestamp
-            if (!Schema::hasColumn('articles', 'published_at')) {
+            if (! Schema::hasColumn('articles', 'published_at')) {
                 $table->timestamp('published_at')->nullable()->after('is_published');
             }
 
             // schema_type — controls JSON-LD @type for this article
-            if (!Schema::hasColumn('articles', 'schema_type')) {
+            if (! Schema::hasColumn('articles', 'schema_type')) {
                 $table->string('schema_type', 50)->default('Article')->after('published_at');
             }
 
             // schema_json — optional custom schema override
-            if (!Schema::hasColumn('articles', 'schema_json')) {
+            if (! Schema::hasColumn('articles', 'schema_json')) {
                 $table->json('schema_json')->nullable()->after('schema_type');
             }
         });
