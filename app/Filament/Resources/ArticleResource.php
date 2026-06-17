@@ -17,11 +17,14 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Components\ViewField;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class ArticleResource extends Resource
@@ -181,8 +184,10 @@ class ArticleResource extends Resource
                                     Forms\Components\Actions\Action::make('publish_in_card')
                                         ->label(fn ($record) => ($record?->is_published) ? 'Cập nhật' : 'Xuất bản')
                                         ->color('primary')
-                                        ->action(function ($livewire) {
-                                            $livewire->data['is_published'] = true;
+                                        ->action(function ($livewire, ?Article $record) {
+                                            if ($record === null || ! $record->is_published) {
+                                                $livewire->data['is_published'] = true;
+                                            }
                                             if ($livewire instanceof CreateRecord) {
                                                 $livewire->create();
                                             } else {
@@ -364,6 +369,10 @@ class ArticleResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('id')
+                    ->label('ID')
+                    ->sortable()
+                    ->searchable(),
                 Tables\Columns\ImageColumn::make('featured_image')
                     ->label('Ảnh')
                     ->disk('public'),
@@ -372,6 +381,12 @@ class ArticleResource extends Resource
                     ->searchable()
                     ->wrap()
                     ->description(fn (Article $record): string => 'slug: /'.$record->slug),
+                Tables\Columns\TextColumn::make('slug')
+                    ->label('Slug')
+                    ->searchable()
+                    ->limit(30)
+                    ->sortable()
+                    ->toggleable(isToggledHiddenByDefault: true),
                 Tables\Columns\TextColumn::make('category.name')
                     ->label('Chuyên khoa')
                     ->badge()
@@ -387,27 +402,43 @@ class ArticleResource extends Resource
                         'nam-khoa' => 'BS. Nguyễn Văn An',
                         'phu-khoa' => 'BS. Trần Thị Mai',
                         default => 'Ban biên tập',
-                    }),
-                Tables\Columns\ToggleColumn::make('is_published')
-                    ->label('Công khai')
-                    ->sortable(),
+                    })
+                    ->toggleable(),
+                Tables\Columns\TextColumn::make('is_published')
+                    ->label('Trạng thái')
+                    ->badge()
+                    ->getStateUsing(fn (Article $record): string => $record->is_published ? 'Công khai' : 'Bản nháp')
+                    ->color(fn (string $state): string => match ($state) {
+                        'Công khai' => 'success',
+                        'Bản nháp' => 'warning',
+                        default => 'gray',
+                    })
+                    ->sortable()
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('seo_score')
                     ->label('Điểm SEO')
                     ->badge()
-                    ->formatStateUsing(fn ($state): string => $state !== null ? (string) $state : 'Chưa phân tích')
+                    ->formatStateUsing(fn ($state): string => ($state === null || $state === 0) ? 'Chưa cấu hình' : (string) $state)
                     ->color(fn ($state): string => match (true) {
-                        $state === null => 'gray',
+                        $state === null || $state === 0 => 'warning',
                         $state >= 80 => 'success',
                         $state >= 50 => 'warning',
                         default => 'danger',
                     })
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Ngày tạo')
                     ->dateTime('d/m/Y H:i')
                     ->sortable()
+                    ->toggleable(),
+                Tables\Columns\TextColumn::make('updated_at')
+                    ->label('Ngày cập nhật')
+                    ->dateTime('d/m/Y H:i')
+                    ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 Tables\Filters\SelectFilter::make('category_id')
                     ->label('Chuyên khoa')
@@ -427,15 +458,37 @@ class ArticleResource extends Resource
                         '1' => 'Công khai',
                         '0' => 'Bản nháp',
                     ]),
-                Tables\Filters\Filter::make('seo_good')
-                    ->label('SEO tốt (≥80)')
-                    ->query(fn ($query) => $query->where('seo_score', '>=', 80)),
-                Tables\Filters\Filter::make('seo_medium')
-                    ->label('SEO khá (50–79)')
-                    ->query(fn ($query) => $query->whereBetween('seo_score', [50, 79])),
-                Tables\Filters\Filter::make('seo_low')
-                    ->label('SEO thấp (<50)')
-                    ->query(fn ($query) => $query->where('seo_score', '<', 50)->orWhereNull('seo_score')),
+                Tables\Filters\SelectFilter::make('author_id')
+                    ->label('Tác giả')
+                    ->relationship('author', 'name')
+                    ->searchable()
+                    ->preload(),
+                Tables\Filters\SelectFilter::make('seo_filter')
+                    ->label('Điểm SEO')
+                    ->options([
+                        'not_configured' => 'Chưa cấu hình SEO',
+                        'low' => 'SEO thấp (<50)',
+                        'medium' => 'SEO khá (50–79)',
+                        'good' => 'SEO tốt (≥80)',
+                    ])
+                    ->query(function (Builder $query, array $data) {
+                        return match ($data['value']) {
+                            'not_configured' => $query->where(fn ($q) => $q->whereNull('seo_score')->orWhere('seo_score', 0)),
+                            'low' => $query->where('seo_score', '>', 0)->where('seo_score', '<', 50),
+                            'medium' => $query->whereBetween('seo_score', [50, 79]),
+                            'good' => $query->where('seo_score', '>=', 80),
+                            default => $query,
+                        };
+                    }),
+                Tables\Filters\TernaryFilter::make('has_featured_image')
+                    ->label('Ảnh đại diện')
+                    ->placeholder('Tất cả')
+                    ->trueLabel('Có ảnh đại diện')
+                    ->falseLabel('Chưa có ảnh đại diện')
+                    ->queries(
+                        true: fn ($query) => $query->whereNotNull('featured_image'),
+                        false: fn ($query) => $query->whereNull('featured_image'),
+                    ),
             ])
             ->defaultPaginationPageOption(10)
             ->actions([
@@ -450,7 +503,96 @@ class ArticleResource extends Resource
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    Tables\Actions\DeleteBulkAction::make()
+                        ->requiresConfirmation()
+                        ->modalHeading(fn (Collection $records) => 'Xác nhận xóa '.$records->count().' bài viết?')
+                        ->modalDescription('Hành động này sẽ xóa vĩnh viễn các bài viết được chọn khỏi hệ thống. Bạn có chắc chắn muốn tiếp tục?')
+                        ->action(function (Collection $records): void {
+                            DB::transaction(function () use ($records) {
+                                foreach ($records as $record) {
+                                    $record->delete();
+                                }
+                            });
+
+                            Notification::make()
+                                ->title('Đã xóa '.$records->count().' bài viết.')
+                                ->success()
+                                ->send();
+                        }),
+
+                    Tables\Actions\BulkAction::make('publish')
+                        ->label('Công khai hàng loạt')
+                        ->icon('heroicon-o-eye')
+                        ->color('success')
+                        ->action(function (Collection $records): void {
+                            DB::transaction(function () use ($records) {
+                                foreach ($records as $record) {
+                                    $record->update([
+                                        'is_published' => true,
+                                        'published_at' => $record->published_at ?? now(),
+                                    ]);
+                                }
+                            });
+
+                            Notification::make()
+                                ->title('Đã công khai '.$records->count().' bài viết.')
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion()
+                        ->visible(fn () => auth()->user()?->role === 'admin'),
+
+                    Tables\Actions\BulkAction::make('draft')
+                        ->label('Nháp hàng loạt')
+                        ->icon('heroicon-o-eye-slash')
+                        ->color('warning')
+                        ->action(function (Collection $records): void {
+                            DB::transaction(function () use ($records) {
+                                foreach ($records as $record) {
+                                    $record->update([
+                                        'is_published' => false,
+                                    ]);
+                                }
+                            });
+
+                            Notification::make()
+                                ->title('Đã chuyển '.$records->count().' bài viết về dạng bản nháp.')
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion()
+                        ->visible(fn () => auth()->user()?->role === 'admin'),
+
+                    Tables\Actions\BulkAction::make('changeCategory')
+                        ->label('Đổi danh mục hàng loạt')
+                        ->icon('heroicon-o-folder')
+                        ->requiresConfirmation()
+                        ->modalHeading(fn (Collection $records) => 'Đổi danh mục cho '.$records->count().' bài viết?')
+                        ->modalDescription('Hành động này sẽ cập nhật danh mục mới cho tất cả các bài viết được chọn. Bạn có chắc chắn muốn tiếp tục?')
+                        ->form([
+                            Select::make('category_id')
+                                ->label('Danh mục mới')
+                                ->options(fn () => Category::getTreeOptions())
+                                ->required(),
+                        ])
+                        ->action(function (Collection $records, array $data): void {
+                            DB::transaction(function () use ($records, $data) {
+                                foreach ($records as $record) {
+                                    $record->update([
+                                        'category_id' => $data['category_id'],
+                                    ]);
+                                }
+                            });
+
+                            $categoryName = Category::find($data['category_id'])?->name ?? 'mới';
+
+                            Notification::make()
+                                ->title('Đã chuyển '.$records->count().' bài viết sang danh mục '.$categoryName.'.')
+                                ->success()
+                                ->send();
+                        })
+                        ->deselectRecordsAfterCompletion()
+                        ->visible(fn () => auth()->user()?->role === 'admin'),
                 ]),
             ]);
     }

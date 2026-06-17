@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Filament\Resources\ArticleResource;
 use App\Filament\Resources\ArticleResource\Pages\CreateArticle;
 use App\Filament\Resources\ArticleResource\Pages\EditArticle;
+use App\Filament\Resources\ArticleResource\Pages\ListArticles;
 use App\Models\Article;
 use App\Models\Category;
 use App\Models\User;
@@ -469,5 +470,345 @@ class ArticleResourceTest extends TestCase
             ->get("/admin/articles/preview/{$uuid}");
 
         $response->assertStatus(403);
+    }
+
+    /** @test */
+    public function admins_can_list_articles_and_use_new_columns()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+        ]);
+
+        $category = Category::create([
+            'name' => 'General Medicine',
+            'slug' => 'general-medicine',
+        ]);
+
+        $article = Article::create([
+            'title' => 'Article One',
+            'slug' => 'article-one',
+            'content' => '<p>Content</p>',
+            'category_id' => $category->id,
+            'author_id' => $admin->id,
+            'seo_score' => 0,
+            'is_published' => true,
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(ListArticles::class)
+            ->assertCanRenderTableColumn('id')
+            ->assertTableColumnExists('slug')
+            ->assertCanRenderTableColumn('created_at')
+            ->assertTableColumnExists('updated_at')
+            ->assertCanRenderTableColumn('seo_score')
+            ->assertCanSeeTableRecords([$article]);
+    }
+
+    /** @test */
+    public function admins_can_filter_articles_by_author()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+        ]);
+
+        $author = User::factory()->create([
+            'name' => 'Specific Author',
+            'role' => 'admin',
+        ]);
+
+        $category = Category::create([
+            'name' => 'General Medicine',
+            'slug' => 'general-medicine',
+        ]);
+
+        $article1 = Article::create([
+            'title' => 'Article One',
+            'slug' => 'article-one',
+            'content' => '<p>Content</p>',
+            'category_id' => $category->id,
+            'author_id' => $admin->id,
+            'seo_score' => 0,
+            'is_published' => true,
+        ]);
+
+        $article2 = Article::create([
+            'title' => 'Article Two',
+            'slug' => 'article-two',
+            'content' => '<p>Content</p>',
+            'category_id' => $category->id,
+            'author_id' => $author->id,
+            'seo_score' => 85,
+            'is_published' => false,
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(ListArticles::class)
+            ->filterTable('author_id', $author->id)
+            ->assertCanSeeTableRecords([$article2])
+            ->assertCanNotSeeTableRecords([$article1]);
+    }
+
+    /** @test */
+    public function admins_can_filter_articles_by_seo_score()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+        ]);
+
+        $category = Category::create([
+            'name' => 'General Medicine',
+            'slug' => 'general-medicine',
+        ]);
+
+        $article1 = Article::create([
+            'title' => 'Article One',
+            'slug' => 'article-one',
+            'content' => '<p>Content</p>',
+            'category_id' => $category->id,
+            'author_id' => $admin->id,
+            'seo_score' => 0,
+            'is_published' => true,
+        ]);
+
+        $article2 = Article::create([
+            'title' => 'Article Two',
+            'slug' => 'article-two',
+            'content' => '<p>Content</p>',
+            'category_id' => $category->id,
+            'author_id' => $admin->id,
+            'seo_score' => 85,
+            'is_published' => false,
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(ListArticles::class)
+            ->filterTable('seo_filter', 'not_configured')
+            ->assertCanSeeTableRecords([$article1])
+            ->assertCanNotSeeTableRecords([$article2]);
+
+        Livewire::actingAs($admin)
+            ->test(ListArticles::class)
+            ->filterTable('seo_filter', 'good')
+            ->assertCanSeeTableRecords([$article2])
+            ->assertCanNotSeeTableRecords([$article1]);
+    }
+
+    /** @test */
+    public function admins_can_filter_articles_by_media()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+        ]);
+
+        $category = Category::create([
+            'name' => 'General Medicine',
+            'slug' => 'general-medicine',
+        ]);
+
+        $article1 = Article::create([
+            'title' => 'Article One',
+            'slug' => 'article-one',
+            'content' => '<p>Content</p>',
+            'category_id' => $category->id,
+            'author_id' => $admin->id,
+            'seo_score' => 0,
+            'is_published' => true,
+        ]);
+
+        $article2 = Article::create([
+            'title' => 'Article Two',
+            'slug' => 'article-two',
+            'content' => '<p>Content</p>',
+            'category_id' => $category->id,
+            'author_id' => $admin->id,
+            'seo_score' => 85,
+            'is_published' => false,
+            'featured_image' => 'articles/featured/image.jpg',
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(ListArticles::class)
+            ->filterTable('has_featured_image', true)
+            ->assertCanSeeTableRecords([$article2])
+            ->assertCanNotSeeTableRecords([$article1]);
+
+        Livewire::actingAs($admin)
+            ->test(ListArticles::class)
+            ->filterTable('has_featured_image', false)
+            ->assertCanSeeTableRecords([$article1])
+            ->assertCanNotSeeTableRecords([$article2]);
+    }
+
+    /** @test */
+    public function admins_can_bulk_publish_articles()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+        ]);
+
+        $category = Category::create([
+            'name' => 'General Medicine',
+            'slug' => 'general-medicine',
+        ]);
+
+        $article1 = Article::create([
+            'title' => 'Article One',
+            'slug' => 'article-one',
+            'content' => '<p>Content</p>',
+            'category_id' => $category->id,
+            'author_id' => $admin->id,
+            'is_published' => false,
+            'published_at' => null,
+        ]);
+
+        $article2 = Article::create([
+            'title' => 'Article Two',
+            'slug' => 'article-two',
+            'content' => '<p>Content</p>',
+            'category_id' => $category->id,
+            'author_id' => $admin->id,
+            'is_published' => false,
+            'published_at' => null,
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(ListArticles::class)
+            ->callTableBulkAction('publish', [$article1, $article2])
+            ->assertHasNoTableActionErrors();
+
+        $this->assertTrue($article1->fresh()->is_published);
+        $this->assertNotNull($article1->fresh()->published_at);
+        $this->assertTrue($article2->fresh()->is_published);
+        $this->assertNotNull($article2->fresh()->published_at);
+    }
+
+    /** @test */
+    public function admins_can_bulk_draft_articles()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+        ]);
+
+        $category = Category::create([
+            'name' => 'General Medicine',
+            'slug' => 'general-medicine',
+        ]);
+
+        $article1 = Article::create([
+            'title' => 'Article One',
+            'slug' => 'article-one',
+            'content' => '<p>Content</p>',
+            'category_id' => $category->id,
+            'author_id' => $admin->id,
+            'is_published' => true,
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(ListArticles::class)
+            ->callTableBulkAction('draft', [$article1])
+            ->assertHasNoTableActionErrors();
+
+        $this->assertFalse($article1->fresh()->is_published);
+    }
+
+    /** @test */
+    public function admins_can_bulk_change_category()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+        ]);
+
+        $category1 = Category::create([
+            'name' => 'Medicine 1',
+            'slug' => 'medicine-1',
+        ]);
+
+        $category2 = Category::create([
+            'name' => 'Medicine 2',
+            'slug' => 'medicine-2',
+        ]);
+
+        $article = Article::create([
+            'title' => 'Article One',
+            'slug' => 'article-one',
+            'content' => '<p>Content</p>',
+            'category_id' => $category1->id,
+            'author_id' => $admin->id,
+            'is_published' => true,
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(ListArticles::class)
+            ->callTableBulkAction('changeCategory', [$article], [
+                'category_id' => $category2->id,
+            ])
+            ->assertHasNoTableActionErrors();
+
+        $this->assertEquals($category2->id, $article->fresh()->category_id);
+    }
+
+    /** @test */
+    public function admins_can_bulk_delete_articles()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+        ]);
+
+        $category = Category::create([
+            'name' => 'General Medicine',
+            'slug' => 'general-medicine',
+        ]);
+
+        $article = Article::create([
+            'title' => 'Article One',
+            'slug' => 'article-one',
+            'content' => '<p>Content</p>',
+            'category_id' => $category->id,
+            'author_id' => $admin->id,
+            'is_published' => true,
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(ListArticles::class)
+            ->callTableBulkAction('delete', [$article])
+            ->assertHasNoTableActionErrors();
+
+        $this->assertDatabaseMissing('articles', [
+            'id' => $article->id,
+        ]);
+    }
+
+    /** @test */
+    public function admins_can_unpublish_article_on_edit_page()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+        ]);
+
+        $category = Category::create([
+            'name' => 'General Medicine',
+            'slug' => 'general-medicine',
+        ]);
+
+        $article = Article::create([
+            'title' => 'Article One',
+            'slug' => 'article-one',
+            'content' => '<p>Content</p>',
+            'category_id' => $category->id,
+            'author_id' => $admin->id,
+            'is_published' => true,
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(EditArticle::class, [
+                'record' => $article->getKey(),
+            ])
+            ->fillForm([
+                'is_published' => false,
+            ])
+            ->callAction('publish')
+            ->assertHasNoFormErrors();
+
+        $this->assertFalse($article->fresh()->is_published);
     }
 }

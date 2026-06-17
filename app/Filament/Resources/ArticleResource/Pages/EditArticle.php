@@ -45,7 +45,9 @@ class EditArticle extends EditRecord
                 ->label($this->record->is_published ? 'Cập nhật' : 'Xuất bản')
                 ->color('primary')
                 ->action(function () {
-                    $this->data['is_published'] = true;
+                    if (! $this->record->is_published) {
+                        $this->data['is_published'] = true;
+                    }
                     $this->save();
                 }),
             Actions\DeleteAction::make()->label('Xóa'),
