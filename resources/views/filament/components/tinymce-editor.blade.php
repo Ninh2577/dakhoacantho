@@ -3,6 +3,7 @@
         state: $wire.entangle('{{ $getStatePath() }}'),
         statePath: '{{ $getStatePath() }}',
         uploadUrl: '{{ route('admin.tinymce.upload-image') }}',
+        searchUrl: '{{ route('admin.internal-links.search') }}',
         csrfToken: '{{ csrf_token() }}',
         excludeId: '{{ optional($this->record)->id ?? '' }}'
     })"
@@ -54,6 +55,7 @@
             state: config.state,
             statePath: config.statePath,
             uploadUrl: config.uploadUrl,
+            searchUrl: config.searchUrl,
             csrfToken: config.csrfToken,
             excludeId: config.excludeId || '',
             editorInstanceId: null,
@@ -62,6 +64,7 @@
             _syncAbortController: null,
             
             init() {
+                console.log('TINYMCE CONFIG SEARCH URL:', config.searchUrl);
                 this.$nextTick(() => {
                     if (typeof tinymce === 'undefined') {
                         let script = document.createElement('script');
@@ -224,7 +227,9 @@
                                     textVal = editor.selection.getContent({ format: 'text' }) || '';
                                 }
 
-                                let excludeId = this.excludeId || '';
+                                let excludeId = config.excludeId || '';
+                                let searchUrl = config.searchUrl;
+                                console.log('SEARCH URL', searchUrl);
 
                                 let dialogApi = editor.windowManager.open({
                                     title: 'Chèn/Sửa liên kết',
@@ -445,9 +450,20 @@
                                         resultsDiv.style.display = 'block';
                                         resultsDiv.innerHTML = '\x3cdiv style="padding: 10px; text-align: center; color: #64748b;"\x3eĐang tải bài viết gần đây...\x3c/div\x3e';
 
-                                        fetch(`/admin/api/internal-links/search?exclude_id=${excludeId}`)
+                                        fetch(`${searchUrl}?exclude_id=${excludeId}`, {
+                                            headers: {
+                                                'Accept': 'application/json',
+                                                'X-Requested-With': 'XMLHttpRequest'
+                                            }
+                                        })
                                             .then(res => {
-                                                if (!res.ok) throw new Error('API Error');
+                                                if (!res.ok) {
+                                                    if (res.status === 401) throw new Error('Chưa đăng nhập (401)');
+                                                    if (res.status === 403) throw new Error('Không có quyền truy cập (403)');
+                                                    if (res.status === 404) throw new Error('Không tìm thấy API (404)');
+                                                    if (res.status >= 500) throw new Error('Lỗi máy chủ (' + res.status + ')');
+                                                    throw new Error('Lỗi phản hồi (' + res.status + ')');
+                                                }
                                                 return res.json();
                                             })
                                             .then(data => {
@@ -460,7 +476,11 @@
                                             })
                                             .catch(err => {
                                                 console.error(err);
-                                                resultsDiv.innerHTML = '\x3cdiv style="padding: 10px; text-align: center; color: #ef4444;"\x3eKhông thể kết nối máy chủ\x3c/div\x3e';
+                                                let errMsg = 'Không thể kết nối máy chủ';
+                                                if (err.message) {
+                                                    errMsg = err.message;
+                                                }
+                                                resultsDiv.innerHTML = `\x3cdiv style="padding: 10px; text-align: center; color: #ef4444;"\x3e${escapeHtml(errMsg)}\x3c/div\x3e`;
                                             });
                                     }
 
@@ -495,11 +515,21 @@
                                         debounceTimeout = setTimeout(() => {
                                             activeAbortController = new AbortController();
 
-                                            fetch(`/admin/api/internal-links/search?q=${encodeURIComponent(query)}&exclude_id=${excludeId}`, {
-                                                signal: activeAbortController.signal
+                                            fetch(`${searchUrl}?q=${encodeURIComponent(query)}&exclude_id=${excludeId}`, {
+                                                signal: activeAbortController.signal,
+                                                headers: {
+                                                    'Accept': 'application/json',
+                                                    'X-Requested-With': 'XMLHttpRequest'
+                                                }
                                             })
                                                 .then(res => {
-                                                    if (!res.ok) throw new Error('API Error');
+                                                    if (!res.ok) {
+                                                        if (res.status === 401) throw new Error('Chưa đăng nhập (401)');
+                                                        if (res.status === 403) throw new Error('Không có quyền truy cập (403)');
+                                                        if (res.status === 404) throw new Error('Không tìm thấy API (404)');
+                                                        if (res.status >= 500) throw new Error('Lỗi máy chủ (' + res.status + ')');
+                                                        throw new Error('Lỗi phản hồi (' + res.status + ')');
+                                                    }
                                                     return res.json();
                                                 })
                                                 .then(data => {
@@ -508,7 +538,11 @@
                                                 .catch(err => {
                                                     if (err.name === 'AbortError') return;
                                                     console.error(err);
-                                                    resultsDiv.innerHTML = '\x3cdiv style="padding: 10px; text-align: center; color: #ef4444;"\x3eKhông thể kết nối máy chủ\x3c/div\x3e';
+                                                    let errMsg = 'Không thể kết nối máy chủ';
+                                                    if (err.message) {
+                                                        errMsg = err.message;
+                                                    }
+                                                    resultsDiv.innerHTML = `\x3cdiv style="padding: 10px; text-align: center; color: #ef4444;"\x3e${escapeHtml(errMsg)}\x3c/div\x3e`;
                                                 });
                                         }, 300);
                                     });

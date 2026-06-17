@@ -7,6 +7,7 @@ use App\Models\Article;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 
 class InternalLinkSearchController extends Controller
@@ -16,11 +17,28 @@ class InternalLinkSearchController extends Controller
      */
     public function search(Request $request)
     {
+        Log::info('INTERNAL_LINK_SEARCH_HIT', [
+            'url' => request()->fullUrl(),
+        ]);
+
+        Log::info('InternalLinkSearchController called', [
+            'url' => $request->fullUrl(),
+            'auth_check' => auth()->check(),
+            'user_id' => auth()->id(),
+            'headers' => $request->headers->all(),
+        ]);
+
         // 1. Security check using Gate
         Gate::authorize('access-admin-api');
 
         $queryParam = $request->input('q', '');
         $excludeId = $request->input('exclude_id');
+
+        Log::info('INTERNAL_LINK_SEARCH_DEBUG', [
+            'exclude_id' => $excludeId,
+            'query' => $queryParam,
+            'slug_query' => Str::slug($queryParam),
+        ]);
 
         // Normalize keyword for cache keys
         $normalizedQuery = Str::lower(trim($queryParam));
@@ -32,7 +50,10 @@ class InternalLinkSearchController extends Controller
 
             // Only published & public content
             $queryBuilder->where('is_published', true)
-                ->where('published_at', '<=', now());
+                ->where(function ($q) {
+                    $q->whereNull('published_at')
+                      ->orWhere('published_at', '<=', now());
+                });
 
             // Handle SoftDeletes if added in the future
             if (in_array('Illuminate\Database\Eloquent\SoftDeletes', class_uses_recursive(Article::class))) {
@@ -56,7 +77,7 @@ class InternalLinkSearchController extends Controller
                 $queryBuilder->orderBy('id', 'desc')->limit(50);
             } else {
                 // If query is empty, return 10 latest articles
-                $queryBuilder->orderBy('published_at', 'desc')->limit(10);
+                $queryBuilder->orderByRaw('COALESCE(published_at, created_at) DESC')->limit(10);
             }
 
             $articles = $queryBuilder->get();
@@ -76,6 +97,11 @@ class InternalLinkSearchController extends Controller
                 ];
             })->toArray();
         });
+
+        Log::info('INTERNAL_LINK_RESULTS', [
+            'count' => count($results),
+            'results' => array_column($results, 'title'),
+        ]);
 
         return response()->json($results);
     }

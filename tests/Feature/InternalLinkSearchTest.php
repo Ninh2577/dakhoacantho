@@ -240,4 +240,53 @@ class InternalLinkSearchTest extends TestCase
         // Verify they are ordered by published_at desc (Bài viết thứ 1 is the newest since it has subHours(1))
         $this->assertEquals('Bài viết thứ 1', $response->json('0.title'));
     }
+
+    /** @test */
+    public function articles_with_null_published_at_are_included_in_search()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+        ]);
+
+        $article = Article::create([
+            'title' => 'Bài viết không có ngày xuất bản',
+            'slug' => 'bai-viet-khong-co-ngay-xuat-ban',
+            'content' => 'Lorem ipsum',
+            'category_id' => $this->category->id,
+            'is_published' => true,
+            'published_at' => null,
+        ]);
+
+        $response = $this->actingAs($admin)
+            ->getJson(route('admin.internal-links.search').'?q=khong-co-ngay');
+
+        $response->assertStatus(200);
+        $this->assertCount(1, $response->json());
+        $this->assertEquals($article->title, $response->json('0.title'));
+    }
+
+    /** @test */
+    public function empty_query_returns_recent_articles_even_with_null_published_at()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+        ]);
+
+        for ($i = 1; $i <= 5; $i++) {
+            Article::create([
+                'title' => "Bài viết thứ {$i}",
+                'slug' => "bai-viet-thu-{$i}",
+                'content' => 'Lorem ipsum',
+                'category_id' => $this->category->id,
+                'is_published' => true,
+                'published_at' => null,
+            ]);
+        }
+
+        $response = $this->actingAs($admin)
+            ->getJson(route('admin.internal-links.search'));
+
+        $response->assertStatus(200);
+        $this->assertCount(5, $response->json());
+    }
 }

@@ -231,6 +231,11 @@ Route::get('/admin/articles/preview/{uuid}', [ArticlePreviewController::class, '
 // 1. Home Page
 Route::get('/', [PageController::class, 'home'])->name('home');
 
+// Route for named 'login' required by Laravel's auth middleware
+Route::get('/login', function () {
+    return redirect()->route('filament.admin.auth.login');
+})->name('login');
+
 // 2. Contact Page
 Route::get('/lien-he', [PageController::class, 'contact'])->name('contact');
 
