@@ -1,0 +1,24 @@
+[2026-06-18 02:43:25] Unhandled Rejection: TypeError: Cannot read properties of undefined (reading 'length') Stack: TypeError: Cannot read properties of undefined (reading 'length')
+    at YO.<anonymous> (http://localhost/dakhoacantho_web/public/admin/articles/create?tab=-tab_content-tab:1716:77)
+    at EO.dispatch (https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:394131)
+    at YO.dispatch (https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:395385)
+    at https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:367697
+    at https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:367715
+    at BT (https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:368129)
+    at https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:376451
+[2026-06-18 02:43:44] Unhandled Rejection: TypeError: Cannot read properties of undefined (reading 'length') Stack: TypeError: Cannot read properties of undefined (reading 'length')
+    at YO.<anonymous> (http://localhost/dakhoacantho_web/public/admin/articles/create:1716:77)
+    at EO.dispatch (https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:394131)
+    at YO.dispatch (https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:395385)
+    at https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:367697
+    at https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:367715
+    at BT (https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:368129)
+    at https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:376451
+[2026-06-18 02:44:16] Unhandled Rejection: TypeError: Cannot read properties of undefined (reading 'length') Stack: TypeError: Cannot read properties of undefined (reading 'length')
+    at YO.<anonymous> (http://localhost/dakhoacantho_web/public/admin/articles/create:1716:77)
+    at EO.dispatch (https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:394131)
+    at YO.dispatch (https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:395385)
+    at https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:367697
+    at https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:367715
+    at BT (https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:368129)
+    at https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:376451

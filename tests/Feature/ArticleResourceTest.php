@@ -921,4 +921,35 @@ class ArticleResourceTest extends TestCase
         $response->assertSee('<img src="http://localhost/simple.jpg" alt="Simple" loading="lazy" decoding="async" />', false);
         $response->assertDontSee('<figcaption>');
     }
+
+    /** @test */
+    public function article_form_renders_with_tabs_layout()
+    {
+        $admin = User::factory()->create([
+            'role' => 'admin',
+        ]);
+
+        $category = Category::create([
+            'name' => 'General Medicine',
+            'slug' => 'general-medicine',
+        ]);
+
+        $article = Article::create([
+            'title' => 'Existing Article',
+            'slug' => 'existing-article',
+            'content' => '<p>Existing content</p>',
+            'category_id' => $category->id,
+            'is_published' => true,
+        ]);
+
+        Livewire::actingAs($admin)
+            ->test(CreateArticle::class)
+            ->assertFormExists();
+
+        Livewire::actingAs($admin)
+            ->test(EditArticle::class, [
+                'record' => $article->getKey(),
+            ])
+            ->assertFormExists();
+    }
 }

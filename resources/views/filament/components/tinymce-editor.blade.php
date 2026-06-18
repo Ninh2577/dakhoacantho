@@ -1,4 +1,9 @@
+@php
+    $safeId = str_replace('.', '-', $getId());
+@endphp
 <div
+    id="tinymce-wrapper-{{ $safeId }}"
+    wire:key="tinymce-wrapper-{{ $safeId }}"
     x-data="tinymceEditor({
         state: $wire.entangle('{{ $getStatePath() }}'),
         statePath: '{{ $getStatePath() }}',
@@ -10,7 +15,7 @@
     x-init="init()"
     x-on:destroy="destroy()"
     wire:ignore
-    class="w-full border border-slate-300 rounded-lg overflow-hidden flex flex-col"
+    class="tinymce-editor-container w-full border border-slate-300 rounded-lg flex flex-col"
     style="border-color: #cbd5e1;"
 >
     <!-- Tab Switcher (WordPress style) -->
@@ -37,18 +42,38 @@
     <div class="relative w-full flex-grow">
         <!-- Single Textarea that gets enhanced by TinyMCE -->
         <textarea 
-            id="tinymce-content-{{ $getId() }}"
+            id="tinymce-content-{{ $safeId }}"
             x-ref="editor" 
             x-model.lazy="state"
             @input="state = $el.value"
             class="w-full font-mono p-4 text-sm bg-slate-950 text-slate-200 focus:outline-none focus:ring-0 border-0"
-            style="height: 500px; min-height: 450px; font-family: Consolas, Monaco, monospace; line-height: 1.6; resize: vertical; display: block;"
+            style="height: 900px; min-height: 800px; font-family: Consolas, Monaco, monospace; line-height: 1.6; resize: vertical; display: block;"
             placeholder="Nhập nội dung bài viết..."
         ></textarea>
     </div>
 
 <script>
 (function() {
+    window.addEventListener('error', function(e) {
+        let errorMsg = e.message + ' at ' + e.filename + ':' + e.lineno + ':' + e.colno;
+        if (e.error && e.error.stack) {
+            errorMsg += ' Stack: ' + e.error.stack;
+        }
+        fetch('/dakhoacantho_web/public/log-js-error?msg=' + encodeURIComponent(errorMsg));
+    });
+    window.addEventListener('unhandledrejection', function(e) {
+        let errorMsg = 'Unhandled Rejection: ' + e.reason;
+        if (e.reason && e.reason.stack) {
+            errorMsg += ' Stack: ' + e.reason.stack;
+        }
+        fetch('/dakhoacantho_web/public/log-js-error?msg=' + encodeURIComponent(errorMsg));
+    });
+
+    window.tinyMCEPreInit = {
+        baseURL: 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2',
+        suffix: '.min'
+    };
+
     function registerTinyMceEditor() {
         if (typeof Alpine === 'undefined') return;
         Alpine.data('tinymceEditor', (config) => ({
@@ -62,18 +87,24 @@
             activeTab: 'visual',
             editorReady: false,
             _syncAbortController: null,
+            _visibilityObserver: null,
             
             init() {
                 console.log('TINYMCE CONFIG SEARCH URL:', config.searchUrl);
                 this.$nextTick(() => {
+                    window.tinyMCEPreInit = {
+                        baseURL: 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2',
+                        suffix: '.min'
+                    };
+
                     if (typeof tinymce === 'undefined') {
                         let script = document.createElement('script');
                         script.src = 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js';
                         script.referrerpolicy = 'origin';
-                        script.onload = () => this.initEditor();
+                        script.onload = () => this.tryInitEditor();
                         document.head.appendChild(script);
                     } else {
-                        this.initEditor();
+                        this.tryInitEditor();
                     }
                 });
 
@@ -132,9 +163,40 @@
                     }
                 }, { signal: this._syncAbortController.signal });
             },
+
+            tryInitEditor() {
+                let el = this.$refs.editor;
+                console.log('TEXTAREA FOUND', !!el);
+                if (!el) return;
+
+                if (el.offsetWidth > 0 && el.offsetHeight > 0) {
+                    console.log('TINYMCE TEXTAREA VISIBLE, INITIALIZING...');
+                    this.initEditor();
+                } else {
+                    console.log('TINYMCE TEXTAREA HIDDEN, WAITING FOR VISIBILITY...');
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                console.log('TINYMCE TEXTAREA BECOME VISIBLE, INITIALIZING NOW...');
+                                this.initEditor();
+                                observer.disconnect();
+                                this._visibilityObserver = null;
+                            }
+                        });
+                    });
+                    this._visibilityObserver = observer;
+                    observer.observe(el);
+                }
+            },
             
             initEditor() {
                 let id = this.$refs.editor.id;
+                let element = this.$refs.editor;
+                console.log('TEXTAREA FOUND', !!element);
+                if (!element) return;
+
+                console.log('TINYMCE INIT START', id);
+
                 let oldEditor = id ? tinymce.get(id) : null;
                 if (oldEditor) {
                     oldEditor.remove();
@@ -142,10 +204,19 @@
 
                 console.log('TINYMCE IMAGE CONFIG', { image_caption: true });
 
+                tinymce.baseURL = 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2';
+                tinymce.suffix = '.min';
+
                 tinymce.init({
                     target: this.$refs.editor,
-                    height: 500,
-                    min_height: 450,
+                    base_url: 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2',
+                    suffix: '.min',
+                    ui_container: '#tinymce-wrapper-{{ $safeId }}',
+                    height: 900,
+                    min_height: 800,
+                    skin: 'oxide',
+                    skin_url: 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/skins/ui/oxide',
+                    content_css: 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/skins/content/default/content.min.css',
                     branding: false,
                     promotion: false,
                     convert_urls: false,
@@ -159,7 +230,7 @@
                     image_caption: true,
                     extended_valid_elements: 'figure[*],figcaption[contenteditable|class|style|*],img[*]',
                     valid_children: '+figure[img|figcaption],+body[figure]',
-                    content_style: 'body { font-family: Arial, sans-serif; font-size: 16px; line-height: 1.7; color: #334155; } figure.image { text-align: center; margin: 1.5rem 0; } figure.image img { border-radius: 0.75rem; max-width: 100%; height: auto; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); } figure.image figcaption { margin-top: 5px; font-size: 0.9em; color: #666; font-style: italic; cursor: text; user-select: text; -webkit-user-select: text; }',
+                    content_style: 'body { font-family: Arial, sans-serif; font-size: 16px; line-height: 1.7; color: #334155; max-width: 720px; margin: 0 auto; padding: 2rem 1rem; } figure.image { text-align: center; margin: 1.5rem 0; } figure.image img { border-radius: 0.75rem; max-width: 100%; height: auto; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); } figure.image figcaption { margin-top: 5px; font-size: 0.9em; color: #666; font-style: italic; cursor: text; user-select: text; -webkit-user-select: text; }',
                     
                     // Admin image upload integration
                     images_upload_url: this.uploadUrl,
@@ -215,6 +286,8 @@
                                 figcaption.setAttribute('contenteditable', 'true');
                                 editor.selection.select(figcaption, true);
                             }
+                            // Force focus directly into the editor when clicking inside the iframe (breaks focus traps)
+                            editor.focus();
                         });
 
                         // Intercept default mceLink command execution to show custom dialog
@@ -606,6 +679,9 @@
                     // Load initial value with delayed retries
                     // The iframe body needs time to fully render before it becomes editable
                     editor.on('init', () => {
+                        console.log('TINYMCE INIT');
+                        console.log('TINYMCE INIT SUCCESS', id);
+                        console.log('TINYMCE EDITOR COUNT', (window.tinymce && window.tinymce.editors) ? (window.tinymce.editors.length || Object.keys(window.tinymce.editors).length || 0) : 0);
                         // Phase 1: Immediate attempt
                         editor.setContent(this.state || '');
                         ensureEditorReady();
@@ -693,6 +769,12 @@
         },
         
         destroy() {
+            let id = this.editorInstanceId || (this.$refs.editor ? this.$refs.editor.id : null);
+            console.log('TINYMCE DESTROY', id);
+            if (this._visibilityObserver) {
+                this._visibilityObserver.disconnect();
+                this._visibilityObserver = null;
+            }
             // Clean up TinyMCE instance when leaving the page (essential for Filament SPA navigation)
             if (this._syncAbortController) {
                 this._syncAbortController.abort();
