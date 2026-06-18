@@ -54,21 +54,6 @@
 
 <script>
 (function() {
-    window.addEventListener('error', function(e) {
-        let errorMsg = e.message + ' at ' + e.filename + ':' + e.lineno + ':' + e.colno;
-        if (e.error && e.error.stack) {
-            errorMsg += ' Stack: ' + e.error.stack;
-        }
-        fetch('/dakhoacantho_web/public/log-js-error?msg=' + encodeURIComponent(errorMsg));
-    });
-    window.addEventListener('unhandledrejection', function(e) {
-        let errorMsg = 'Unhandled Rejection: ' + e.reason;
-        if (e.reason && e.reason.stack) {
-            errorMsg += ' Stack: ' + e.reason.stack;
-        }
-        fetch('/dakhoacantho_web/public/log-js-error?msg=' + encodeURIComponent(errorMsg));
-    });
-
     window.tinyMCEPreInit = {
         baseURL: 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2',
         suffix: '.min'
@@ -86,12 +71,14 @@
             editorInstanceId: null,
             activeTab: 'visual',
             editorReady: false,
+            _pendingContent: null,
             _syncAbortController: null,
             _visibilityObserver: null,
             
             init() {
-                console.log('TINYMCE CONFIG SEARCH URL:', config.searchUrl);
-                this.$nextTick(() => {
+                console.log('TINYMCE INIT:', config.statePath);
+                // Delay initialization to avoid race conditions with Alpine/Livewire DOM hydration on page load
+                setTimeout(() => {
                     window.tinyMCEPreInit = {
                         baseURL: 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2',
                         suffix: '.min'
@@ -106,18 +93,26 @@
                     } else {
                         this.tryInitEditor();
                     }
-                });
+                }, 300);
 
                 // Watch for external Livewire state changes to update the editor content
                 this.$watch('state', (newVal) => {
+                    if (!this.editorReady) {
+                        // Editor not ready yet — store content so we can apply it after init
+                        if (newVal) {
+                            this._pendingContent = newVal;
+                        }
+                        return;
+                    }
                     if (this.editorInstanceId) {
                         let editor = tinymce.get(this.editorInstanceId);
-                        if (editor && this.editorReady) {
-                            if (this.activeTab === 'visual' && !editor.hasFocus() && newVal !== editor.getContent()) {
-                                editor.setContent(newVal || '');
-                                // Also ensure editor stays in design mode after state update
-                                try { editor.mode.set('design'); } catch (e) {}
-                            }
+                        if (editor && this.activeTab === 'visual' && !editor.hasFocus() && newVal !== editor.getContent()) {
+                            editor.setContent(newVal || '');
+                            try {
+                                if (editor.mode && typeof editor.mode.get === 'function' && editor.mode.get() !== 'design') {
+                                    editor.mode.set('design');
+                                }
+                            } catch (e) {}
                         }
                     }
                 });
@@ -668,40 +663,76 @@
                         // Helper: apply content and force editable design mode
                     const ensureEditorReady = () => {
                         try {
-                            editor.mode.set('design');
+                            if (editor.mode && typeof editor.mode.get === 'function' && editor.mode.get() !== 'design') {
+                                editor.mode.set('design');
+                            }
                             let body = editor.getBody();
-                            if (body) {
+                            if (body && body.getAttribute('contenteditable') !== 'true') {
                                 body.setAttribute('contenteditable', 'true');
                             }
                         } catch (e) {}
                     };
 
-                    // Load initial value with delayed retries
-                    // The iframe body needs time to fully render before it becomes editable
                     editor.on('init', () => {
-                        console.log('TINYMCE INIT');
-                        console.log('TINYMCE INIT SUCCESS', id);
-                        console.log('TINYMCE EDITOR COUNT', (window.tinymce && window.tinymce.editors) ? (window.tinymce.editors.length || Object.keys(window.tinymce.editors).length || 0) : 0);
-                        // Phase 1: Immediate attempt
-                        editor.setContent(this.state || '');
-                        ensureEditorReady();
+                        // Use the exact same activation sequence as switchTab('visual').
+                        // TinyMCE's editor.show() internally calls editorManager.setActive(this)
+                        // which registers the editor as the active, interactive instance.
+                        // Without calling show(), the editor renders visually but never becomes
+                        // interactive (no keyboard/mouse input accepted).
+                        //
+                        // Strategy for initial content (most authoritative source first):
+                        //   1. this.state — already hydrated by Livewire entangle
+                        //   2. this._pendingContent — captured by $watch before editor was ready
+                        //   3. this.$wire.get(statePath) — direct Livewire fetch as final fallback
 
-                        // Phase 2: Retry after iframe is fully rendered (fixes blank Visual tab)
-                        setTimeout(() => {
-                            if (this.state && editor.getContent() !== this.state) {
-                                editor.setContent(this.state || '');
+                        const activateEditor = (content) => {
+                            if (this.activeTab === 'visual') {
+                                // Step 1: hide() then show() with a brief gap.
+                                // This is the CRITICAL step — show() triggers setActive() inside TinyMCE.
+                                editor.hide();
+                                setTimeout(() => {
+                                    editor.show();
+                                    // Step 2: Set content (always, even empty — activates iframe body)
+                                    editor.setContent(content || '');
+                                    // Step 3: Unconditionally force design mode + contenteditable
+                                    try {
+                                        if (editor.mode && typeof editor.mode.get === 'function') {
+                                            editor.mode.set('design');
+                                        }
+                                        let body = editor.getBody();
+                                        if (body) {
+                                            body.setAttribute('contenteditable', 'true');
+                                        }
+                                    } catch (e) {}
+                                    // Step 4: Focus the editor
+                                    setTimeout(() => { editor.focus(); }, 50);
+                                    this.editorReady = true;
+                                }, 50);
+                            } else {
+                                editor.hide();
+                                this.editorReady = true;
                             }
-                            ensureEditorReady();
-                            this.editorReady = true;
-                        }, 150);
+                        };
 
-                        // Phase 3: Final retry for slow Livewire hydration on edit pages
-                        setTimeout(() => {
-                            if (this.state && editor.getContent() !== this.state) {
-                                editor.setContent(this.state || '');
-                            }
-                            ensureEditorReady();
-                        }, 600);
+                        // Determine initial content and activate
+                        const immediateContent = this.state || this._pendingContent;
+                        if (immediateContent) {
+                            activateEditor(immediateContent);
+                            this._pendingContent = null;
+                        } else {
+                            // State not yet hydrated — fetch authoritative value from Livewire
+                            Promise.resolve(this.$wire.get(this.statePath)).then((liveContent) => {
+                                const finalContent = liveContent || this.state || this._pendingContent || '';
+                                this._pendingContent = null;
+                                activateEditor(finalContent);
+                                if (finalContent && !this.state) {
+                                    this.state = finalContent;
+                                }
+                            }).catch(() => {
+                                activateEditor(this.state || '');
+                                this._pendingContent = null;
+                            });
+                        }
                     });
 
                     // Debounced state sync on typing
@@ -757,8 +788,13 @@
                     editor.setContent(this.state || '');
                     // Force design mode and contenteditable
                     try {
-                        editor.mode.set('design');
-                        editor.getBody().setAttribute('contenteditable', 'true');
+                        if (editor.mode && typeof editor.mode.get === 'function' && editor.mode.get() !== 'design') {
+                            editor.mode.set('design');
+                        }
+                        let body = editor.getBody();
+                        if (body && body.getAttribute('contenteditable') !== 'true') {
+                            body.setAttribute('contenteditable', 'true');
+                        }
                     } catch (e) {}
                     setTimeout(() => {
                         editor.focus();

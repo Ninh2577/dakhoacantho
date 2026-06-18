@@ -1,24 +1,19 @@
-[2026-06-18 02:43:25] Unhandled Rejection: TypeError: Cannot read properties of undefined (reading 'length') Stack: TypeError: Cannot read properties of undefined (reading 'length')
-    at YO.<anonymous> (http://localhost/dakhoacantho_web/public/admin/articles/create?tab=-tab_content-tab:1716:77)
-    at EO.dispatch (https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:394131)
-    at YO.dispatch (https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:395385)
-    at https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:367697
-    at https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:367715
-    at BT (https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:368129)
-    at https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:376451
-[2026-06-18 02:43:44] Unhandled Rejection: TypeError: Cannot read properties of undefined (reading 'length') Stack: TypeError: Cannot read properties of undefined (reading 'length')
-    at YO.<anonymous> (http://localhost/dakhoacantho_web/public/admin/articles/create:1716:77)
-    at EO.dispatch (https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:394131)
-    at YO.dispatch (https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:395385)
-    at https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:367697
-    at https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:367715
-    at BT (https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:368129)
-    at https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:376451
-[2026-06-18 02:44:16] Unhandled Rejection: TypeError: Cannot read properties of undefined (reading 'length') Stack: TypeError: Cannot read properties of undefined (reading 'length')
-    at YO.<anonymous> (http://localhost/dakhoacantho_web/public/admin/articles/create:1716:77)
-    at EO.dispatch (https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:394131)
-    at YO.dispatch (https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:395385)
-    at https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:367697
-    at https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:367715
-    at BT (https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:368129)
-    at https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2/tinymce.min.js:4:376451
+[2026-06-18 03:21:39] DIAGNOSTIC - OnInit start. state: null, activeTab: visual
+[2026-06-18 03:21:39] DIAGNOSTIC - After 100ms. state: null
+[2026-06-18 03:21:39] DIAGNOSTIC - After 250ms. state: null, editorContent:
+[2026-06-18 03:21:43] DIAGNOSTIC - OnInit start. state: null, activeTab: visual
+[2026-06-18 03:21:43] DIAGNOSTIC - After 100ms. state: null
+[2026-06-18 03:21:43] DIAGNOSTIC - After 250ms. state: null, editorContent:
+[2026-06-18 03:33:32] DIAGNOSTIC - After 100ms. state: null
+[2026-06-18 03:33:32] DIAGNOSTIC - After 250ms. state: null, editorContent:
+[2026-06-18 03:33:32] DIAGNOSTIC - OnInit start. state: null, activeTab: visual
+[2026-06-18 03:35:18] DIAGNOSTIC - Watcher fired. newVal exists: false, editorReady: true, activeTab: visual
+[2026-06-18 03:35:19] DIAGNOSTIC - Watcher fired. newVal exists: false, editorReady: true, activeTab: visual
+[2026-06-18 03:39:49] DIAGNOSTIC - After 250ms. state: null, editorContent:
+[2026-06-18 03:39:49] DIAGNOSTIC - After 100ms. state: null
+[2026-06-18 03:39:49] DIAGNOSTIC - OnInit start. state: null, activeTab: visual
+[2026-06-18 03:49:31] DIAGNOSTIC - Watcher fired. newVal exists: false, editorReady: true, activeTab: visual
+[2026-06-18 03:49:32] DIAGNOSTIC - Watcher fired. newVal exists: false, editorReady: true, activeTab: visual
+[2026-06-18 03:49:37] DIAGNOSTIC - After 100ms. state: null
+[2026-06-18 03:49:37] DIAGNOSTIC - After 250ms. state: null, editorContent:
+[2026-06-18 03:49:37] DIAGNOSTIC - OnInit start. state: null, activeTab: visual

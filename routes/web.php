@@ -241,12 +241,6 @@ Route::get('/lien-he', [PageController::class, 'contact'])->name('contact');
 Route::view('/chinh-sach-bao-mat', 'policies.privacy')->name('privacy.policy');
 Route::view('/dieu-khoan-su-dung', 'policies.terms')->name('terms.policy');
 
-Route::get('/log-js-error', function (\Illuminate\Http\Request $request) {
-    $msg = $request->query('msg', '');
-    $log = "[" . date('Y-m-d H:i:s') . "] " . $msg . "\n";
-    file_put_contents(public_path('js_errors.txt'), $log, FILE_APPEND);
-    return response('ok');
-});
 
 // Category Index Page
 Route::get('/chuyen-khoa', [CategoryController::class, 'index'])->name('categories.index');

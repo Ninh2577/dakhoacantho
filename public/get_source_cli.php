@@ -15,7 +15,7 @@ if (!$admin) {
 Auth::login($admin);
 
 $subRequest = Illuminate\Http\Request::create(
-    '/admin/articles/create', 
+    '/admin/articles/1222/edit', 
     'GET', 
     ['tab' => '-tab_content-tab']
 );
