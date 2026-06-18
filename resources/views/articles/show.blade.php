@@ -295,6 +295,20 @@
                             </p>
                         </div>
 
+                        <!-- Trustworthy Sources Box -->
+                        <div class="flex items-start gap-2.5 text-xs md:text-sm text-slate-500 bg-slate-50/50 border border-slate-100 rounded-2xl p-4 my-6">
+                            <svg class="w-5 h-5 text-slate-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                            </svg>
+                            <p class="leading-relaxed">
+                                <strong>Nguồn tham khảo uy tín:</strong> Bài viết tham khảo dựa trên tư liệu từ các tổ chức sức khỏe uy tín hàng đầu thế giới bao gồm: 
+                                <a href="https://www.who.int/" rel="nofollow" target="_blank" class="text-teal-600 hover:text-teal-700 underline font-semibold transition-colors">Tổ chức Y tế Thế giới (WHO)</a>, 
+                                <a href="https://www.mayoclinic.org/" rel="nofollow" target="_blank" class="text-teal-600 hover:text-teal-700 underline font-semibold transition-colors">Mayo Clinic</a>, 
+                                <a href="https://my.clevelandclinic.org/" rel="nofollow" target="_blank" class="text-teal-600 hover:text-teal-700 underline font-semibold transition-colors">Cleveland Clinic</a> và 
+                                <a href="https://www.healthline.com/" rel="nofollow" target="_blank" class="text-teal-600 hover:text-teal-700 underline font-semibold transition-colors">Healthline</a>,...
+                            </p>
+                        </div>
+
                         <!-- Engagement Bar (Likes, Bookmarks, Copy Link, FB & Zalo Share) -->
                         <div x-data="{ 
                             liked: false, 
