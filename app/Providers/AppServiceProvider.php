@@ -69,6 +69,27 @@ class AppServiceProvider extends ServiceProvider
             $view->with('mainCategories', $mainCategories);
         });
 
+        // Media Cleanup: Automatically delete physical files when records are deleted
+        \App\Models\Article::deleting(function ($article) {
+            $images = [
+                $article->featured_image,
+                $article->thumbnail_image,
+                $article->og_image,
+                $article->twitter_image,
+            ];
+            foreach (array_unique(array_filter($images)) as $image) {
+                if (\Illuminate\Support\Facades\Storage::disk('public')->exists($image)) {
+                    \Illuminate\Support\Facades\Storage::disk('public')->delete($image);
+                }
+            }
+        });
+
+        \App\Models\Category::deleting(function ($category) {
+            if ($category->featured_image && \Illuminate\Support\Facades\Storage::disk('public')->exists($category->featured_image)) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($category->featured_image);
+            }
+        });
+
         // Security: track login attempts via Laravel auth events
         Event::listen(Login::class, [TrackLoginAttempt::class, 'handleLogin']);
         Event::listen(Failed::class, [TrackLoginAttempt::class, 'handleFailed']);

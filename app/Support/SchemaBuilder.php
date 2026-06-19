@@ -36,6 +36,21 @@ class SchemaBuilder
             'image' => $logoUrl,
             'telephone' => '+84966332352',
             'email' => 'info@dakhoagiaphuoc.vn',
+            'priceRange' => '$$',
+            'medicalSpecialty' => [
+                'ObstetricsAndGynecology',
+                'Urology',
+                'InfectiousDisease'
+            ],
+            'geo' => [
+                '@type' => 'GeoCoordinates',
+                'latitude' => '10.043516',
+                'longitude' => '105.783615'
+            ],
+            'sameAs' => [
+                'https://www.facebook.com/pkdkgiaphuoc',
+                'https://www.youtube.com/@dakhoagiaphuoc'
+            ],
             'address' => [
                 '@type' => 'PostalAddress',
                 'streetAddress' => '57 Hùng Vương',
@@ -206,6 +221,21 @@ class SchemaBuilder
             if ($article->category) {
                 $blogPosting['articleSection'] = $article->category->name;
             }
+
+            // Standardize medical reviewer information for E-E-A-T
+            $reviewerName = match ($article->category?->slug) {
+                'nam-khoa' => 'BS. CK1 Nguyễn Văn An',
+                'phu-khoa' => 'BS. CK1 Trần Thị Mai',
+                default => 'Ban cố vấn y khoa Gia Phước',
+            };
+            $blogPosting['reviewedBy'] = [
+                '@type' => 'Person',
+                'name' => $reviewerName,
+                'jobTitle' => 'Medical Specialist',
+                'worksFor' => [
+                    '@id' => $siteUrl.'/#organization',
+                ],
+            ];
 
             // MedicalWebPage extra fields
             if ($resolvedType === 'MedicalWebPage') {

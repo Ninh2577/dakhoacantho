@@ -18,194 +18,196 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/native-session-test', function () {
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
-    if (! isset($_SESSION['test_count'])) {
-        $_SESSION['test_count'] = 1;
-    } else {
-        $_SESSION['test_count']++;
-    }
-
-    return response()->json([
-        'engine' => 'Native PHP Session',
-        'session_id' => session_id(),
-        'visit_count' => $_SESSION['test_count'],
-        'save_path' => session_save_path(),
-        'cookies_received' => $_COOKIE,
-    ]);
-});
-
-Route::get('/laravel-session-test', function () {
-    $session = request()->session();
-    $count = $session->get('test_count', 0) + 1;
-    $session->put('test_count', $count);
-    $session->save();
-
-    $sessions_dir = storage_path('framework/sessions');
-    $is_writable = is_writable($sessions_dir);
-    $dir_exists = is_dir($sessions_dir);
-
-    return response()->json([
-        'engine' => 'Laravel Session',
-        'session_driver' => config('session.driver'),
-        'session_id' => $session->getId(),
-        'visit_count' => $count,
-        'cookie_domain' => config('session.domain'),
-        'cookie_secure' => config('session.secure'),
-        'same_site' => config('session.same_site'),
-        'sessions_dir' => $sessions_dir,
-        'sessions_dir_exists' => $dir_exists,
-        'sessions_dir_writable' => $is_writable,
-        'cookies_received' => $_COOKIE,
-    ]);
-});
-
-Route::get('/db-test', function () {
-    $user = User::where('email', 'admin@dakhoacantho.com')->first();
-
-    if (request()->has('reset')) {
-        if (! $user) {
-            $user = User::create([
-                'name' => 'Admin',
-                'email' => 'admin@dakhoacantho.com',
-                'password' => Hash::make('password'),
-                'role' => 'admin',
-            ]);
-
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Admin user created successfully with password "password"!',
-                'user' => $user,
-            ]);
+if (app()->environment('local')) {
+    Route::get('/native-session-test', function () {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        if (! isset($_SESSION['test_count'])) {
+            $_SESSION['test_count'] = 1;
         } else {
-            $user->password = Hash::make('password');
-            $user->save();
+            $_SESSION['test_count']++;
+        }
 
+        return response()->json([
+            'engine' => 'Native PHP Session',
+            'session_id' => session_id(),
+            'visit_count' => $_SESSION['test_count'],
+            'save_path' => session_save_path(),
+            'cookies_received' => $_COOKIE,
+        ]);
+    });
+
+    Route::get('/laravel-session-test', function () {
+        $session = request()->session();
+        $count = $session->get('test_count', 0) + 1;
+        $session->put('test_count', $count);
+        $session->save();
+
+        $sessions_dir = storage_path('framework/sessions');
+        $is_writable = is_writable($sessions_dir);
+        $dir_exists = is_dir($sessions_dir);
+
+        return response()->json([
+            'engine' => 'Laravel Session',
+            'session_driver' => config('session.driver'),
+            'session_id' => $session->getId(),
+            'visit_count' => $count,
+            'cookie_domain' => config('session.domain'),
+            'cookie_secure' => config('session.secure'),
+            'same_site' => config('session.same_site'),
+            'sessions_dir' => $sessions_dir,
+            'sessions_dir_exists' => $dir_exists,
+            'sessions_dir_writable' => $is_writable,
+            'cookies_received' => $_COOKIE,
+        ]);
+    });
+
+    Route::get('/db-test', function () {
+        $user = User::where('email', 'admin@dakhoacantho.com')->first();
+
+        if (request()->has('reset')) {
+            if (! $user) {
+                $user = User::create([
+                    'name' => 'Admin',
+                    'email' => 'admin@dakhoacantho.com',
+                    'password' => Hash::make('password'),
+                    'role' => 'admin',
+                ]);
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Admin user created successfully with password "password"!',
+                    'user' => $user,
+                ]);
+            } else {
+                $user->password = Hash::make('password');
+                $user->save();
+
+                return response()->json([
+                    'status' => 'success',
+                    'message' => 'Admin user password reset to "password" successfully!',
+                    'user' => $user,
+                ]);
+            }
+        }
+
+        if (! $user) {
             return response()->json([
-                'status' => 'success',
-                'message' => 'Admin user password reset to "password" successfully!',
-                'user' => $user,
+                'status' => 'error',
+                'message' => 'User admin@dakhoacantho.com does not exist in the database! Go to /db-test?reset=1 to create it.',
             ]);
         }
-    }
 
-    if (! $user) {
-        return response()->json([
-            'status' => 'error',
-            'message' => 'User admin@dakhoacantho.com does not exist in the database! Go to /db-test?reset=1 to create it.',
-        ]);
-    }
+        $password_matches = Hash::check('password', $user->password);
 
-    $password_matches = Hash::check('password', $user->password);
-
-    $implements_filament_user = $user instanceof FilamentUser;
-    $can_access_panel = 'N/A';
-    if ($implements_filament_user) {
-        try {
-            $panel = Filament::getCurrentPanel();
-            if (! $panel) {
-                $panel = Filament::getPanel('admin');
+        $implements_filament_user = $user instanceof FilamentUser;
+        $can_access_panel = 'N/A';
+        if ($implements_filament_user) {
+            try {
+                $panel = Filament::getCurrentPanel();
+                if (! $panel) {
+                    $panel = Filament::getPanel('admin');
+                }
+                $can_access_panel = $user->canAccessPanel($panel) ? 'YES' : 'NO';
+            } catch (Exception $e) {
+                $can_access_panel = 'ERROR: '.$e->getMessage();
             }
-            $can_access_panel = $user->canAccessPanel($panel) ? 'YES' : 'NO';
+        }
+
+        $tables = [];
+        try {
+            $dbTables = DB::select('SHOW TABLES');
+            $tables = array_map(function ($table) {
+                return array_values((array) $table)[0];
+            }, $dbTables);
         } catch (Exception $e) {
-            $can_access_panel = 'ERROR: '.$e->getMessage();
+            $tables = 'ERROR: '.$e->getMessage();
         }
-    }
 
-    $tables = [];
-    try {
-        $dbTables = DB::select('SHOW TABLES');
-        $tables = array_map(function ($table) {
-            return array_values((array) $table)[0];
-        }, $dbTables);
-    } catch (Exception $e) {
-        $tables = 'ERROR: '.$e->getMessage();
-    }
+        return response()->json([
+            'status' => 'success',
+            'user_found' => true,
+            'email' => $user->email,
+            'role' => $user->role,
+            'password_hash' => $user->password,
+            'password_matches_default_password' => $password_matches ? 'YES' : 'NO',
+            'implements_filament_user' => $implements_filament_user ? 'YES' : 'NO',
+            'can_access_panel' => $can_access_panel,
+            'database_tables' => $tables,
+        ]);
+    });
 
-    return response()->json([
-        'status' => 'success',
-        'user_found' => true,
-        'email' => $user->email,
-        'role' => $user->role,
-        'password_hash' => $user->password,
-        'password_matches_default_password' => $password_matches ? 'YES' : 'NO',
-        'implements_filament_user' => $implements_filament_user ? 'YES' : 'NO',
-        'can_access_panel' => $can_access_panel,
-        'database_tables' => $tables,
-    ]);
-});
+    Route::get('/request-test', function () {
+        return response()->json([
+            'url' => request()->url(),
+            'full_url' => request()->fullUrl(),
+            'is_secure' => request()->isSecure(),
+            'base_path' => request()->getBasePath(),
+            'base_url' => request()->getBaseUrl(),
+            'filament_url' => Filament::getUrl(),
+            'intended_url' => session()->get('url.intended'),
+            'header_host' => request()->header('host'),
+            'header_x_forwarded_proto' => request()->header('x-forwarded-proto'),
+            'header_x_forwarded_port' => request()->header('x-forwarded-port'),
+            'server_port' => $_SERVER['SERVER_PORT'] ?? null,
+            'https_server_var' => $_SERVER['HTTPS'] ?? null,
+        ]);
+    });
 
-Route::get('/request-test', function () {
-    return response()->json([
-        'url' => request()->url(),
-        'full_url' => request()->fullUrl(),
-        'is_secure' => request()->isSecure(),
-        'base_path' => request()->getBasePath(),
-        'base_url' => request()->getBaseUrl(),
-        'filament_url' => Filament::getUrl(),
-        'intended_url' => session()->get('url.intended'),
-        'header_host' => request()->header('host'),
-        'header_x_forwarded_proto' => request()->header('x-forwarded-proto'),
-        'header_x_forwarded_port' => request()->header('x-forwarded-port'),
-        'server_port' => $_SERVER['SERVER_PORT'] ?? null,
-        'https_server_var' => $_SERVER['HTTPS'] ?? null,
-    ]);
-});
-
-Route::get('/debug-login-run', function () {
-    $user = User::where('email', 'admin@dakhoacantho.com')->first();
-    if (! $user) {
-        return 'User not found';
-    }
-
-    // Log the user in
-    auth()->login($user);
-
-    // Set a session value
-    session(['test_auth' => 'authenticated_ok']);
-    session()->save();
-
-    return response()->json([
-        'authenticated' => auth()->check(),
-        'user_id' => auth()->id(),
-        'session_id' => session()->getId(),
-        'session_test_auth' => session('test_auth'),
-    ]);
-});
-
-Route::get('/debug-login-check', function () {
-    return response()->json([
-        'authenticated' => auth()->check(),
-        'user_id' => auth()->id(),
-        'session_id' => session()->getId(),
-        'session_test_auth' => session('test_auth'),
-    ]);
-});
-
-Route::get('/debug-logs', function () {
-    $routingServiceFile = app_path('Services/UrlRoutingService.php');
-    $mtime = file_exists($routingServiceFile) ? date('Y-m-d H:i:s', filemtime($routingServiceFile)) : 'unknown';
-
-    $logFile = storage_path('logs/laravel.log');
-    if (! file_exists($logFile)) {
-        return 'Routing service mtime: '.$mtime."\nLog file not found at ".$logFile;
-    }
-
-    $lines = file($logFile);
-    $output = [];
-    $output[] = 'Routing service mtime: '.$mtime."\n";
-    // Look at last 2000 lines, keep error messages and timestamps
-    $recentLines = array_slice($lines, -2000);
-    foreach ($recentLines as $line) {
-        if (strpos($line, 'ERROR:') !== false || strpos($line, 'Exception') !== false || preg_match('/^\[202\d-/', $line)) {
-            $output[] = $line;
+    Route::get('/debug-login-run', function () {
+        $user = User::where('email', 'admin@dakhoacantho.com')->first();
+        if (! $user) {
+            return 'User not found';
         }
-    }
 
-    return response(implode('', $output), 200, ['Content-Type' => 'text/plain']);
-});
+        // Log the user in
+        auth()->login($user);
+
+        // Set a session value
+        session(['test_auth' => 'authenticated_ok']);
+        session()->save();
+
+        return response()->json([
+            'authenticated' => auth()->check(),
+            'user_id' => auth()->id(),
+            'session_id' => session()->getId(),
+            'session_test_auth' => session('test_auth'),
+        ]);
+    });
+
+    Route::get('/debug-login-check', function () {
+        return response()->json([
+            'authenticated' => auth()->check(),
+            'user_id' => auth()->id(),
+            'session_id' => session()->getId(),
+            'session_test_auth' => session('test_auth'),
+        ]);
+    });
+
+    Route::get('/debug-logs', function () {
+        $routingServiceFile = app_path('Services/UrlRoutingService.php');
+        $mtime = file_exists($routingServiceFile) ? date('Y-m-d H:i:s', filemtime($routingServiceFile)) : 'unknown';
+
+        $logFile = storage_path('logs/laravel.log');
+        if (! file_exists($logFile)) {
+            return 'Routing service mtime: '.$mtime."\nLog file not found at ".$logFile;
+        }
+
+        $lines = file($logFile);
+        $output = [];
+        $output[] = 'Routing service mtime: '.$mtime."\n";
+        // Look at last 2000 lines, keep error messages and timestamps
+        $recentLines = array_slice($lines, -2000);
+        foreach ($recentLines as $line) {
+            if (strpos($line, 'ERROR:') !== false || strpos($line, 'Exception') !== false || preg_match('/^\[202\d-/', $line)) {
+                $output[] = $line;
+            }
+        }
+
+        return response(implode('', $output), 200, ['Content-Type' => 'text/plain']);
+    });
+}
 
 // TinyMCE admin image upload route
 Route::post('/admin/tinymce/upload-image', [TinyMCEUploadController::class, 'upload'])
@@ -245,8 +247,10 @@ Route::view('/dieu-khoan-su-dung', 'policies.terms')->name('terms.policy');
 // Category Index Page
 Route::get('/chuyen-khoa', [CategoryController::class, 'index'])->name('categories.index');
 
-// 3. Consultation Form POST
-Route::post('/tu-van', [ConsultationController::class, 'store'])->name('consultation.store');
+// 3. Consultation Form POST (with rate limiting to prevent spam)
+Route::post('/tu-van', [ConsultationController::class, 'store'])
+    ->name('consultation.store')
+    ->middleware('throttle:3,1');
 
 // Search Route
 Route::get('/tim-kiem', [SearchController::class, 'index'])->name('search');
