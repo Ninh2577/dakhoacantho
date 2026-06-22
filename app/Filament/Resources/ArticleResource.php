@@ -35,6 +35,12 @@ class ArticleResource extends Resource
 
     protected static ?string $navigationLabel = 'Bài viết';
 
+    protected static ?string $modelLabel = 'bài viết';
+
+    protected static ?string $pluralModelLabel = 'bài viết';
+
+    protected static ?string $navigationGroup = 'Quản lý nội dung';
+
     protected static ?int $navigationSort = 2;
 
     public static function form(Form $form): Form
@@ -262,12 +268,12 @@ class ArticleResource extends Resource
                                                 Tabs::make('SEO Config')->tabs([
                                                     Tabs\Tab::make('SEO cơ bản')->schema([
                                                         TextInput::make('focus_keyword')
-                                                            ->label('Từ khóa chính (Focus Keyword)')
+                                                            ->label('Từ khóa chính')
                                                             ->placeholder('VD: phòng khám đa khoa cần thơ')
                                                             ->live(debounce: 500)
                                                             ->helperText('Từ khóa bạn muốn bài viết xếp hạng trên Google.'),
                                                         TextInput::make('meta_title')
-                                                            ->label('Tiêu đề SEO (Meta Title)')
+                                                            ->label('Tiêu đề SEO')
                                                             ->placeholder('Tiêu đề hiển thị trên Google')
                                                             ->maxLength(60)
                                                             ->live(debounce: 500)
@@ -282,7 +288,7 @@ class ArticleResource extends Resource
                                                             )
                                                             ->helperText('Tối ưu: 50-60 ký tự.'),
                                                         Textarea::make('meta_description')
-                                                            ->label('Mô tả SEO (Meta Description)')
+                                                            ->label('Mô tả SEO')
                                                             ->placeholder('Mô tả hiển thị dưới tiêu đề trên Google...')
                                                             ->rows(3)
                                                             ->maxLength(160)
@@ -299,7 +305,7 @@ class ArticleResource extends Resource
                                                             )
                                                             ->helperText('Tối ưu: 140-160 ký tự.'),
                                                         TextInput::make('canonical_url')
-                                                            ->label('URL chuẩn (Canonical)')
+                                                            ->label('Đường dẫn chuẩn (Canonical)')
                                                             ->placeholder('https://...')
                                                             ->url()
                                                             ->live(debounce: 500)
@@ -307,7 +313,7 @@ class ArticleResource extends Resource
                                                     ]),
                                                     Tabs\Tab::make('Mạng xã hội')->schema([
                                                         TextInput::make('og_title')
-                                                            ->label('Tiêu đề Facebook (OG Title)')
+                                                            ->label('Tiêu đề Facebook')
                                                             ->placeholder('Tiêu đề khi chia sẻ Facebook')
                                                             ->live(debounce: 500)
                                                             ->suffixAction(
@@ -322,11 +328,11 @@ class ArticleResource extends Resource
                                                                     })
                                                             ),
                                                         Textarea::make('og_description')
-                                                            ->label('Mô tả Facebook (OG Description)')
+                                                            ->label('Mô tả Facebook')
                                                             ->rows(2)
                                                             ->live(debounce: 500),
                                                         FileUpload::make('og_image')
-                                                            ->label('Ảnh Facebook (OG Image)')
+                                                            ->label('Ảnh Facebook')
                                                             ->image()
                                                             ->directory('articles/seo')
                                                             ->disk('public')
@@ -352,11 +358,11 @@ class ArticleResource extends Resource
                                                             ->live(debounce: 500)
                                                             ->helperText('Để trống = dùng slug chính.'),
                                                         Toggle::make('robots_index')
-                                                            ->label('Cho phép Google lập chỉ mục (Index)')
+                                                            ->label('Cho phép công cụ tìm kiếm lập chỉ mục (Index)')
                                                             ->default(true)
                                                             ->live(),
                                                         Toggle::make('robots_follow')
-                                                            ->label('Cho phép Google theo dõi liên kết (Follow)')
+                                                            ->label('Cho phép theo dõi các liên kết (Follow)')
                                                             ->default(true)
                                                             ->live(),
                                                     ]),

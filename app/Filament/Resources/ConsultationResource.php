@@ -27,6 +27,12 @@ class ConsultationResource extends Resource
 
     protected static ?string $navigationLabel = 'Tư vấn';
 
+    protected static ?string $modelLabel = 'tư vấn';
+
+    protected static ?string $pluralModelLabel = 'tư vấn';
+
+    protected static ?string $navigationGroup = 'Chăm sóc bệnh nhân';
+
     protected static ?int $navigationSort = 4;
 
     public static function form(Form $form): Form

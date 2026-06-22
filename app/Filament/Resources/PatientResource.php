@@ -29,7 +29,11 @@ class PatientResource extends Resource
 
     protected static ?string $navigationLabel = 'Bệnh nhân';
 
-    protected static ?string $navigationGroup = null;
+    protected static ?string $modelLabel = 'bệnh nhân';
+
+    protected static ?string $pluralModelLabel = 'bệnh nhân';
+
+    protected static ?string $navigationGroup = 'Chăm sóc bệnh nhân';
 
     protected static ?int $navigationSort = 5;
 

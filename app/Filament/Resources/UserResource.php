@@ -20,6 +20,12 @@ class UserResource extends Resource
 
     protected static ?string $navigationLabel = 'Người dùng';
 
+    protected static ?string $modelLabel = 'người dùng';
+
+    protected static ?string $pluralModelLabel = 'người dùng';
+
+    protected static ?string $navigationGroup = 'Hệ thống';
+
     protected static ?int $navigationSort = 7;
 
     public static function form(Form $form): Form

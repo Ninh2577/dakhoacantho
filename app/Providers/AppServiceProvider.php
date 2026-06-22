@@ -39,6 +39,10 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        \Illuminate\Support\Facades\App::setLocale('vi');
+        \Illuminate\Support\Facades\Config::set('app.locale', 'vi');
+        \Illuminate\Support\Carbon::setLocale('vi');
+
         Gate::define('access-admin-api', function (User $user) {
             return $user->role === 'admin';
         });

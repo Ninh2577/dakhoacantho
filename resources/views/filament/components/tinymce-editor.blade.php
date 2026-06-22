@@ -206,6 +206,8 @@
                     target: this.$refs.editor,
                     base_url: 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2',
                     suffix: '.min',
+                    language: 'vi',
+                    language_url: '/js/tinymce/langs/vi.js',
                     ui_container: '#tinymce-wrapper-{{ $safeId }}',
                     height: 900,
                     min_height: 800,

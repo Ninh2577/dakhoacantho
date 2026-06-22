@@ -14,6 +14,8 @@ class ReportsAnalytics extends Page
 
     protected static ?string $navigationLabel = 'Báo cáo & Phân tích';
 
+    protected static ?string $navigationGroup = 'Báo cáo & Phân tích';
+
     protected static ?int $navigationSort = 6;
 
     protected static string $view = 'filament.pages.reports-analytics';

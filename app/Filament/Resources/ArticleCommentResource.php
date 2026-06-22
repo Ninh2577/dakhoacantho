@@ -21,6 +21,12 @@ class ArticleCommentResource extends Resource
 
     protected static ?string $navigationLabel = 'Bình luận bài viết';
 
+    protected static ?string $modelLabel = 'bình luận';
+
+    protected static ?string $pluralModelLabel = 'bình luận';
+
+    protected static ?string $navigationGroup = 'Quản lý nội dung';
+
     protected static ?int $navigationSort = 5;
 
     public static function form(Form $form): Form
@@ -72,7 +78,7 @@ class ArticleCommentResource extends Resource
                                     ->label('Địa chỉ IP')
                                     ->disabled(),
                                 Forms\Components\TextInput::make('user_agent')
-                                    ->label('User Agent')
+                                    ->label('Thông tin trình duyệt')
                                     ->disabled(),
                             ]),
                     ]),
@@ -149,7 +155,7 @@ class ArticleCommentResource extends Resource
                     }),
 
                 Tables\Actions\Action::make('spam')
-                    ->label('Spam')
+                    ->label('Đánh dấu spam')
                     ->icon('heroicon-o-fire')
                     ->color('gray')
                     ->hidden(fn (ArticleComment $record): bool => $record->status === 'spam')

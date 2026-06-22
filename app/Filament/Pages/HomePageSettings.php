@@ -29,6 +29,8 @@ class HomePageSettings extends Page implements HasForms
 
     protected static ?string $navigationLabel = 'Cài đặt hệ thống';
 
+    protected static ?string $navigationGroup = 'Hệ thống';
+
     protected static ?int $navigationSort = 8;
 
     public ?array $data = [];
@@ -47,7 +49,7 @@ class HomePageSettings extends Page implements HasForms
                     ->label('Các khối giao diện (Home Page Builder)')
                     ->blocks([
                         Block::make('hero_slider')
-                            ->label('Hero Banner Slider')
+                            ->label('Banner trình chiếu (Hero Slider)')
                             ->schema([
                                 TextInput::make('title')->label('Tiêu đề chính')->required(),
                                 TextInput::make('subtitle')->label('Tiêu đề phụ'),
@@ -71,7 +73,7 @@ class HomePageSettings extends Page implements HasForms
                                 TextInput::make('limit')->label('Số lượng bài viết hiển thị')->numeric()->default(4),
                             ]),
                         Block::make('cta')
-                            ->label('Call to Action')
+                            ->label('Nút kêu gọi hành động (CTA)')
                             ->schema([
                                 TextInput::make('title')->label('Tiêu đề')->required(),
                                 TextInput::make('button_text')->label('Chữ trên nút')->required()->default('Đăng ký tư vấn'),
