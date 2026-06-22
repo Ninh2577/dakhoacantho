@@ -225,7 +225,7 @@
                     image_caption: true,
                     extended_valid_elements: 'figure[*],figcaption[contenteditable|class|style|*],img[*]',
                     valid_children: '+figure[img|figcaption],+body[figure]',
-                    content_style: 'body { font-family: Arial, sans-serif; font-size: 16px; line-height: 1.7; color: #334155; max-width: 720px; margin: 0 auto; padding: 2rem 1rem; } figure.image { text-align: center; margin: 1.5rem 0; } figure.image img { border-radius: 0.75rem; max-width: 100%; height: auto; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); } figure.image figcaption { margin-top: 5px; font-size: 0.9em; color: #666; font-style: italic; cursor: text; user-select: text; -webkit-user-select: text; }',
+                    content_style: 'body { font-family: Arial, sans-serif; font-size: 16px; line-height: 1.7; color: #334155; width: 100%; max-width: none; margin: 0; padding: 1.5rem; box-sizing: border-box; } img, figure, table, blockquote { max-width: 100%; } figure.image { text-align: center; margin: 1.5rem 0; } figure.image img { border-radius: 0.75rem; max-width: 100%; height: auto; box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1); } figure.image figcaption { margin-top: 5px; font-size: 0.9em; color: #666; font-style: italic; cursor: text; user-select: text; -webkit-user-select: text; }',
                     
                     // Admin image upload integration
                     images_upload_url: this.uploadUrl,
