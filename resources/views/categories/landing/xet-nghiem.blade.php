@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Xét Nghiệm Chính Xác - Kết Quả Tin Cậy | Đa Khoa Gia Phước')
+@section('title', 'Xét Nghiệm Chính Xác - Kết Quả Tin Cậy | ' . \App\Models\Setting::site('clinic_short_name'))
 
 @section('meta')
     @php
@@ -8,17 +8,17 @@
         $categoryUrl = $category ? $category->public_url : route('category.show', ['category_path' => 'xet-nghiem']);
     @endphp
     <x-seo 
-        title="Xét Nghiệm Chính Xác - Kết Quả Tin Cậy | Đa Khoa Gia Phước" 
-        description="Dịch vụ xét nghiệm tổng quát, tầm soát ung thư, xét nghiệm gen di truyền, xét nghiệm nội tiết tại Đa Khoa Gia Phước Cần Thơ. Quy trình nhanh chóng, kết quả chính xác." 
+        title="Xét Nghiệm Chính Xác - Kết Quả Tin Cậy | {{ \App\Models\Setting::site('clinic_short_name') }}" 
+        description="Dịch vụ xét nghiệm tổng quát, tầm soát ung thư, xét nghiệm gen di truyền, xét nghiệm nội tiết tại {{ \App\Models\Setting::site('clinic_name') }} Cần Thơ. Quy trình nhanh chóng, kết quả chính xác." 
         canonical="{{ $categoryUrl }}"
         :breadcrumbs="[
             ['name' => 'Trang chủ', 'url' => route('home')],
             ['name' => 'Xét Nghiệm', 'url' => $categoryUrl]
         ]"
         :faqs="[
-            ['q' => 'Thời gian nhận kết quả xét nghiệm tại Gia Phước là bao lâu?', 'a' => 'Thời gian trả kết quả tùy thuộc vào từng loại xét nghiệm cụ thể. Với các xét nghiệm cơ bản, kết quả sẽ có sau 2 - 4 giờ và có thể nhận kết quả trực tuyến nhanh chóng.'],
+            ['q' => 'Thời gian nhận kết quả xét nghiệm tại ' . \App\Models\Setting::site('clinic_short_name') . ' là bao lâu?', 'a' => 'Thời gian trả kết quả tùy thuộc vào từng loại xét nghiệm cụ thể. Với các xét nghiệm cơ bản, kết quả sẽ có sau 2 - 4 giờ và có thể nhận kết quả trực tuyến nhanh chóng.'],
             ['q' => 'Tôi cần chuẩn bị gì trước khi thực hiện xét nghiệm?', 'a' => 'Tùy thuộc vào loại xét nghiệm, một số xét nghiệm máu yêu cầu nhịn ăn từ 8 - 12 giờ trước khi lấy mẫu. Đội ngũ tư vấn sẽ liên hệ hướng dẫn chi tiết cho bạn trước khi thực hiện.'],
-            ['q' => 'Kết quả xét nghiệm tại Đa Khoa Gia Phước có đảm bảo độ chính xác không?', 'a' => 'Có, hệ thống phòng Lab đạt tiêu chuẩn ISO 15189:2012 cùng các trang thiết bị hiện đại từ Roche, Abbott giúp đảm bảo kết quả phân tích chính xác và tin cậy nhất.']
+            ['q' => 'Kết quả xét nghiệm tại ' . \App\Models\Setting::site('clinic_name') . ' có đảm bảo độ chính xác không?', 'a' => 'Có, hệ thống phòng Lab đạt tiêu chuẩn ISO 15189:2012 cùng các trang thiết bị hiện đại từ Roche, Abbott giúp đảm bảo kết quả phân tích chính xác và tin cậy nhất.']
         ]"
     />
 @endsection
@@ -242,7 +242,7 @@
                 <div class="lg:col-span-6 relative">
                     <div class="rounded-3xl overflow-hidden shadow-2xl border-4 border-white aspect-[4/3] bg-slate-100">
                         <img src="https://images.unsplash.com/photo-1579154767073-4fc018a4788a?auto=format&fit=crop&q=80&w=800" 
-                             alt="Máy xét nghiệm hiện đại Gia Phước" class="w-full h-full object-cover" loading="lazy" decoding="async">
+                             alt="Máy xét nghiệm hiện đại {{ \App\Models\Setting::site('clinic_short_name') }}" class="w-full h-full object-cover" loading="lazy" decoding="async">
                     </div>
                     <!-- Overlapping Blue badge bottom left -->
                     <div class="absolute -bottom-6 left-6 bg-clinic-blue text-white p-5 rounded-2xl shadow-xl border border-white/10 max-w-[240px]">
@@ -319,7 +319,7 @@
                 <!-- FAQ 1 -->
                 <div class="bg-white rounded-2xl border border-slate-150 shadow-sm overflow-hidden transition-all duration-300">
                     <button @click="active = active === 1 ? null : 1" class="w-full flex items-center justify-between p-6 text-left focus:outline-none">
-                        <span class="font-bold text-slate-900 pr-4 text-sm md:text-base">Thời gian nhận kết quả xét nghiệm tại Gia Phước là bao lâu?</span>
+                        <span class="font-bold text-slate-900 pr-4 text-sm md:text-base">Thời gian nhận kết quả xét nghiệm tại {{ \App\Models\Setting::site('clinic_short_name') }} là bao lâu?</span>
                         <span class="flex-shrink-0 w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 transition-transform duration-300" :class="active === 1 ? 'rotate-180 bg-clinic-blue text-white' : ''">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </span>
@@ -349,7 +349,7 @@
                 <!-- FAQ 3 -->
                 <div class="bg-white rounded-2xl border border-slate-150 shadow-sm overflow-hidden transition-all duration-300">
                     <button @click="active = active === 3 ? null : 3" class="w-full flex items-center justify-between p-6 text-left focus:outline-none">
-                        <span class="font-bold text-slate-900 pr-4 text-sm md:text-base">Kết quả xét nghiệm tại Đa Khoa Gia Phước có đảm bảo độ chính xác không?</span>
+                        <span class="font-bold text-slate-900 pr-4 text-sm md:text-base">Kết quả xét nghiệm tại {{ \App\Models\Setting::site('clinic_name') }} có đảm bảo độ chính xác không?</span>
                         <span class="flex-shrink-0 w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 transition-transform duration-300" :class="active === 3 ? 'rotate-180 bg-clinic-blue text-white' : ''">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </span>
@@ -386,7 +386,7 @@
                     <button @click="isOpen = true" class="inline-flex items-center justify-center px-6 py-3.5 bg-white text-clinic-blue font-extrabold rounded-xl transition-all shadow-md text-sm">
                         Đăng ký ngay
                     </button>
-                    <a href="tel:0966332352" class="inline-flex items-center justify-center px-6 py-3.5 bg-clinic-blue hover:bg-opacity-95 text-white font-extrabold rounded-xl transition-all border border-white/20 text-sm">
+                    <a href="tel:{{ preg_replace('/\D/', '', \App\Models\Setting::site('hotline')) }}" class="inline-flex items-center justify-center px-6 py-3.5 bg-clinic-blue hover:bg-opacity-95 text-white font-extrabold rounded-xl transition-all border border-white/20 text-sm">
                         Liên hệ tư vấn
                     </a>
                 </div>
@@ -439,7 +439,7 @@
                 <!-- Số điện thoại -->
                 <div>
                     <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">Số điện thoại *</label>
-                    <input type="tel" name="phone" required x-model="phone" placeholder="0966332352" 
+                    <input type="tel" name="phone" required x-model="phone" placeholder="{{ preg_replace('/\D/', '', \App\Models\Setting::site('hotline')) }}" 
                            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-clinic-blue focus:bg-white focus:ring-1 focus:ring-clinic-blue/20 outline-none text-slate-800 text-sm font-semibold rounded-xl transition-all">
                     <p x-show="phone.length > 0 && !isValidPhone()" class="text-xs font-semibold text-red-500 mt-1" x-cloak>
                         Số điện thoại hợp lệ gồm 10 chữ số (bắt đầu bằng 03, 05, 07, 08, 09).

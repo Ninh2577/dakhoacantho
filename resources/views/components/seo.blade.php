@@ -58,7 +58,7 @@
 <meta property="og:url" content="{{ $absoluteCanonical }}">
 <meta property="og:title" content="{{ $resolvedOgTitle }}">
 <meta property="og:description" content="{{ $resolvedOgDesc }}">
-<meta property="og:site_name" content="Phòng Khám Đa Khoa Gia Phước">
+<meta property="og:site_name" content="{{ \App\Models\Setting::site('clinic_name') }}">
 <meta property="og:image" content="{{ $metaImage }}">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">

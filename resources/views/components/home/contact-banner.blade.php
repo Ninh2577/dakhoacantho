@@ -22,14 +22,14 @@
                     </p>
 
                     <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
-                        <a href="tel:0966332352" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 bg-white hover:bg-slate-50 text-clinic-blue font-extrabold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-sm group">
+                        <a href="tel:{{ preg_replace('/\D/', '', \App\Models\Setting::site('hotline')) }}" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 bg-white hover:bg-slate-50 text-clinic-blue font-extrabold rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 text-sm group">
                             <!-- Custom phone icon that shakes slightly on hover -->
                             <svg class="w-4 h-4 mr-2 text-clinic-teal animate-bounce group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
                             </svg>
                             Gọi tư vấn ngay
                         </a>
-                        <a href="https://www.google.com/maps/search/?api=1&query=Số%2057%20Hùng%20Vương%2C%20P.Ninh%20Kiều%2C%20TP.Cần%20Thơ" target="_blank" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-extrabold rounded-xl text-sm transition-all shadow-sm">
+                        <a href="{{ \App\Models\Setting::site('google_maps_url') }}" target="_blank" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 bg-white/10 hover:bg-white/20 border border-white/20 text-white font-extrabold rounded-xl text-sm transition-all shadow-sm">
                             <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"></path>
@@ -45,7 +45,7 @@
                         <div class="space-y-1">
                             <span class="block text-[10px] uppercase font-bold text-teal-300 tracking-wider">Thông tin chính thức</span>
                             <h3 class="text-base md:text-lg font-black text-white leading-tight">
-                                Phòng Khám Đa Khoa Gia Phước
+                                {{ \App\Models\Setting::site('clinic_name') }}
                             </h3>
                         </div>
 
@@ -59,7 +59,7 @@
                                 </span>
                                 <div>
                                     <span class="block text-[10px] text-blue-200 uppercase font-bold">Hotline đặt hẹn</span>
-                                    <span class="text-sm font-black text-white">0966.332.352</span>
+                                    <span class="text-sm font-black text-white">{{ \App\Models\Setting::site('hotline') }}</span>
                                 </div>
                             </div>
 
@@ -74,7 +74,7 @@
                                 <div class="space-y-0.5">
                                     <span class="block text-[10px] text-blue-200 uppercase font-bold">Địa chỉ phòng khám</span>
                                     <span class="text-xs font-bold text-white leading-normal">
-                                        Số 57 Hùng Vương, P.Ninh Kiều, TP.Cần Thơ
+                                        {{ \App\Models\Setting::site('address') }}
                                     </span>
                                 </div>
                             </div>

@@ -119,5 +119,7 @@ class DatabaseSeeder extends Seeder
             'meta_description' => 'Tìm hiểu phương pháp cắt trĩ PPH và HCPT không đau, ít chảy máu, hồi phục nhanh tại Đa Khoa Cần Thơ.',
             'is_published' => true,
         ]);
+
+        $this->call(SiteSettingsSeeder::class);
     }
 }

@@ -21,21 +21,46 @@ class SchemaBuilder
             $currentUrl = url($currentUrl);
         }
 
+        $phoneRaw = \App\Models\Setting::site('hotline');
+        $phoneCleaned = preg_replace('/\D/', '', $phoneRaw);
+        $phoneE164 = str_starts_with($phoneCleaned, '0') ? '+84' . substr($phoneCleaned, 1) : '+' . $phoneCleaned;
+
+        $fullAddress = \App\Models\Setting::site('address');
+        $parts = array_map('trim', explode(',', $fullAddress));
+        $streetAddress = $parts[0] ?? $fullAddress;
+        $addressLocality = $parts[1] ?? 'Ninh Kiều';
+        $addressRegion = $parts[2] ?? 'Cần Thơ';
+
+        $workingHours = \App\Models\Setting::site('working_hours');
+        $opens = '07:30';
+        $closes = '20:00';
+        if (preg_match('/(\d{2}:\d{2})\s*-\s*(\d{2}:\d{2})/', $workingHours, $matches)) {
+            $opens = $matches[1];
+            $closes = $matches[2];
+        }
+
+        $sameAs = array_filter([
+            \App\Models\Setting::site('facebook_url'),
+            \App\Models\Setting::site('youtube_url'),
+            \App\Models\Setting::site('zalo_url'),
+            \App\Models\Setting::site('tiktok_url'),
+        ]);
+
         // 1. Organization / MedicalClinic / LocalBusiness combined node
         $organization = [
             '@context' => 'https://schema.org',
             '@type' => ['Organization', 'MedicalClinic', 'LocalBusiness'],
             '@id' => $siteUrl.'/#organization',
-            'name' => 'Phòng Khám Đa Khoa Gia Phước',
-            'alternateName' => 'Đa Khoa Gia Phước',
+            'name' => \App\Models\Setting::site('clinic_name'),
+            'alternateName' => \App\Models\Setting::site('clinic_short_name'),
             'url' => $siteUrl,
             'logo' => [
                 '@type' => 'ImageObject',
                 'url' => $logoUrl,
             ],
             'image' => $logoUrl,
-            'telephone' => '+84966332352',
-            'email' => 'info@dakhoagiaphuoc.vn',
+            'telephone' => $phoneE164,
+            'email' => \App\Models\Setting::site('email'),
             'priceRange' => '$$',
             'medicalSpecialty' => [
                 'ObstetricsAndGynecology',
@@ -44,18 +69,15 @@ class SchemaBuilder
             ],
             'geo' => [
                 '@type' => 'GeoCoordinates',
-                'latitude' => '10.043516',
-                'longitude' => '105.783615'
+                'latitude' => \App\Models\Setting::site('latitude'),
+                'longitude' => \App\Models\Setting::site('longitude')
             ],
-            'sameAs' => [
-                'https://www.facebook.com/pkdkgiaphuoc',
-                'https://www.youtube.com/@dakhoagiaphuoc'
-            ],
+            'sameAs' => array_values($sameAs),
             'address' => [
                 '@type' => 'PostalAddress',
-                'streetAddress' => '57 Hùng Vương',
-                'addressLocality' => 'Ninh Kiều',
-                'addressRegion' => 'Cần Thơ',
+                'streetAddress' => $streetAddress,
+                'addressLocality' => $addressLocality,
+                'addressRegion' => $addressRegion,
                 'addressCountry' => 'VN',
             ],
             'openingHoursSpecification' => [
@@ -63,10 +85,10 @@ class SchemaBuilder
                 'dayOfWeek' => [
                     'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
                 ],
-                'opens' => '07:30',
-                'closes' => '20:00',
+                'opens' => $opens,
+                'closes' => $closes,
             ],
-            'areaServed' => 'Cần Thơ',
+            'areaServed' => $addressRegion,
         ];
 
         // 2. WebSite Node
@@ -75,7 +97,7 @@ class SchemaBuilder
             '@type' => 'WebSite',
             '@id' => $siteUrl.'/#website',
             'url' => $siteUrl,
-            'name' => 'Phòng Khám Đa Khoa Gia Phước',
+            'name' => \App\Models\Setting::site('clinic_name'),
             'publisher' => [
                 '@id' => $siteUrl.'/#organization',
             ],
@@ -108,7 +130,7 @@ class SchemaBuilder
             '@type' => $mappedPageType,
             '@id' => $currentUrl.'#webpage',
             'url' => $currentUrl,
-            'name' => $options['title'] ?? 'Phòng Khám Đa Khoa Gia Phước',
+            'name' => $options['title'] ?? \App\Models\Setting::site('clinic_name'),
             'description' => $options['description'] ?? '',
             'isPartOf' => [
                 '@id' => $siteUrl.'/#website',
@@ -208,7 +230,7 @@ class SchemaBuilder
                     'name' => ($article->author ? $article->author->name : null) ?: match ($article->category?->slug) {
                         'nam-khoa' => 'BS. Nguyễn Văn An',
                         'phu-khoa' => 'BS. Trần Thị Mai',
-                        default => 'Ban Biên Tập - Phòng Khám Đa Khoa Gia Phước',
+                        default => 'Ban Biên Tập - ' . \App\Models\Setting::site('clinic_name'),
                     },
                     'url' => $siteUrl,
                 ],
@@ -226,7 +248,7 @@ class SchemaBuilder
             $reviewerName = match ($article->category?->slug) {
                 'nam-khoa' => 'BS. CK1 Nguyễn Văn An',
                 'phu-khoa' => 'BS. CK1 Trần Thị Mai',
-                default => 'Ban cố vấn y khoa Gia Phước',
+                default => 'Ban cố vấn y khoa ' . \App\Models\Setting::site('clinic_short_name'),
             };
             $blogPosting['reviewedBy'] = [
                 '@type' => 'Person',

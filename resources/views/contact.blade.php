@@ -1,20 +1,20 @@
 @extends('layouts.app')
 
-@section('title', 'Liên Hệ & Tư Vấn Miễn Phí | Đa Khoa Gia Phước')
+@section('title', 'Liên Hệ & Tư Vấn Miễn Phí | ' . \App\Models\Setting::site('clinic_short_name'))
 
 @section('meta')
     <x-seo 
-        title="Liên Hệ & Tư Vấn Miễn Phí | Đa Khoa Gia Phước" 
-        description="Thông tin liên hệ chính thức của Đa Khoa Gia Phước Cần Thơ. Bản đồ chỉ đường, số điện thoại hotline tư vấn 0966.332.352 và giờ làm việc chính xác." 
+        title="Liên Hệ & Tư Vấn Miễn Phí | {{ \App\Models\Setting::site('clinic_short_name') }}" 
+        description="Thông tin liên hệ chính thức của {{ \App\Models\Setting::site('clinic_name') }}. Bản đồ chỉ đường, số điện thoại hotline tư vấn {{ \App\Models\Setting::site('hotline') }} và giờ làm việc chính xác." 
         canonical="{{ route('contact') }}"
         :breadcrumbs="[
             ['name' => 'Trang chủ', 'url' => route('home')],
             ['name' => 'Liên Hệ', 'url' => route('contact')]
         ]"
         :faqs="[
-            ['q' => 'Địa chỉ Phòng Khám Đa Khoa Gia Phước ở đâu Cần Thơ?', 'a' => 'Địa chỉ chính thức của phòng khám là Số 57 Hùng Vương, P.Ninh Kiều, TP.Cần Thơ. Khách hàng có thể dễ dàng tìm kiếm đường đi qua bản đồ Google Maps tích hợp.'],
-            ['q' => 'Phòng Khám Đa Khoa Gia Phước làm việc vào những ngày nào?', 'a' => 'Phòng khám hoạt động liên tục từ 07:30 - 20:00 tất cả các ngày trong tuần (từ Thứ 2 đến Chủ Nhật, kể cả các ngày lễ tết) nhằm đáp ứng nhu cầu chăm sóc sức khỏe tốt nhất.'],
-            ['q' => 'Có thể liên hệ tư vấn sức khỏe miễn phí qua những kênh nào?', 'a' => 'Khách hàng có thể gọi điện thoại trực tiếp qua hotline 0966.332.352, chat Zalo, gửi form đăng ký tư vấn trực tiếp trên website để nhận phản hồi nhanh chóng và bảo mật.']
+            ['q' => 'Địa chỉ ' . \App\Models\Setting::site('clinic_name') . ' ở đâu Cần Thơ?', 'a' => 'Địa chỉ chính thức của phòng khám là ' . \App\Models\Setting::site('address') . '. Khách hàng có thể dễ dàng tìm kiếm đường đi qua bản đồ Google Maps tích hợp.'],
+            ['q' => 'Phòng Khám ' . \App\Models\Setting::site('clinic_name') . ' làm việc vào những ngày nào?', 'a' => 'Phòng khám hoạt động liên tục từ 07:30 - 20:00 tất cả các ngày trong tuần (từ Thứ 2 đến Chủ Nhật, kể cả các ngày lễ tết) nhằm đáp ứng nhu cầu chăm sóc sức khỏe tốt nhất.'],
+            ['q' => 'Có thể liên hệ tư vấn sức khỏe miễn phí qua những kênh nào?', 'a' => 'Khách hàng có thể gọi điện thoại trực tiếp qua hotline ' . \App\Models\Setting::site('hotline') . ', chat Zalo, gửi form đăng ký tư vấn trực tiếp trên website để nhận phản hồi nhanh chóng và bảo mật.']
         ]"
     />
 @endsection
@@ -63,20 +63,20 @@
                                 <span class="text-base font-extrabold text-slate-900">Cơ sở chính</span>
                             </div>
                             
-                            <h3 class="text-xl font-extrabold text-slate-900">Phòng Khám Đa Khoa Gia Phước</h3>
+                            <h3 class="text-xl font-extrabold text-slate-900">{{ \App\Models\Setting::site('clinic_name') }}</h3>
                             <p class="text-sm font-bold text-slate-700 leading-relaxed max-w-sm">
-                                Số 57 Hùng Vương, P.Ninh Kiều, TP.Cần Thơ.
+                                {{ \App\Models\Setting::site('address') }}
                             </p>
                         </div>
                         
                         <div class="flex flex-col sm:flex-row gap-3 pt-6">
-                            <a href="https://maps.google.com/?q=Số+57+Hùng+Vương,+P.Ninh+Kiều,+TP.Cần+Thơ" target="_blank" class="inline-flex items-center justify-center px-5 py-2.5 bg-clinic-blue hover:bg-opacity-95 text-white font-extrabold rounded-xl text-xs shadow-md transition-all">
+                            <a href="{{ \App\Models\Setting::site('google_maps_url') }}" target="_blank" class="inline-flex items-center justify-center px-5 py-2.5 bg-clinic-blue hover:bg-opacity-95 text-white font-extrabold rounded-xl text-xs shadow-md transition-all">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7"></path></svg>
                                 Chỉ đường
                             </a>
-                            <a href="tel:0966332352" class="inline-flex items-center justify-center px-5 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-clinic-blue font-extrabold rounded-xl text-xs shadow-sm transition-all">
+                            <a href="tel:{{ preg_replace('/\D/', '', \App\Models\Setting::site('hotline')) }}" class="inline-flex items-center justify-center px-5 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-clinic-blue font-extrabold rounded-xl text-xs shadow-sm transition-all">
                                 <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
-                                0966.332.352
+                                {{ \App\Models\Setting::site('hotline') }}
                             </a>
                         </div>
                     </div>
@@ -84,7 +84,7 @@
                     <!-- Right Google Maps Iframe -->
                     <div id="ban-do" class="bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-sm min-h-[300px] flex">
                         <iframe 
-                            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3928.79326462719!2d105.78201531534927!3d10.033904992827725!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31a062983794d2bb%3A0x88f50c05877f0a8c!2zNTcgSMO5bmcgVsawxqFuZywgVGjhu5tpIELDrG5oLCBOaW5oIEtp4buBdSwgQ-G6p24gVGjGoSwgVmlldG5hbQ!5e0!3m2!1sen!2s!4v1623123456789!5m2!1sen!2s" 
+                            src="{{ \App\Models\Setting::site('google_maps_embed_url') }}" 
                             class="w-full h-full border-0" 
                             allowfullscreen="" 
                             loading="lazy">
@@ -117,7 +117,7 @@
                             </span>
                             <div class="space-y-1">
                                 <span class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Tư vấn sức khỏe</span>
-                                <span class="block text-sm font-extrabold text-slate-900">0966.332.352</span>
+                                <span class="block text-sm font-extrabold text-slate-900">{{ \App\Models\Setting::site('hotline') }}</span>
                                 <span class="block text-[10px] text-slate-500 font-bold uppercase">(Zalo, Viber, Line)</span>
                             </div>
                         </div>
@@ -136,7 +136,7 @@
                             </div>
                         </div>
 
-                        <!-- Contact Item 3 -->
+                        <!-- Contact Contact Item 3 -->
                         <div class="flex items-start gap-3">
                             <span class="p-3 bg-clinic-sky/10 text-clinic-blue rounded-xl flex-shrink-0">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -145,7 +145,7 @@
                             </span>
                             <div class="space-y-1">
                                 <span class="block text-xs font-bold text-slate-400 uppercase tracking-wider">Email liên hệ</span>
-                                <span class="block text-sm font-extrabold text-slate-900">info@dakhoagiaphuoc.vn</span>
+                                <span class="block text-sm font-extrabold text-slate-900">{{ \App\Models\Setting::site('email') }}</span>
                             </div>
                         </div>
                     </div>
@@ -208,7 +208,7 @@
                     </button>
                     <div x-show="active === 3" x-collapse x-cloak>
                         <div class="px-5 pb-5 text-slate-600 text-sm leading-relaxed border-t border-slate-50 pt-3">
-                            Khách hàng có thể gọi điện thoại trực tiếp qua hotline 0966.332.352, chat Zalo hoặc gửi form đăng ký tư vấn trực tiếp trên website để nhận phản hồi nhanh chóng và hoàn toàn bảo mật từ đội ngũ hỗ trợ.
+                            Khách hàng có thể gọi điện thoại trực tiếp qua hotline {{ \App\Models\Setting::site('hotline') }}, chat Zalo hoặc gửi form đăng ký tư vấn trực tiếp trên website để nhận phản hồi nhanh chóng và hoàn toàn bảo mật từ đội ngũ hỗ trợ.
                         </div>
                     </div>
                 </div>

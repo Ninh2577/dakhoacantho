@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Chuyên Khoa Ngoại Khoa - Quy Trình An Toàn & Chuyên Nghiệp | Đa Khoa Gia Phước')
+@section('title', 'Chuyên Khoa Ngoại Khoa - Quy Trình An Toàn & Chuyên Nghiệp | ' . \App\Models\Setting::site('clinic_short_name'))
 
 @section('meta')
     @php
@@ -8,15 +8,15 @@
         $categoryUrl = $category ? $category->public_url : route('category.show', ['category_path' => 'ngoai-khoa']);
     @endphp
     <x-seo 
-        title="Chuyên Khoa Ngoại Khoa - Quy Trình An Toàn & Chuyên Nghiệp | Đa Khoa Gia Phước" 
-        description="Dịch vụ hỗ trợ tư vấn và thực hiện các tiểu phẫu ngoại khoa (bệnh trĩ, bao quy đầu, tiểu phẫu tổng quát...) tại Đa Khoa Gia Phước Cần Thơ. Quy trình vô trùng đạt chuẩn." 
+        title="Chuyên Khoa Ngoại Khoa - Quy Trình An Toàn & Chuyên Nghiệp | {{ \App\Models\Setting::site('clinic_short_name') }}" 
+        description="Dịch vụ hỗ trợ tư vấn và thực hiện các tiểu phẫu ngoại khoa (bệnh trĩ, bao quy đầu, tiểu phẫu tổng quát...) tại {{ \App\Models\Setting::site('clinic_name') }} Cần Thơ. Quy trình vô trùng đạt chuẩn." 
         canonical="{{ $categoryUrl }}"
         :breadcrumbs="[
             ['name' => 'Trang chủ', 'url' => route('home')],
             ['name' => 'Ngoại Khoa', 'url' => $categoryUrl]
         ]"
         :faqs="[
-            ['q' => 'Thời gian hồi phục sau tiểu phẫu ngoại khoa là bao lâu?', 'a' => 'Thời gian hồi phục tùy thuộc vào loại tiểu phẫu cụ thể và cơ địa từng người. Thông thường với các phương pháp xâm lấn tối thiểu tại Đa Khoa Gia Phước, thời gian hồi phục nhanh chóng và bệnh nhân có thể ra về trong ngày.'],
+            ['q' => 'Thời gian hồi phục sau tiểu phẫu ngoại khoa là bao lâu?', 'a' => 'Thời gian hồi phục tùy thuộc vào loại tiểu phẫu cụ thể và cơ địa từng người. Thông thường với các phương pháp xâm lấn tối thiểu tại ' . \App\Models\Setting::site('clinic_short_name') . ', thời gian hồi phục nhanh chóng và bệnh nhân có thể ra về trong ngày.'],
             ['q' => 'Quy trình tiểu phẫu ngoại khoa có đảm bảo vô trùng không?', 'a' => 'Có, toàn bộ trang thiết bị và phòng phẫu thuật đều tuân thủ nghiêm ngặt quy trình khử trùng, khử khuẩn theo tiêu chuẩn y khoa.'],
             ['q' => 'Thông tin bệnh án của tôi có được bảo mật không?', 'a' => 'Có, mọi thông tin cá nhân và bệnh án được mã hóa và bảo mật nghiêm ngặt theo quy trình riêng tư nội bộ của phòng khám.']
         ]"
@@ -47,7 +47,7 @@
                 </nav>
 
                 <span class="inline-block px-3.5 py-1.5 rounded-full text-xs font-bold bg-clinic-blue/20 text-clinic-sky border border-clinic-sky/30 uppercase tracking-widest mb-4">
-                    Khoa Ngoại Gia Phước
+                    Khoa Ngoại {{ \App\Models\Setting::site('clinic_short_name') }}
                 </span>
                 
                 <h1 class="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight mb-6">
@@ -329,7 +329,7 @@
                         Hệ Thống Cơ Sở Vật Chất Đạt Chuẩn Quốc Tế
                     </h2>
                     <p class="text-slate-500 text-sm md:text-base leading-relaxed">
-                        Đa Khoa Gia Phước tự hào sở hữu hệ thống phòng mổ vô khuẩn một chiều, được trang bị các thiết bị chẩn đoán hình ảnh và phẫu thuật hiện đại từ các tập đoàn y tế hàng đầu thế giới như GE, Siemens, Olympus.
+                        {{ \App\Models\Setting::site('clinic_short_name') }} tự hào sở hữu hệ thống phòng mổ vô khuẩn một chiều, được trang bị các thiết bị chẩn đoán hình ảnh và phẫu thuật hiện đại từ các tập đoàn y tế hàng đầu thế giới như GE, Siemens, Olympus.
                     </p>
                     
                     <ul class="space-y-3">
@@ -388,7 +388,7 @@
                     </button>
                     <div x-show="active === 1" x-collapse x-cloak>
                         <div class="px-6 pb-6 text-slate-600 text-sm leading-relaxed border-t border-slate-50 pt-4">
-                            Thời gian hồi phục tùy thuộc vào loại tiểu phẫu cụ thể và cơ địa từng người. Thông thường với các phương pháp xâm lấn tối thiểu tại Đa Khoa Gia Phước, thời gian hồi phục nhanh chóng và bệnh nhân có thể ra về trong ngày dưới sự hướng dẫn của đội ngũ tư vấn.
+                            Thời gian hồi phục tùy thuộc vào loại tiểu phẫu cụ thể và cơ địa từng người. Thông thường với các phương pháp xâm lấn tối thiểu tại {{ \App\Models\Setting::site('clinic_short_name') }}, thời gian hồi phục nhanh chóng và bệnh nhân có thể ra về trong ngày dưới sự hướng dẫn của đội ngũ tư vấn.
                         </div>
                     </div>
                 </div>
@@ -470,7 +470,7 @@
 
                     <div class="flex flex-col sm:flex-row gap-3">
                         <div class="flex-grow">
-                            <input type="tel" name="phone" required x-model="phone" placeholder="Số điện thoại của bạn (ví dụ: 0966332352)..." 
+                            <input type="tel" name="phone" required x-model="phone" placeholder="Số điện thoại của bạn (ví dụ: {{ preg_replace('/\D/', '', \App\Models\Setting::site('hotline')) }})..." 
                                    class="w-full px-5 py-4 bg-white/10 border border-white/15 focus:border-clinic-blue focus:bg-white/20 outline-none text-white placeholder-white/50 text-sm rounded-xl font-medium transition-all">
                             <p x-show="phone.length > 0 && !isValidPhone()" class="text-xs font-semibold text-red-400 mt-1.5 text-left" x-cloak>
                                 Số điện thoại hợp lệ gồm 10 chữ số (bắt đầu bằng 03, 05, 07, 08, 09).

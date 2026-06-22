@@ -1,17 +1,17 @@
 @extends('layouts.app')
 
-@section('title', 'Phòng Khám Đa Khoa Gia Phước | Uy Tín - Tận Tâm')
+@section('title', \App\Models\Setting::site('clinic_name') . ' | Uy Tín - Tận Tâm')
 
 @section('meta')
     <x-seo 
-        title="Phòng Khám Đa Khoa Gia Phước | Uy Tín - Tận Tâm" 
-        description="Phòng Khám Đa Khoa Gia Phước - Địa chỉ khám chữa bệnh uy tín, riêng tư và chuyên nghiệp hàng đầu tại Cần Thơ. Đăng ký tư vấn trực tuyến nhanh chóng." 
+        title="{{ \App\Models\Setting::site('clinic_name') }} | Uy Tín - Tận Tâm" 
+        description="{{ \App\Models\Setting::site('clinic_name') }} - Địa chỉ khám chữa bệnh uy tín, riêng tư và chuyên nghiệp hàng đầu tại Cần Thơ. Đăng ký tư vấn trực tuyến nhanh chóng." 
         canonical="{{ url('/') }}"
         :breadcrumbs="[['name' => 'Trang chủ', 'url' => url('/')]]"
         :faqs="[
-            ['q' => 'Thời gian làm việc của phòng khám là khi nào?', 'a' => 'Phòng Khám Đa Khoa Gia Phước hoạt động từ 07:30 đến 20:00 tất cả các ngày trong tuần, kể cả ngày lễ.'],
+            ['q' => 'Thời gian làm việc của phòng khám là khi nào?', 'a' => \App\Models\Setting::site('clinic_name') . ' hoạt động từ 07:30 đến 20:00 tất cả các ngày trong tuần, kể cả ngày lễ.'],
             ['q' => 'Thông tin đăng ký có được bảo mật không?', 'a' => 'Mọi hồ sơ đăng ký và bệnh án của bệnh nhân đều được bảo mật tuyệt đối theo quy trình khép kín nội bộ.'],
-            ['q' => 'Tôi có thể liên hệ bằng số hotline nào?', 'a' => 'Vui lòng liên hệ trực tiếp qua số hotline 0966.332.352 để nhận tư vấn và hướng dẫn kịp thời.']
+            ['q' => 'Tôi có thể liên hệ bằng số hotline nào?', 'a' => 'Vui lòng liên hệ trực tiếp qua số hotline ' . \App\Models\Setting::site('hotline') . ' để nhận tư vấn và hướng dẫn kịp thời.']
         ]"
     />
 @endsection
@@ -42,8 +42,8 @@
                     <a href="{{ route('contact') }}" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 bg-clinic-blue hover:bg-opacity-95 text-white font-extrabold rounded-xl shadow-lg shadow-clinic-blue/20 hover:shadow-xl transition-all text-sm tracking-wide">
                         Đặt lịch tư vấn ngay
                     </a>
-                    <a href="tel:0966332352" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 bg-white border border-slate-200 text-clinic-blue hover:bg-slate-50 font-extrabold rounded-xl text-sm transition-all shadow-sm">
-                        Gọi tư vấn: 0966.332.352
+                    <a href="tel:{{ preg_replace('/\D/', '', \App\Models\Setting::site('hotline')) }}" class="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 bg-white border border-slate-200 text-clinic-blue hover:bg-slate-50 font-extrabold rounded-xl text-sm transition-all shadow-sm">
+                        Gọi tư vấn: {{ \App\Models\Setting::site('hotline') }}
                     </a>
                 </div>
 
@@ -71,7 +71,7 @@
                 <div class="absolute inset-10 bg-clinic-blue/10 rounded-full blur-3xl -z-10"></div>
                 
                 <div class="relative max-w-sm sm:max-w-md lg:max-w-none rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-white">
-                    <img src="{{ asset('images/doctor.webp') }}" alt="Phòng Khám Đa Khoa Gia Phước" class="w-full h-auto object-cover max-h-[500px]" decoding="async" fetchpriority="high">
+                    <img src="{{ asset('images/doctor.webp') }}" alt="{{ \App\Models\Setting::site('clinic_name') }}" class="w-full h-auto object-cover max-h-[500px]" decoding="async" fetchpriority="high">
                     <div class="absolute bottom-4 left-4 right-4 p-4 bg-white/90 backdrop-blur-md rounded-2xl border border-white/50 shadow-lg flex items-center gap-3">
                         <span class="p-2.5 bg-clinic-teal text-white rounded-lg">
                             <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
@@ -360,7 +360,7 @@
                     <svg class="w-5 h-5 text-slate-400 transform transition-transform" :class="{'rotate-180': active === 1}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                 </button>
                 <div x-show="active === 1" x-cloak class="px-5 pb-5 text-slate-500 text-xs leading-relaxed font-semibold pt-2 border-t border-slate-100/50">
-                    Phòng Khám Đa Khoa Gia Phước mở cửa từ 07:30 đến 20:00 tất cả các ngày trong tuần, kể cả ngày Thứ 7, Chủ Nhật và các ngày nghỉ Lễ.
+                    {{ \App\Models\Setting::site('clinic_name') }} mở cửa từ 07:30 đến 20:00 tất cả các ngày trong tuần, kể cả ngày Thứ 7, Chủ Nhật và các ngày nghỉ Lễ.
                 </div>
             </div>
             <!-- FAQ 2 -->
@@ -370,7 +370,7 @@
                     <svg class="w-5 h-5 text-slate-400 transform transition-transform" :class="{'rotate-180': active === 2}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                 </button>
                 <div x-show="active === 2" x-cloak class="px-5 pb-5 text-slate-500 text-xs leading-relaxed font-semibold pt-2 border-t border-slate-100/50">
-                    Quý khách chỉ cần điền họ tên, số điện thoại vào form đăng ký trên website hoặc gọi trực tiếp đến hotline 0966.332.352. Đội ngũ nhân viên tư vấn sẽ liên hệ lại ngay để sắp xếp khung giờ khám thuận tiện nhất.
+                    Quý khách chỉ cần điền họ tên, số điện thoại vào form đăng ký trên website hoặc gọi trực tiếp đến hotline {{ \App\Models\Setting::site('hotline') }}. Đội ngũ nhân viên tư vấn sẽ liên hệ lại ngay để sắp xếp khung giờ khám thuận tiện nhất.
                 </div>
             </div>
             <!-- FAQ 3 -->
@@ -380,7 +380,7 @@
                     <svg class="w-5 h-5 text-slate-400 transform transition-transform" :class="{'rotate-180': active === 3}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
                 </button>
                 <div x-show="active === 3" x-cloak class="px-5 pb-5 text-slate-500 text-xs leading-relaxed font-semibold pt-2 border-t border-slate-100/50">
-                    Đa Khoa Gia Phước cam kết bảo mật tuyệt đối mọi thông tin đăng ký, hồ sơ bệnh án và lịch sử trao đổi của khách hàng theo quy trình khép kín nội bộ.
+                    {{ \App\Models\Setting::site('clinic_short_name') }} cam kết bảo mật tuyệt đối mọi thông tin đăng ký, hồ sơ bệnh án và lịch sử trao đổi của khách hàng theo quy trình khép kín nội bộ.
                 </div>
             </div>
         </div>

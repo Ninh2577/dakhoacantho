@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Chuyên Khoa Nam Khoa - Tư Vấn Uy Tín & Riêng Tư | Đa Khoa Gia Phước')
+@section('title', 'Chuyên Khoa Nam Khoa - Tư Vấn Uy Tín & Riêng Tư | ' . \App\Models\Setting::site('clinic_short_name'))
 
 @section('meta')
     @php
@@ -8,8 +8,8 @@
         $categoryUrl = $category ? $category->public_url : route('category.show', ['category_path' => 'nam-khoa']);
     @endphp
     <x-seo 
-        title="Chuyên Khoa Nam Khoa - Tư Vấn Uy Tín & Riêng Tư | Đa Khoa Gia Phước" 
-        description="Hỗ trợ tư vấn và xét nghiệm nam khoa (bao quy đầu, tinh hoàn, yếu sinh lý...) tại Đa Khoa Gia Phước Cần Thơ. Quy trình riêng tư, bảo mật thông tin." 
+        title="Chuyên Khoa Nam Khoa - Tư Vấn Uy Tín & Riêng Tư | {{ \App\Models\Setting::site('clinic_short_name') }}" 
+        description="Hỗ trợ tư vấn và xét nghiệm nam khoa (bao quy đầu, tinh hoàn, yếu sinh lý...) tại {{ \App\Models\Setting::site('clinic_name') }} Cần Thơ. Quy trình riêng tư, bảo mật thông tin." 
         canonical="{{ $categoryUrl }}"
         :breadcrumbs="[
             ['name' => 'Trang chủ', 'url' => route('home')],
@@ -17,7 +17,7 @@
         ]"
         :faqs="[
             ['q' => 'Khi nào nam giới nên chủ động đi khám nam khoa?', 'a' => 'Nam giới nên đi khám khi xuất hiện các triệu chứng lạ ở bao quy đầu, đau nhức tinh hoàn, giảm ham muốn, xuất tinh sớm hoặc tiểu buốt.'],
-            ['q' => 'Chi phí thăm khám nam khoa tại Gia Phước khoảng bao nhiêu?', 'a' => 'Chi phí tùy thuộc vào từng gói dịch vụ và loại xét nghiệm cần thực hiện. Mọi chi phí đều được công khai niêm yết rõ ràng theo quy định.'],
+            ['q' => 'Chi phí thăm khám nam khoa tại ' . \App\Models\Setting::site('clinic_short_name') . ' khoảng bao nhiêu?', 'a' => 'Chi phí tùy thuộc vào từng gói dịch vụ và loại xét nghiệm cần thực hiện. Mọi chi phí đều được công khai niêm yết rõ ràng theo quy định.'],
             ['q' => 'Quy trình tư vấn nam khoa có bảo mật không?', 'a' => 'Có, mọi thông tin cá nhân và bệnh án được mã hóa và bảo mật nghiêm ngặt theo quy trình riêng tư nội bộ của phòng khám.']
         ]"
     />
@@ -284,7 +284,7 @@
                  <div class="lg:col-span-6 relative">
                      <div class="rounded-3xl overflow-hidden shadow-2xl border-4 border-slate-800 aspect-[4/3] bg-slate-800">
                          <img src="https://images.unsplash.com/photo-1551601651-2a8555f1a136?auto=format&fit=crop&q=80&w=800" 
-                              alt="Thiết bị hiện đại Gia Phước" class="w-full h-full object-cover" loading="lazy" decoding="async">
+                              alt="Thiết bị hiện đại {{ \App\Models\Setting::site('clinic_short_name') }}" class="w-full h-full object-cover" loading="lazy" decoding="async">
                      </div>
                      <!-- Overlapping Blue badge bottom left -->
                      <div class="absolute -bottom-6 left-6 bg-clinic-blue text-white p-5 rounded-2xl shadow-2xl border border-white/10 max-w-[200px]">
@@ -307,7 +307,7 @@
                         Không Gian Tư Vấn Kín Đáo & Cơ Sở Hiện Đại
                     </h2>
                     <p class="text-slate-500 text-sm leading-relaxed">
-                        Phòng Khám Đa Khoa Gia Phước xây dựng mô hình phòng khám riêng tư, giúp khách hàng hoàn toàn thoải mái chia sẻ các lo lắng về sức khỏe nam giới trong môi trường kín đáo và thân thiện.
+                        {{ \App\Models\Setting::site('clinic_name') }} xây dựng mô hình phòng khám riêng tư, giúp khách hàng hoàn toàn thoải mái chia sẻ các lo lắng về sức khỏe nam giới trong môi trường kín đáo và thân thiện.
                     </p>
                     <ul class="space-y-3 text-xs font-bold text-slate-600">
                         <li class="flex items-center gap-2">
@@ -353,14 +353,14 @@
                 Đừng để lo lắng cản trở cuộc sống của bạn
             </h3>
             <p class="text-sm md:text-base text-blue-150 max-w-xl mx-auto font-medium">
-                Liên hệ ngay để được tư vấn bảo mật cùng đội ngũ hỗ trợ nam học tại Phòng Khám Đa Khoa Gia Phước.
+                Liên hệ ngay để được tư vấn bảo mật cùng đội ngũ hỗ trợ nam học tại {{ \App\Models\Setting::site('clinic_name') }}.
             </p>
             <div class="flex flex-wrap justify-center gap-4 pt-2">
-                <a href="tel:0966332352" class="inline-flex items-center justify-center px-6 py-3.5 bg-white text-clinic-blue font-extrabold rounded-xl transition-all shadow-md text-sm gap-2">
+                <a href="tel:{{ preg_replace('/\D/', '', \App\Models\Setting::site('hotline')) }}" class="inline-flex items-center justify-center px-6 py-3.5 bg-white text-clinic-blue font-extrabold rounded-xl transition-all shadow-md text-sm gap-2">
                     <svg class="w-4 h-4 text-clinic-teal" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.824-1.502-5.174-3.852-6.678-6.679l1.293-.97a1.243 1.243 0 00.37-1.173L6.745 3.34a1.243 1.243 0 00-1.202-.852H3.75a2.25 2.25 0 00-2.25 2.25v1.372z"></path>
                     </svg>
-                    Gọi tư vấn: 0966.332.352
+                    Gọi tư vấn: {{ \App\Models\Setting::site('hotline') }}
                 </a>
                 <a href="#booking-form-namkhoa" class="inline-flex items-center justify-center px-6 py-3.5 bg-clinic-sky hover:bg-opacity-95 text-white font-extrabold rounded-xl transition-all text-sm gap-2">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">

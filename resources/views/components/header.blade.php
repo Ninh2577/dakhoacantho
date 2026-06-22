@@ -14,7 +14,7 @@
                             </svg>
                         </span>
                         <div class="leading-tight">
-                            <span class="block text-base lg:text-lg font-black text-clinic-blue tracking-tight">Đa Khoa Gia Phước</span>
+                            <span class="block text-base lg:text-lg font-black text-clinic-blue tracking-tight">{{ \App\Models\Setting::site('clinic_short_name') }}</span>
                             <span class="block text-[9px] uppercase font-bold text-clinic-teal tracking-widest">Medical Clinic</span>
                         </div>
                     </a>

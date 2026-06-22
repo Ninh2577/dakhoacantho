@@ -207,6 +207,7 @@ if (app()->environment('local')) {
 
         return response(implode('', $output), 200, ['Content-Type' => 'text/plain']);
     });
+
 }
 
 // TinyMCE admin image upload route

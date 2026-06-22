@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Vì Cộng Đồng - Trách Nhiệm Xã Hội & Giáo Dục Sức Khỏe | Đa Khoa Gia Phước')
+@section('title', 'Vì Cộng Đồng - Trách Nhiệm Xã Hội & Giáo Dục Sức Khỏe | ' . \App\Models\Setting::site('clinic_short_name'))
 
 @section('meta')
     @php
@@ -8,17 +8,17 @@
         $categoryUrl = $category ? $category->public_url : route('category.show', ['category_path' => 'vi-cong-dong']);
     @endphp
     <x-seo 
-        title="Vì Cộng Đồng - Trách Nhiệm Xã Hội & Giáo Dục Sức Khỏe | Đa Khoa Gia Phước" 
-        description="Hoạt động trách nhiệm xã hội, giáo dục sức khỏe học đường và lan tỏa thông tin phòng ngừa bệnh truyền nhiễm tại địa phương của Đa Khoa Gia Phước Cần Thơ." 
+        title="Vì Cộng Đồng - Trách Nhiệm Xã Hội & Giáo Dục Sức Khỏe | {{ \App\Models\Setting::site('clinic_short_name') }}" 
+        description="Hoạt động trách nhiệm xã hội, giáo dục sức khỏe học đường và lan tỏa thông tin phòng ngừa bệnh truyền nhiễm tại địa phương của {{ \App\Models\Setting::site('clinic_name') }} Cần Thơ." 
         canonical="{{ $categoryUrl }}"
         :breadcrumbs="[
             ['name' => 'Trang chủ', 'url' => route('home')],
             ['name' => 'Vì Cộng Đồng', 'url' => $categoryUrl]
         ]"
         :faqs="[
-            ['q' => 'Các hoạt động cộng đồng của Đa Khoa Gia Phước là gì?', 'a' => 'Đa Khoa Gia Phước chủ yếu tập trung vào giáo dục sức khỏe cộng đồng, nâng cao nhận thức phòng chống bệnh truyền nhiễm, phổ biến các kiến thức y học và hướng dẫn giữ gìn vệ sinh học đường tại địa phương.'],
-            ['q' => 'Tôi có thể đăng ký tham gia các chiến dịch nâng cao nhận thức sức khỏe không?', 'a' => 'Bạn có thể liên hệ trực tiếp với chúng tôi qua hotline 0966.332.352 để đăng ký nhận thông tin về các chương trình, hoạt động truyền thông và giáo dục sức khỏe cộng đồng sắp tới.'],
-            ['q' => 'Phòng khám Gia Phước hỗ trợ bà con thế nào?', 'a' => 'Phòng khám định kỳ chia sẻ các tài liệu y tế, hướng dẫn phòng ngừa dịch bệnh miễn phí cho người dân và sẵn sàng hỗ trợ tư vấn sức khỏe qua tổng đài hotline chính thức.']
+            ['q' => 'Các hoạt động cộng đồng của ' . \App\Models\Setting::site('clinic_name') . ' là gì?', 'a' => \App\Models\Setting::site('clinic_name') . ' chủ yếu tập trung vào giáo dục sức khỏe cộng đồng, nâng cao nhận thức phòng chống bệnh truyền nhiễm, phổ biến các kiến thức y học và hướng dẫn giữ gìn vệ sinh học đường tại địa phương.'],
+            ['q' => 'Tôi có thể đăng ký tham gia các chiến dịch nâng cao nhận thức sức khỏe không?', 'a' => 'Bạn có thể liên hệ trực tiếp với chúng tôi qua hotline ' . \App\Models\Setting::site('hotline') . ' để đăng ký nhận thông tin về các chương trình, hoạt động truyền thông và giáo dục sức khỏe cộng đồng sắp tới.'],
+            ['q' => 'Phòng khám ' . \App\Models\Setting::site('clinic_short_name') . ' hỗ trợ bà con thế nào?', 'a' => 'Phòng khám định kỳ chia sẻ các tài liệu y tế, hướng dẫn phòng ngừa dịch bệnh miễn phí cho người dân và sẵn sàng hỗ trợ tư vấn sức khỏe qua tổng đài hotline chính thức.']
         ]"
     />
 @endsection
@@ -80,7 +80,7 @@
             <div class="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-4">
                 <div>
                     <h2 class="text-3xl font-extrabold text-slate-900 tracking-tight">Hoạt Động Tiêu Biểu</h2>
-                    <p class="text-slate-500 mt-2 max-w-xl">Kiến tạo những giá trị bền vững cho cộng đồng thông qua chuyên môn y khoa và sự tận tâm của tập thể y tế phòng khám Đa Khoa Gia Phước.</p>
+                    <p class="text-slate-500 mt-2 max-w-xl">Kiến tạo những giá trị bền vững cho cộng đồng thông qua chuyên môn y khoa và sự tận tâm của tập thể y tế phòng khám {{ \App\Models\Setting::site('clinic_name') }}.</p>
                 </div>
                 <a href="#cta-section" class="inline-flex items-center text-clinic-blue font-bold text-sm hover:underline">
                     Xem tất cả hoạt động &rarr;
@@ -174,7 +174,7 @@
                             Lan Tỏa Kiến Thức Phòng Ngừa Dịch Bệnh
                         </h2>
                         <p class="text-slate-500 text-sm md:text-base leading-relaxed">
-                            Bên cạnh công tác tư vấn y tế, Đa Khoa Gia Phước chú trọng hoạt động chia sẻ cẩm nang, tài liệu y khoa phòng chống dịch bệnh truyền nhiễm cho bà con địa phương nhằm xây dựng cộng đồng khỏe mạnh và chủ động bảo vệ bản thân.
+                            Bên cạnh công tác tư vấn y tế, {{ \App\Models\Setting::site('clinic_name') }} chú trọng hoạt động chia sẻ cẩm nang, tài liệu y khoa phòng chống dịch bệnh truyền nhiễm cho bà con địa phương nhằm xây dựng cộng đồng khỏe mạnh và chủ động bảo vệ bản thân.
                         </p>
                     </div>
 
@@ -209,14 +209,14 @@
                 <!-- FAQ 1 -->
                 <div class="bg-slate-50 rounded-2xl border border-slate-150 shadow-sm overflow-hidden transition-all duration-300">
                     <button @click="active = active === 1 ? null : 1" class="w-full flex items-center justify-between p-6 text-left focus:outline-none">
-                        <span class="font-bold text-slate-900 pr-4 text-sm md:text-base">Các hoạt động cộng đồng của Đa Khoa Gia Phước là gì?</span>
+                        <span class="font-bold text-slate-900 pr-4 text-sm md:text-base">Các hoạt động cộng đồng của {{ \App\Models\Setting::site('clinic_name') }} là gì?</span>
                         <span class="flex-shrink-0 w-6 h-6 rounded-full bg-white flex items-center justify-center text-slate-500 transition-transform duration-300" :class="active === 1 ? 'rotate-180 bg-clinic-blue text-white' : ''">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </span>
                     </button>
                     <div x-show="active === 1" x-collapse x-cloak>
                         <div class="px-6 pb-6 text-slate-600 text-sm leading-relaxed border-t border-slate-150 pt-4 bg-white">
-                            Đa Khoa Gia Phước chủ yếu tập trung vào giáo dục sức khỏe cộng đồng, nâng cao nhận thức phòng chống bệnh truyền nhiễm, phổ biến các kiến thức y học và hướng dẫn giữ gìn vệ sinh học đường tại địa phương.
+                            {{ \App\Models\Setting::site('clinic_name') }} chủ yếu tập trung vào giáo dục sức khỏe cộng đồng, nâng cao nhận thức phòng chống bệnh truyền nhiễm, phổ biến các kiến thức y học và hướng dẫn giữ gìn vệ sinh học đường tại địa phương.
                         </div>
                     </div>
                 </div>
@@ -231,7 +231,7 @@
                     </button>
                     <div x-show="active === 2" x-collapse x-cloak>
                         <div class="px-6 pb-6 text-slate-600 text-sm leading-relaxed border-t border-slate-150 pt-4 bg-white">
-                            Bạn có thể liên hệ trực tiếp với chúng tôi qua hotline 0966.332.352 để đăng ký nhận thông tin về các chương trình, hoạt động truyền thông và giáo dục sức khỏe cộng đồng sắp tới.
+                            Bạn có thể liên hệ trực tiếp với chúng tôi qua hotline {{ \App\Models\Setting::site('hotline') }} để đăng ký nhận thông tin về các chương trình, hoạt động truyền thông và giáo dục sức khỏe cộng đồng sắp tới.
                         </div>
                     </div>
                 </div>
@@ -239,7 +239,7 @@
                 <!-- FAQ 3 -->
                 <div class="bg-slate-50 rounded-2xl border border-slate-150 shadow-sm overflow-hidden transition-all duration-300">
                     <button @click="active = active === 3 ? null : 3" class="w-full flex items-center justify-between p-6 text-left focus:outline-none">
-                        <span class="font-bold text-slate-900 pr-4 text-sm md:text-base">Phòng khám Gia Phước hỗ trợ bà con thế nào?</span>
+                        <span class="font-bold text-slate-900 pr-4 text-sm md:text-base">Phòng khám {{ \App\Models\Setting::site('clinic_short_name') }} hỗ trợ bà con thế nào?</span>
                         <span class="flex-shrink-0 w-6 h-6 rounded-full bg-white flex items-center justify-center text-slate-500 transition-transform duration-300" :class="active === 3 ? 'rotate-180 bg-clinic-blue text-white' : ''">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </span>

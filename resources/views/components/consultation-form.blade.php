@@ -32,7 +32,7 @@
         <!-- Phone -->
         <div class="space-y-1.5">
             <label for="form-phone" class="block text-xs font-bold text-slate-700 uppercase tracking-wide">Số điện thoại *</label>
-            <input type="tel" id="form-phone" name="phone" required x-model="phone" placeholder="0966332352" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-clinic-blue focus:bg-white rounded-xl text-sm font-semibold text-slate-800 outline-none transition-all">
+            <input type="tel" id="form-phone" name="phone" required x-model="phone" placeholder="{{ preg_replace('/\D/', '', \App\Models\Setting::site('hotline')) }}" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-clinic-blue focus:bg-white rounded-xl text-sm font-semibold text-slate-800 outline-none transition-all">
             <p x-show="phone.length > 0 && !isValidPhone()" class="text-xs font-semibold text-red-500 mt-1" x-cloak>
                 Số điện thoại hợp lệ gồm 10 chữ số (bắt đầu bằng 03, 05, 07, 08, 09).
             </p>

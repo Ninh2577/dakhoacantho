@@ -9,7 +9,7 @@
     <!-- Intro Text -->
     <p class="article-cta-intro">
         Mọi thắc mắc liên quan đến bệnh bạn có thể liên hệ ngay với chúng tôi qua đường dây nóng:
-        <a href="tel:0966332352" class="article-cta-hotlink">0966.332.352</a>
+        <a href="tel:{{ preg_replace('/\D/', '', \App\Models\Setting::site('hotline')) }}" class="article-cta-hotlink">{{ \App\Models\Setting::site('hotline') }}</a>
         hoặc
         <a href="{{ route('contact') }}" class="article-cta-hotlink">nhấn vào đây để tư vấn trực tuyến</a>
         để nhận được sự hỗ trợ tư vấn từ các chuyên gia giàu kinh nghiệm.
@@ -27,7 +27,7 @@
             </div>
             <div class="article-cta-info-content">
                 <span class="article-cta-info-label">Địa chỉ</span>
-                <span class="article-cta-info-value">Số 57 Hùng Vương, P. Thới Bình, Q. Ninh Kiều, TP. Cần Thơ</span>
+                <span class="article-cta-info-value">{{ \App\Models\Setting::site('address') }}</span>
             </div>
         </div>
 
@@ -41,7 +41,7 @@
             <div class="article-cta-info-content">
                 <span class="article-cta-info-label">Tư vấn – Đặt hẹn</span>
                 <span class="article-cta-info-value">
-                    <a href="tel:0966332352" class="article-cta-tel">0966.332.352</a>
+                    <a href="tel:{{ preg_replace('/\D/', '', \App\Models\Setting::site('hotline')) }}" class="article-cta-tel">{{ \App\Models\Setting::site('hotline') }}</a>
                     <span class="article-cta-badge">Zalo</span>
                     <span class="article-cta-badge">Viber</span>
                     <span class="article-cta-badge">Line</span>
@@ -60,7 +60,7 @@
             <div class="article-cta-info-content">
                 <span class="article-cta-info-label">Email</span>
                 <span class="article-cta-info-value">
-                    <a href="mailto:info@dakhoagiaphuoc.vn" class="article-cta-tel">info@dakhoagiaphuoc.vn</a>
+                    <a href="mailto:{{ \App\Models\Setting::site('email') }}" class="article-cta-tel">{{ \App\Models\Setting::site('email') }}</a>
                 </span>
             </div>
         </div>
@@ -100,11 +100,11 @@
 
     <!-- CTA Buttons -->
     <div class="article-cta-actions">
-        <a href="tel:0966332352" class="article-cta-btn article-cta-btn--outline">
+        <a href="tel:{{ preg_replace('/\D/', '', \App\Models\Setting::site('hotline')) }}" class="article-cta-btn article-cta-btn--outline">
             <svg class="article-cta-btn-icon article-cta-btn-icon--bounce" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
             </svg>
-            Gọi 0966.332.352
+            Gọi {{ \App\Models\Setting::site('hotline') }}
         </a>
         <a href="{{ route('contact') }}" class="article-cta-btn article-cta-btn--primary">
             <svg class="article-cta-btn-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">

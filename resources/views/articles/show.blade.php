@@ -291,7 +291,7 @@
                         <!-- Medical Disclaimer Box -->
                         <div class="bg-slate-50 border-l-4 border-slate-400 rounded-r-2xl p-5 my-8">
                             <p class="text-xs md:text-sm text-slate-600 leading-relaxed font-semibold">
-                                <strong>Tuyên bố miễn trừ trách nhiệm y tế:</strong> Bài viết chỉ mang tính chất tham khảo, không thay thế cho việc tư vấn hoặc thăm khám trực tiếp tại cơ sở y tế. Nếu bạn có bất kỳ triệu chứng bất thường nào, vui lòng liên hệ ngay với <strong>Phòng Khám Đa Khoa Gia Phước</strong> qua số hotline <a href="tel:0966332352" class="text-clinic-teal font-extrabold hover:underline">0966.332.352</a> để nhận hỗ trợ và tư vấn phù hợp nhất.
+                                <strong>Tuyên bố miễn trừ trách nhiệm y tế:</strong> Bài viết chỉ mang tính chất tham khảo, không thay thế cho việc tư vấn hoặc thăm khám trực tiếp tại cơ sở y tế. Nếu bạn có bất kỳ triệu chứng bất thường nào, vui lòng liên hệ ngay với <strong>{{ \App\Models\Setting::site('clinic_name') }}</strong> qua số hotline <a href="tel:{{ preg_replace('/\D/', '', \App\Models\Setting::site('hotline')) }}" class="text-clinic-teal font-extrabold hover:underline">{{ \App\Models\Setting::site('hotline') }}</a> để nhận hỗ trợ và tư vấn phù hợp nhất.
                             </p>
                         </div>
 
@@ -575,8 +575,8 @@
                         Nhận hướng dẫn sức khỏe trực tuyến nhanh chóng, bảo mật thông tin và hoàn toàn miễn phí.
                     </p>
                     <div class="space-y-2.5 pt-2">
-                        <a href="tel:0966332352" class="block w-full bg-white text-clinic-blue font-extrabold py-2.5 rounded-xl text-sm transition-all hover:bg-blue-50 active:scale-95 duration-150 text-center shadow-sm">
-                            Gọi hotline: 0966.332.352
+                        <a href="tel:{{ preg_replace('/\D/', '', \App\Models\Setting::site('hotline')) }}" class="block w-full bg-white text-clinic-blue font-extrabold py-2.5 rounded-xl text-sm transition-all hover:bg-blue-50 active:scale-95 duration-150 text-center shadow-sm">
+                            Gọi hotline: {{ \App\Models\Setting::site('hotline') }}
                         </a>
                         <a href="{{ route('contact') }}" class="block w-full bg-clinic-teal text-white font-extrabold py-2.5 rounded-xl text-sm transition-all hover:bg-clinic-teal/90 active:scale-95 duration-150 text-center shadow-sm">
                             Đăng ký đặt lịch khám
@@ -625,7 +625,7 @@
 <!-- Mobile Bottom Sticky CTA (Only visible on Mobile/Tablet) -->
 <div class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-slate-200/80 px-4 py-3 shadow-2xl flex gap-3">
     <!-- Call Button -->
-    <a href="tel:0966332352" class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 bg-white border border-clinic-teal text-clinic-teal font-extrabold rounded-xl text-sm transition-all shadow-sm active:scale-95 duration-150">
+    <a href="tel:{{ preg_replace('/\D/', '', \App\Models\Setting::site('hotline')) }}" class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 bg-white border border-clinic-teal text-clinic-teal font-extrabold rounded-xl text-sm transition-all shadow-sm active:scale-95 duration-150">
         <svg class="w-4.5 h-4.5 animate-bounce" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.94.725l.548 2.2a1 1 0 01-.321.988l-1.305.98a10.582 10.582 0 004.872 4.872l.98-1.305a1 1 0 01.988-.321l2.2.548a1 1 0 01.725.94V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path>
         </svg>

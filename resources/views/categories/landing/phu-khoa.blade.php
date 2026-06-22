@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Chuyên Khoa Phụ Khoa - Tư Vấn Uy Tín & Kín Đáo | Đa Khoa Gia Phước')
+@section('title', 'Chuyên Khoa Phụ Khoa - Tư Vấn Uy Tín & Kín Đáo | ' . \App\Models\Setting::site('clinic_short_name'))
 
 @section('meta')
     @php
@@ -8,8 +8,8 @@
         $categoryUrl = $category ? $category->public_url : route('category.show', ['category_path' => 'phu-khoa']);
     @endphp
     <x-seo 
-        title="Chuyên Khoa Phụ Khoa - Tư Vấn Uy Tín & Kín Đáo | Đa Khoa Gia Phước" 
-        description="Dịch vụ hỗ trợ tư vấn phụ khoa định kỳ, viêm nhiễm phụ khoa, kế hoạch hóa gia đình tại Đa Khoa Gia Phước Cần Thơ. Quy trình riêng tư, bảo mật." 
+        title="Chuyên Khoa Phụ Khoa - Tư Vấn Uy Tín & Kín Đáo | {{ \App\Models\Setting::site('clinic_short_name') }}" 
+        description="Dịch vụ hỗ trợ tư vấn phụ khoa định kỳ, viêm nhiễm phụ khoa, kế hoạch hóa gia đình tại {{ \App\Models\Setting::site('clinic_name') }} Cần Thơ. Quy trình riêng tư, bảo mật." 
         canonical="{{ $categoryUrl }}"
         :breadcrumbs="[
             ['name' => 'Trang chủ', 'url' => route('home')],
@@ -17,7 +17,7 @@
         ]"
         :faqs="[
             ['q' => 'Khi nào chị em phụ nữ cần chủ động đi khám phụ khoa?', 'a' => 'Chị em phụ nữ nên chủ động đi khám phụ khoa định kỳ từ 3 - 6 tháng hoặc ngay khi xuất hiện các triệu chứng bất thường như khí hư bất thường, ngứa ngáy vùng kín, đau bụng dưới âm ỉ hoặc rối loạn kinh nguyệt.'],
-            ['q' => 'Quy trình thăm khám phụ khoa tại Gia Phước có bảo mật không?', 'a' => 'Phòng khám cam kết bảo mật nghiêm ngặt thông tin cá nhân và hồ sơ bệnh án theo quy trình khép kín, đảm bảo sự riêng tư và tôn trọng quyền cá nhân của từng khách hàng.'],
+            ['q' => 'Quy trình thăm khám phụ khoa tại ' . \App\Models\Setting::site('clinic_short_name') . ' có bảo mật không?', 'a' => 'Phòng khám cam kết bảo mật nghiêm ngặt thông tin cá nhân và hồ sơ bệnh án theo quy trình khép kín, đảm bảo sự riêng tư và tôn trọng quyền cá nhân của từng khách hàng.'],
             ['q' => 'Chi phí tư vấn và khám phụ khoa là bao nhiêu?', 'a' => 'Chi phí thăm khám phụ khoa tùy thuộc vào gói dịch vụ và các xét nghiệm cụ thể được thực hiện. Mọi chi phí đều được niêm yết công khai rõ ràng theo quy định.']
         ]"
     />
@@ -63,11 +63,11 @@
                         <a href="#booking-section" class="inline-flex items-center justify-center px-6 py-3.5 bg-gradient-to-r from-rose-500 to-pink-600 hover:from-rose-600 hover:to-pink-700 text-white font-extrabold rounded-xl transition-all shadow-lg shadow-rose-500/20 hover:shadow-xl hover:-translate-y-0.5 text-sm">
                             Tư vấn ngay
                         </a>
-                        <a href="tel:0966332352" class="inline-flex items-center justify-center px-6 py-3.5 bg-white border border-rose-200 hover:bg-rose-50 text-rose-600 font-extrabold rounded-xl transition-all text-sm gap-2">
+                        <a href="tel:{{ preg_replace('/\D/', '', \App\Models\Setting::site('hotline')) }}" class="inline-flex items-center justify-center px-6 py-3.5 bg-white border border-rose-200 hover:bg-rose-50 text-rose-600 font-extrabold rounded-xl transition-all text-sm gap-2">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-2.824-1.502-5.174-3.852-6.678-6.679l1.293-.97a1.243 1.243 0 00.37-1.173L6.745 3.34a1.243 1.243 0 00-1.202-.852H3.75a2.25 2.25 0 00-2.25 2.25v1.372z"></path>
                             </svg>
-                            0966.332.352
+                            {{ \App\Models\Setting::site('hotline') }}
                         </a>
                     </div>
                 </div>
@@ -271,7 +271,7 @@
                             </span>
                             <div>
                                 <h5 class="text-xs text-blue-200 font-bold uppercase tracking-wider">Địa chỉ</h5>
-                                <p class="text-sm font-semibold">Số 57 Hùng Vương, P.Ninh Kiều, TP.Cần Thơ</p>
+                                <p class="text-sm font-semibold">{{ \App\Models\Setting::site('address') }}</p>
                             </div>
                         </div>
                     </div>
@@ -546,7 +546,7 @@
                 <!-- FAQ 2 -->
                 <div class="bg-white rounded-2xl border border-rose-100 shadow-sm overflow-hidden transition-all duration-300">
                     <button @click="active = active === 2 ? null : 2" class="w-full flex items-center justify-between p-6 text-left focus:outline-none">
-                        <span class="font-bold text-slate-900 pr-4 text-sm md:text-base">Quy trình thăm khám phụ khoa tại Gia Phước có bảo mật không?</span>
+                        <span class="font-bold text-slate-900 pr-4 text-sm md:text-base">Quy trình thăm khám phụ khoa tại {{ \App\Models\Setting::site('clinic_short_name') }} có bảo mật không?</span>
                         <span class="flex-shrink-0 w-6 h-6 rounded-full bg-slate-100 flex items-center justify-center text-slate-500 transition-transform duration-300" :class="active === 2 ? 'rotate-180 bg-rose-500 text-white' : ''">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </span>

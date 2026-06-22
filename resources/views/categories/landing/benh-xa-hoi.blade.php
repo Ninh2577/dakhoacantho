@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Chuyên Khoa Bệnh Xã Hội - Bảo Mật & Kết Quả Nhanh | Đa Khoa Gia Phước')
+@section('title', 'Chuyên Khoa Bệnh Xã Hội - Bảo Mật & Kết Quả Nhanh | ' . \App\Models\Setting::site('clinic_short_name'))
 
 @section('meta')
     @php
@@ -8,8 +8,8 @@
         $categoryUrl = $category ? $category->public_url : route('category.show', ['category_path' => 'benh-xa-hoi']);
     @endphp
     <x-seo 
-        title="Chuyên Khoa Bệnh Xã Hội - Bảo Mật & Kết Quả Nhanh | Đa Khoa Gia Phước" 
-        description="Xét nghiệm và hỗ trợ tư vấn các bệnh xã hội (sùi mào gà, lậu, giang mai...) tại Đa Khoa Gia Phước. Quy trình kín đáo, bảo mật thông tin tối đa." 
+        title="Chuyên Khoa Bệnh Xã Hội - Bảo Mật & Kết Quả Nhanh | {{ \App\Models\Setting::site('clinic_short_name') }}" 
+        description="Xét nghiệm và hỗ trợ tư vấn các bệnh xã hội (sùi mào gà, lậu, giang mai...) tại {{ \App\Models\Setting::site('clinic_name') }}. Quy trình kín đáo, bảo mật thông tin tối đa." 
         canonical="{{ $categoryUrl }}"
         :breadcrumbs="[
             ['name' => 'Trang chủ', 'url' => route('home')],
@@ -18,7 +18,7 @@
         :faqs="[
             ['q' => 'Thời gian trả kết quả xét nghiệm bệnh xã hội là bao lâu?', 'a' => 'Thời gian trả kết quả tùy thuộc vào loại xét nghiệm cụ thể. Thông thường các xét nghiệm nhanh sẽ có kết quả sau 2 - 4 giờ.'],
             ['q' => 'Thông tin bệnh án bệnh xã hội có được bảo mật không?', 'a' => 'Tất cả thông tin cá nhân và hồ sơ bệnh án được bảo mật nghiêm ngặt theo quy trình riêng tư nội bộ của phòng khám.'],
-            ['q' => 'Chi phí hỗ trợ tư vấn và đặt lịch khám trước là bao nhiêu?', 'a' => 'Quy trình tư vấn trực tuyến và đặt hẹn trước qua hotline 0966.332.352 hoặc form đăng ký hoàn toàn miễn phí.']
+            ['q' => 'Chi phí hỗ trợ tư vấn và đặt lịch khám trước là bao nhiêu?', 'a' => 'Quy trình tư vấn trực tuyến và đặt hẹn trước qua hotline ' . \App\Models\Setting::site('hotline') . ' hoặc form đăng ký hoàn toàn miễn phí.']
         ]"
     />
 @endsection
@@ -349,7 +349,7 @@
                     </button>
                     <div x-show="active === 1" x-collapse x-cloak 
                          class="px-5 md:px-6 pb-6 text-slate-500 text-sm leading-relaxed border-t border-slate-50 pt-4">
-                        Chi phí xét nghiệm tại Đa Khoa Gia Phước luôn được niêm yết công khai và tư vấn rõ ràng trước khi thực hiện. Chúng tôi có các gói xét nghiệm từ cơ bản đến nâng cao để phù hợp với nhu cầu và khả năng tài chính của từng bệnh nhân.
+                        Chi phí xét nghiệm tại {{ \App\Models\Setting::site('clinic_short_name') }} luôn được niêm yết công khai và tư vấn rõ ràng trước khi thực hiện. Chúng tôi có các gói xét nghiệm từ cơ bản đến nâng cao để phù hợp với nhu cầu và khả năng tài chính của từng bệnh nhân.
                     </div>
                 </div>
 
