@@ -201,16 +201,6 @@ class ArticlePreviewController extends Controller
         // Process storage upload path replacements using the unified normalizer service
         $article->content = app(ContentImageUrlNormalizer::class)->normalize($article->content);
 
-        // Safe server-side Inline CTA injection after the second paragraph (approx 35% of content)
-        $paragraphs = explode('</p>', $article->content);
-        if (count($paragraphs) > 3) {
-            $ctaHtml = view('components.article-inline-cta')->render();
-            $paragraphs[1] .= '</p>'.$ctaHtml;
-            $article->content = implode('</p>', $paragraphs);
-        } else {
-            $ctaHtml = view('components.article-inline-cta')->render();
-            $article->content .= $ctaHtml;
-        }
 
         // Ensure all inline content images have lazy loading and async decoding
         $article->content = preg_replace_callback('/<img\s+([^>]*?)\s*\/?>/i', function ($matches) {
@@ -390,16 +380,6 @@ class ArticlePreviewController extends Controller
         // Process storage upload path replacements using the unified normalizer service
         $article->content = app(ContentImageUrlNormalizer::class)->normalize($article->content);
 
-        // Safe server-side Inline CTA injection after the second paragraph (approx 35% of content)
-        $paragraphs = explode('</p>', $article->content);
-        if (count($paragraphs) > 3) {
-            $ctaHtml = view('components.article-inline-cta')->render();
-            $paragraphs[1] .= '</p>'.$ctaHtml;
-            $article->content = implode('</p>', $paragraphs);
-        } else {
-            $ctaHtml = view('components.article-inline-cta')->render();
-            $article->content .= $ctaHtml;
-        }
 
         // Ensure all inline content images have lazy loading and async decoding
         $article->content = preg_replace_callback('/<img\s+([^>]*?)\s*\/?>/i', function ($matches) {

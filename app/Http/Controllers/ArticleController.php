@@ -126,18 +126,6 @@ class ArticleController extends Controller
         // 2. Dynamically replace storage uploads path using the unified normalizer service
         $article->content = app(ContentImageUrlNormalizer::class)->normalize($article->content);
 
-        // 3. Safe server-side Inline CTA injection after the second paragraph (approx 35% of content)
-        $paragraphs = explode('</p>', $article->content);
-        if (count($paragraphs) > 3) {
-            $ctaHtml = view('components.article-inline-cta')->render();
-            // Append CTA block after the second paragraph
-            $paragraphs[1] .= '</p>'.$ctaHtml;
-            $article->content = implode('</p>', $paragraphs);
-        } else {
-            // Fallback: append disclaimer and CTA at the end
-            $ctaHtml = view('components.article-inline-cta')->render();
-            $article->content .= $ctaHtml;
-        }
 
         // 4. Ensure all inline content images have lazy loading and async decoding
         $article->content = preg_replace_callback('/<img\s+([^>]*?)\s*\/?>/i', function ($matches) {
