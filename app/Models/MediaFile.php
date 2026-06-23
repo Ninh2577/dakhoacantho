@@ -21,7 +21,26 @@ class MediaFile extends Model
      */
     public function getUrlAttribute(): string
     {
-        return \Illuminate\Support\Facades\Storage::disk('public')->url($this->file_path);
+        $storageUrl = \Illuminate\Support\Facades\Storage::disk('public')->url($this->file_path);
+
+        // Swap the host/scheme/port dynamically based on the current request
+        if (request() && !app()->runningInConsole()) {
+            $parsedUrl = parse_url($storageUrl);
+            if (isset($parsedUrl['host'])) {
+                $scheme = request()->getScheme();
+                $host = request()->getHost();
+                $port = request()->getPort();
+                $portStr = ($port && !in_array($port, [80, 443])) ? ':' . $port : '';
+
+                $path = $parsedUrl['path'] ?? '';
+                $query = isset($parsedUrl['query']) ? '?' . $parsedUrl['query'] : '';
+                $fragment = isset($parsedUrl['fragment']) ? '#' . $parsedUrl['fragment'] : '';
+
+                return "{$scheme}://{$host}{$portStr}{$path}{$query}{$fragment}";
+            }
+        }
+
+        return $storageUrl;
     }
 
     /**

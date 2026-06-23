@@ -53,10 +53,9 @@ class MediaFileResource extends Resource
             ->columns([
                 Tables\Columns\ImageColumn::make('preview')
                     ->label('Ảnh xem trước')
-                    ->disk('public')
                     ->square()
                     ->size(50)
-                    ->state(fn ($record) => $record->file_path)
+                    ->state(fn ($record) => $record->url)
                     ->defaultImageUrl(fn ($record) => str_contains($record->file_type, 'image') ? null : 'https://ui-avatars.com/api/?name=DOC&color=7F9CF5&background=EBF4FF')
                     ->action(
                         Tables\Actions\Action::make('view_image')
