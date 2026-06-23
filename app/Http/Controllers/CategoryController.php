@@ -79,7 +79,7 @@ class CategoryController extends Controller
             ->whereIn('category_id', $categoryIds)
             ->where('is_published', true)
             ->latest()
-            ->paginate(4);
+            ->paginate(6);
 
         // Retrieve the first featured article
         $featuredArticle = Article::with('category.parent.parent')
@@ -113,14 +113,6 @@ class CategoryController extends Controller
 
             return $articles;
         });
-
-        // Check for custom landing page
-        $customView = 'categories.landing.'.$selectedCategory->slug;
-        if (view()->exists($customView)) {
-            $category = $selectedCategory;
-
-            return view($customView, compact('categories', 'category', 'selectedCategory', 'articles', 'featuredArticle', 'relatedArticles'));
-        }
 
         return view('categories.show', compact('categories', 'selectedCategory', 'articles', 'featuredArticle', 'relatedArticles'));
     }

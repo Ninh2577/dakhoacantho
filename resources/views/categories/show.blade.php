@@ -148,46 +148,96 @@
  
             <!-- Pagination Component -->
             @if($articles->hasPages())
+                @php
+                    $currentPage = $articles->currentPage();
+                    $lastPage = $articles->lastPage();
+                    
+                    $startPage = max(1, $currentPage - 1);
+                    $endPage = min($lastPage, $currentPage + 1);
+                    
+                    if ($lastPage >= 3) {
+                        if ($currentPage <= 2) {
+                            $startPage = 1;
+                            $endPage = 3;
+                        } elseif ($currentPage >= $lastPage - 1) {
+                            $startPage = $lastPage - 2;
+                            $endPage = $lastPage;
+                        }
+                    } else {
+                        $startPage = 1;
+                        $endPage = $lastPage;
+                    }
+                @endphp
                 <nav class="flex items-center justify-center pt-8 border-t border-slate-100" aria-label="Pagination">
-                    <div class="inline-flex items-center gap-1.5">
+                    <div class="inline-flex items-center gap-1.5 flex-wrap justify-center">
+                        <!-- First Page -->
+                        @if($currentPage <= 1)
+                            <span class="p-2.5 bg-white border border-slate-200 text-slate-300 rounded-xl cursor-not-allowed" title="Trang đầu">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+                                </svg>
+                            </span>
+                        @else
+                            <a href="{{ $articles->url(1) }}" class="p-2.5 bg-white border border-slate-200 text-slate-600 hover:text-clinic-blue rounded-xl shadow-sm transition-all" title="Trang đầu">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"></path>
+                                </svg>
+                            </a>
+                        @endif
+
                         <!-- Previous Page -->
-                        @if($articles->onFirstPage())
-                            <span class="p-2.5 bg-white border border-slate-200 text-slate-300 rounded-xl cursor-not-allowed">
+                        @if($currentPage <= 1)
+                            <span class="p-2.5 bg-white border border-slate-200 text-slate-300 rounded-xl cursor-not-allowed" title="Trang trước">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                             </span>
                         @else
-                            <a href="{{ $articles->previousPageUrl() }}" class="p-2.5 bg-white border border-slate-200 text-slate-600 hover:text-clinic-blue rounded-xl shadow-sm transition-all">
+                            <a href="{{ $articles->previousPageUrl() }}" class="p-2.5 bg-white border border-slate-200 text-slate-600 hover:text-clinic-blue rounded-xl shadow-sm transition-all" title="Trang trước">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
                             </a>
                         @endif
- 
+
                         <!-- Page Numbers -->
-                        @foreach ($articles->getUrlRange(1, $articles->lastPage()) as $page => $url)
-                            @if ($page == $articles->currentPage())
+                        @for ($page = $startPage; $page <= $endPage; $page++)
+                            @if ($page == $currentPage)
                                 <span class="w-10 h-10 inline-flex items-center justify-center bg-clinic-blue text-white font-extrabold rounded-xl shadow-md">
                                     {{ $page }}
                                 </span>
                             @else
-                                <a href="{{ $url }}" class="w-10 h-10 inline-flex items-center justify-center bg-white border border-slate-200 text-slate-600 font-extrabold rounded-xl shadow-sm hover:text-clinic-blue transition-all">
+                                <a href="{{ $articles->url($page) }}" class="w-10 h-10 inline-flex items-center justify-center bg-white border border-slate-200 text-slate-600 font-extrabold rounded-xl shadow-sm hover:text-clinic-blue transition-all">
                                     {{ $page }}
                                 </a>
                             @endif
-                        @endforeach
- 
+                        @endfor
+
                         <!-- Next Page -->
-                        @if($articles->hasMorePages())
-                            <a href="{{ $articles->nextPageUrl() }}" class="p-2.5 bg-white border border-slate-200 text-slate-600 hover:text-clinic-blue rounded-xl shadow-sm transition-all">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
-                            </a>
-                        @else
-                            <span class="p-2.5 bg-white border border-slate-200 text-slate-300 rounded-xl cursor-not-allowed">
+                        @if($currentPage >= $lastPage)
+                            <span class="p-2.5 bg-white border border-slate-200 text-slate-300 rounded-xl cursor-not-allowed" title="Trang sau">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                             </span>
+                        @else
+                            <a href="{{ $articles->nextPageUrl() }}" class="p-2.5 bg-white border border-slate-200 text-slate-600 hover:text-clinic-blue rounded-xl shadow-sm transition-all" title="Trang sau">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                            </a>
+                        @endif
+
+                        <!-- Last Page -->
+                        @if($currentPage >= $lastPage)
+                            <span class="p-2.5 bg-white border border-slate-200 text-slate-300 rounded-xl cursor-not-allowed" title="Trang cuối">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+                                </svg>
+                            </span>
+                        @else
+                            <a href="{{ $articles->url($lastPage) }}" class="p-2.5 bg-white border border-slate-200 text-slate-600 hover:text-clinic-blue rounded-xl shadow-sm transition-all" title="Trang cuối">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+                                </svg>
+                            </a>
                         @endif
                     </div>
                 </nav>
             @endif
- 
+
         </div>
     </div>
 </div>
