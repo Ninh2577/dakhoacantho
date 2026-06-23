@@ -74,6 +74,9 @@
             _pendingContent: null,
             _syncAbortController: null,
             _visibilityObserver: null,
+            _livewireCommitHook: null,
+            _formElement: null,
+            _formSubmitHandler: null,
             
             init() {
                 console.log('TINYMCE INIT:', config.statePath);
@@ -157,6 +160,23 @@
                         }
                     }
                 }, { signal: this._syncAbortController.signal });
+
+                // Giữ commit hook như backup (phòng trường hợp event không fire)
+                if (typeof Livewire !== 'undefined' && typeof Livewire.hook === 'function') {
+                    try {
+                        this._livewireCommitHook = Livewire.hook('commit', () => {
+                            if (!this.editorReady || !this.editorInstanceId) return;
+                            try {
+                                let editor = tinymce.get(this.editorInstanceId);
+                                if (!editor) return;
+                                const c = (this.activeTab === 'visual') ? editor.getContent() : this.state;
+                                if (c !== null && c !== undefined) this.state = c;
+                            } catch (e) {}
+                        });
+                    } catch (e) {
+                        this._livewireCommitHook = null;
+                    }
+                }
             },
 
             tryInitEditor() {
@@ -164,23 +184,51 @@
                 console.log('TEXTAREA FOUND', !!el);
                 if (!el) return;
 
+                // GUARD: wrapper phải đã connected vào DOM trước khi init
+                // Nếu xậ y hơn, TinyMCE sẽ fallback vào document.body gây sidebar injection
+                if (!this.$el.isConnected) {
+                    console.warn('TINYMCE: wrapper chưa connected vào DOM, thử lại sau 100ms...');
+                    setTimeout(() => this.tryInitEditor(), 100);
+                    return;
+                }
+
                 if (el.offsetWidth > 0 && el.offsetHeight > 0) {
                     console.log('TINYMCE TEXTAREA VISIBLE, INITIALIZING...');
                     this.initEditor();
                 } else {
                     console.log('TINYMCE TEXTAREA HIDDEN, WAITING FOR VISIBILITY...');
+                    // Sử dụng IntersectionObserver để detect khi textarea hiển thị (ví dụ: khi tab active)
+                    // Tuy nhiên cũng thêm một fallback timeout để tránh bị kẹt nếu observer không fire
+                    let initCalled = false;
+                    const doInit = () => {
+                        if (initCalled) return;
+                        initCalled = true;
+                        if (this._visibilityObserver) {
+                            this._visibilityObserver.disconnect();
+                            this._visibilityObserver = null;
+                        }
+                        console.log('TINYMCE TEXTAREA BECOME VISIBLE, INITIALIZING NOW...');
+                        this.initEditor();
+                    };
+
                     const observer = new IntersectionObserver((entries) => {
                         entries.forEach(entry => {
                             if (entry.isIntersecting) {
-                                console.log('TINYMCE TEXTAREA BECOME VISIBLE, INITIALIZING NOW...');
-                                this.initEditor();
+                                doInit();
                                 observer.disconnect();
-                                this._visibilityObserver = null;
                             }
                         });
-                    });
+                    }, { threshold: 0.01 });
                     this._visibilityObserver = observer;
                     observer.observe(el);
+
+                    // Fallback: nếu sau 3 giây vẫn chưa init (tộc độ mạng chậm hoặc tab layout đặc biệt)
+                    setTimeout(() => {
+                        if (!initCalled) {
+                            console.warn('TINYMCE: IntersectionObserver fallback triggered after 3s');
+                            doInit();
+                        }
+                    }, 3000);
                 }
             },
             
@@ -202,13 +250,20 @@
                 tinymce.baseURL = 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2';
                 tinymce.suffix = '.min';
 
+                // Cất wrapper element để truyền vào ui_container dưới dạng DOM element
+                // KHÔNG truyền CSS selector string — dễ bị null trong Filament Tabs race condition
+                const _uiContainer = this.$el;
+
                 tinymce.init({
                     target: this.$refs.editor,
                     base_url: 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2',
                     suffix: '.min',
                     language: 'vi',
                     language_url: '/js/tinymce/langs/vi.js',
-                    ui_container: '#tinymce-wrapper-{{ $safeId }}',
+                    // ui_container: giới hạn popup/menu/dialog trong wrapper thay vì body
+                    // QUAN TRỌNG: truyền DOM element trực tiếp (không phải selector string)
+                    // Điều này đảm bảo TinyMCE luôn có container hợp lệ dù Filament Tabs render lúc nào.
+                    ui_container: _uiContainer,
                     height: 900,
                     min_height: 800,
                     skin: 'oxide',
@@ -222,8 +277,11 @@
                     menubar: 'file edit view insert format tools table',
                     plugins: 'advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table help wordcount directionality emoticons codesample',
                     toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | blockquote | link image media table | removeformat searchreplace code preview fullscreen',
-                    toolbar_sticky: true,
-                    toolbar_sticky_offset: 60,
+                    // toolbar_sticky: false — Tắt hoàn toàn sticky toolbar
+                    // Lý do: TinyMCE 6 sticky dùng position:fixed và tính left từ getBoundingClientRect()
+                    // Trong Filament Tabs (race condition), getBoundingClientRect().left = 0
+                    // → toolbar bị fix tại cạnh trái viewport, đè lên sidebar ngẫu nhiên
+                    toolbar_sticky: false,
                     image_caption: true,
                     extended_valid_elements: 'figure[*],figcaption[contenteditable|class|style|*],img[*]',
                     valid_children: '+figure[img|figcaption],+body[figure]',
@@ -715,26 +773,17 @@
                                 this.editorReady = true;
                             }
                         };
-
                         // Determine initial content and activate
-                        const immediateContent = this.state || this._pendingContent;
-                        if (immediateContent) {
-                            activateEditor(immediateContent);
-                            this._pendingContent = null;
-                        } else {
-                            // State not yet hydrated — fetch authoritative value from Livewire
-                            Promise.resolve(this.$wire.get(this.statePath)).then((liveContent) => {
-                                const finalContent = liveContent || this.state || this._pendingContent || '';
-                                this._pendingContent = null;
-                                activateEditor(finalContent);
-                                if (finalContent && !this.state) {
-                                    this.state = finalContent;
-                                }
-                            }).catch(() => {
-                                activateEditor(this.state || '');
-                                this._pendingContent = null;
-                            });
+                        let immediateContent = '';
+                        try {
+                            immediateContent = this.state || this._pendingContent || this.resolvePath(this.$wire, this.statePath) || '';
+                        } catch (e) {
+                            console.warn('TinyMCE resolve initial content error:', e);
+                            immediateContent = this.state || this._pendingContent || '';
                         }
+                        activateEditor(immediateContent);
+                        this.state = immediateContent;
+                        this._pendingContent = null;
                     });
 
                     // Debounced state sync on typing
@@ -755,17 +804,41 @@
                         this.state = editor.getContent();
                     });
 
-                    // Bind to parent form submit to immediately sync state before Livewire submits
+                    // Sync before Livewire handles submit - uses CAPTURE phase to execute BEFORE Livewire's bubble phase submit handler
+                    this._formSubmitHandler = () => {
+                        if (!this.editorReady || !this.editorInstanceId) {
+                            alert('DEBUG: TinyMCE not ready. editorReady=' + this.editorReady + ', ID=' + this.editorInstanceId);
+                            return;
+                        }
+                        try {
+                            let editor = tinymce.get(this.editorInstanceId);
+                            if (!editor) {
+                                alert('DEBUG: TinyMCE editor instance not found for ID=' + this.editorInstanceId);
+                                return;
+                            }
+                            const content = (this.activeTab === 'visual')
+                                ? editor.getContent()
+                                : (this.$refs.editor ? this.$refs.editor.value : this.state);
+                            
+                            alert('DEBUG: Syncing content on submit. Length: ' + content.length + ', preview: ' + content.substring(0, 80));
+                            
+                            this.state = content;
+                            this.$wire.set(this.statePath, content, false);
+                        } catch (e) {
+                            alert('DEBUG: Sync error: ' + e.message);
+                        }
+                    };
+
                     this.$nextTick(() => {
                         let form = this.$el.closest('form');
                         if (form) {
-                            form.addEventListener('submit', () => {
-                                if (this.activeTab === 'visual') {
-                                    this.state = editor.getContent();
-                                } else {
-                                    this.state = this.$refs.editor.value;
-                                }
-                            });
+                            if (this._formElement && this._formSubmitHandler) {
+                                try {
+                                    this._formElement.removeEventListener('submit', this._formSubmitHandler, { capture: true });
+                                } catch (e) {}
+                            }
+                            this._formElement = form;
+                            form.addEventListener('submit', this._formSubmitHandler, { capture: true });
                         }
                     });
                 }
@@ -818,6 +891,21 @@
                 this._syncAbortController.abort();
                 this._syncAbortController = null;
             }
+            // Gỡ bỏ Livewire commit hook để tránh memory leak
+            if (typeof this._livewireCommitHook === 'function') {
+                try { this._livewireCommitHook(); } catch (e) {}
+                this._livewireCommitHook = null;
+            }
+            // Gỡ bỏ force-sync event listener
+            if (typeof this._forceSyncHandler === 'function') {
+                window.removeEventListener('tinymce-force-sync-before-save', this._forceSyncHandler);
+                this._forceSyncHandler = null;
+            }
+            if (this._formElement && this._formSubmitHandler) {
+                this._formElement.removeEventListener('submit', this._formSubmitHandler, { capture: true });
+                this._formElement = null;
+                this._formSubmitHandler = null;
+            }
             if (this.editorInstanceId) {
                 let editor = tinymce.get(this.editorInstanceId);
                 if (editor) {
@@ -835,6 +923,16 @@
                     func.apply(context, args);
                 }, wait);
             };
+        },
+
+        resolvePath(obj, path) {
+            if (!obj || !path || typeof path !== 'string') return undefined;
+            try {
+                return path.split('.').reduce((acc, part) => acc && acc[part], obj);
+            } catch (e) {
+                console.warn('TinyMCE resolvePath error:', e);
+                return undefined;
+            }
         }
     }));
 }
@@ -845,4 +943,37 @@ if (typeof Alpine !== 'undefined') {
 document.addEventListener('alpine:init', registerTinyMceEditor);
 })();
 </script>
+
+{{-- ============================================================
+     TinyMCE + Filament Admin — Toolbar Sticky Fix
+     
+     NGUYÊN TẬ:
+     • ui_container phải được giữ nguyên — điều hướng popup/menu vào wrapper
+     • toolbar_sticky_offset được tự đo từ DOM thực tế thay vì hardcode
+     • KHÔNG override position:sticky vào .tox-editor-header qua CSS
+     • KHÔNG dùng contain:layout trên wrapper
+     ============================================================ --}}
+<style>
+    /*
+     * Toolbar responsive: wrap buttons thay vì bị cắt khi màn hình hẹp
+     */
+    .tox .tox-toolbar__primary {
+        flex-wrap: wrap !important;
+    }
+
+    /*
+     * Editor fill 100% width của wrapper
+     */
+    .tox-tinymce {
+        width: 100% !important;
+    }
+
+    /*
+     * Border radius đáy editor khớp với wrapper border-radius
+     */
+    .tinymce-editor-container .tox-tinymce {
+        border-radius: 0 0 0.5rem 0.5rem;
+        border-top: none;
+    }
+</style>
 </div>
