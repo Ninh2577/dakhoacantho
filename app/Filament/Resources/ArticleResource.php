@@ -60,7 +60,7 @@ class ArticleResource extends Resource
                                     TextInput::make('title')
                                         ->label('Tiêu đề bài viết')
                                         ->placeholder('Nhập tiêu đề bài viết...')
-                                        ->required()
+                                        ->rules(['required'])
                                         ->maxLength(255)
                                         ->live(onBlur: true)
                                         ->extraInputAttributes(['style' => 'font-size:1.8rem;font-weight:700;padding:0.75rem 1rem;height:auto;line-height:1.3;'])
@@ -84,7 +84,7 @@ class ArticleResource extends Resource
                                     TextInput::make('slug')
                                         ->label('Đường dẫn (slug)')
                                         ->placeholder('duong-dan-bai-viet')
-                                        ->required()
+                                        ->rules(['required'])
                                         ->maxLength(255)
                                         ->unique(ignoreRecord: true)
                                         ->live(onBlur: true)
@@ -116,7 +116,7 @@ class ArticleResource extends Resource
                                     ->label('Nội dung bài viết')
                                     ->hiddenLabel()
                                     ->view('filament.components.tinymce-editor')
-                                    ->required()
+                                    ->rules(['required'])
                                     ->columnSpanFull(),
 
                                 // Excerpt
@@ -207,7 +207,7 @@ class ArticleResource extends Resource
                                                     ->label('Chuyên khoa / Danh mục')
                                                     ->options(fn () => Category::getTreeOptions())
                                                     ->placeholder('Chọn danh mục...')
-                                                    ->required()
+                                                    ->rules(['required'])
                                                     ->searchable()
                                                     ->preload(),
 
@@ -219,7 +219,7 @@ class ArticleResource extends Resource
                                                         modifyQueryUsing: fn ($query) => $query->orderBy('name')
                                                     )
                                                     ->default(fn () => auth()->id())
-                                                    ->required()
+                                                    ->rules(['required'])
                                                     ->exists('users', 'id'),
                                             ]),
 

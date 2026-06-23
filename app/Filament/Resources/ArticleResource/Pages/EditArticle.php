@@ -14,6 +14,8 @@ class EditArticle extends EditRecord
 {
     protected static string $resource = ArticleResource::class;
 
+    public bool $isSavingDraft = false;
+
     public function getTitle(): string
     {
         return 'Sửa bài viết';
@@ -38,6 +40,7 @@ class EditArticle extends EditRecord
                 ->label('Lưu nháp')
                 ->color('gray')
                 ->action(function () {
+                    $this->isSavingDraft = true;
                     $this->data['is_published'] = false;
                     $this->save();
                 }),
@@ -182,18 +185,57 @@ class EditArticle extends EditRecord
         return null;
     }
 
+    public function save(bool $shouldRedirect = true, bool $shouldSendNotification = true): void
+    {
+        \Illuminate\Support\Facades\Log::info('SAVE START', [
+            'content_length' => strlen($this->data['content'] ?? ''),
+            'data' => $this->data,
+        ]);
+
+        parent::save($shouldRedirect, $shouldSendNotification);
+
+        \Illuminate\Support\Facades\Log::info('SAVE END');
+
+        $this->isSavingDraft = false;
+    }
+
     protected function getFormActions(): array
     {
         return [
-            $this->getSaveFormAction()->label('Cập nhật'),
+            Actions\Action::make('publish_footer')
+                ->label($this->record->is_published ? 'Cập nhật' : 'Xuất bản')
+                ->color('primary')
+                ->action(function () {
+                    $this->isSavingDraft = false;
+                    if (! $this->record->is_published) {
+                        $this->data['is_published'] = true;
+                    }
+                    $this->save();
+                }),
             $this->getCancelFormAction()->label('Hủy'),
         ];
     }
 
     protected function mutateFormDataBeforeSave(array $data): array
     {
+        \Illuminate\Support\Facades\Log::info('MUTATE_BEFORE_SAVE_DEBUG', [
+            'content_is_null' => is_null($data['content'] ?? null),
+            'content_type' => gettype($data['content'] ?? null),
+            'content_length' => strlen($data['content'] ?? ''),
+            'content_preview' => substr($data['content'] ?? '', 0, 100),
+            'request_all' => request()->all(),
+        ]);
+
         if (blank($data['author_id'] ?? null)) {
             $data['author_id'] = auth()->id();
+        }
+
+        if ($this->isSavingDraft) {
+            $data['is_published'] = false;
+        } else {
+            if (! $this->record->is_published) {
+                $data['is_published'] = true;
+            }
         }
 
         $article = $this->record;

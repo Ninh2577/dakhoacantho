@@ -18,7 +18,32 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/my-test-debug', function () {
+    $article = \App\Models\Article::find(1222);
+    $logFile = storage_path('logs/laravel.log');
+    $matches = [];
+    if (file_exists($logFile)) {
+        $lines = file($logFile);
+        foreach ($lines as $line) {
+            if (strpos($line, 'MUTATE_BEFORE_SAVE_DEBUG') !== false ||
+                strpos($line, 'SAVE_START') !== false ||
+                strpos($line, 'SAVE_VALIDATION_FAILED') !== false ||
+                strpos($line, 'SAVE_FAILED_EXCEPTION') !== false ||
+                strpos($line, 'error') !== false ||
+                strpos($line, 'Exception') !== false
+            ) {
+                $matches[] = trim($line);
+            }
+        }
+    }
+    return response()->json([
+        'article' => $article ? $article->toArray() : null,
+        'save_logs' => array_slice($matches, -20)
+    ]);
+});
+
 if (app()->environment('local')) {
+
     Route::get('/native-session-test', function () {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();

@@ -77,6 +77,8 @@
             _livewireCommitHook: null,
             _formElement: null,
             _formSubmitHandler: null,
+            _clickCaptureHandler: null,
+            _keydownCaptureHandler: null,
             
             init() {
                 console.log('TINYMCE INIT:', config.statePath);
@@ -164,14 +166,25 @@
                 // Giữ commit hook như backup (phòng trường hợp event không fire)
                 if (typeof Livewire !== 'undefined' && typeof Livewire.hook === 'function') {
                     try {
-                        this._livewireCommitHook = Livewire.hook('commit', () => {
+                        this._livewireCommitHook = Livewire.hook('commit', ({ component, commit }) => {
+                            let livewireId = (this.$wire && this.$wire.__instance) 
+                                ? this.$wire.__instance.id 
+                                : (this.$el.closest('[wire\\:id]')?.getAttribute('wire:id'));
+                            if (!livewireId || component.id !== livewireId) return;
                             if (!this.editorReady || !this.editorInstanceId) return;
                             try {
                                 let editor = tinymce.get(this.editorInstanceId);
                                 if (!editor) return;
-                                const c = (this.activeTab === 'visual') ? editor.getContent() : this.state;
-                                if (c !== null && c !== undefined) this.state = c;
-                            } catch (e) {}
+                                const content = (this.activeTab === 'visual')
+                                    ? editor.getContent()
+                                    : (this.$refs.editor ? this.$refs.editor.value : this.state);
+                                
+                                commit.updates[this.statePath] = content;
+                                this.state = content;
+                                console.log('TINYMCE LIVEWIRE COMMIT SYNCED');
+                            } catch (e) {
+                                console.warn('TinyMCE commit hook sync error:', e);
+                            }
                         });
                     } catch (e) {
                         this._livewireCommitHook = null;
@@ -804,30 +817,68 @@
                         this.state = editor.getContent();
                     });
 
-                    // Sync before Livewire handles submit - uses CAPTURE phase to execute BEFORE Livewire's bubble phase submit handler
-                    this._formSubmitHandler = () => {
-                        if (!this.editorReady || !this.editorInstanceId) {
-                            alert('DEBUG: TinyMCE not ready. editorReady=' + this.editorReady + ', ID=' + this.editorInstanceId);
-                            return;
-                        }
+                    // Helper to execute synchronous sync
+                    const performSync = () => {
+                        if (!this.editorReady || !this.editorInstanceId) return;
                         try {
                             let editor = tinymce.get(this.editorInstanceId);
-                            if (!editor) {
-                                alert('DEBUG: TinyMCE editor instance not found for ID=' + this.editorInstanceId);
-                                return;
-                            }
+                            if (!editor) return;
+                            console.log('SYNC START');
                             const content = (this.activeTab === 'visual')
                                 ? editor.getContent()
                                 : (this.$refs.editor ? this.$refs.editor.value : this.state);
                             
-                            alert('DEBUG: Syncing content on submit. Length: ' + content.length + ', preview: ' + content.substring(0, 80));
-                            
                             this.state = content;
                             this.$wire.set(this.statePath, content, false);
+                            console.log('SYNC COMPLETE', content.length);
                         } catch (e) {
-                            alert('DEBUG: Sync error: ' + e.message);
+                            console.warn('TinyMCE direct sync error:', e);
                         }
                     };
+
+                    // Handler 1: Form Submit (Capture Phase)
+                    this._formSubmitHandler = () => {
+                        console.log('TinyMCE form submit capture match, syncing...');
+                        performSync();
+                    };
+
+                    // Handler 2: Click Capture (Window Level) - Intercepts all clicks on save/submit buttons
+                    this._clickCaptureHandler = (event) => {
+                        let target = event.target;
+                        let isSave = false;
+                        while (target && target !== document.body) {
+                            if (target.tagName === 'BUTTON' || target.tagName === 'A') {
+                                const text = target.textContent.trim();
+                                if (target.type === 'submit' || 
+                                    text.includes('Cập nhật') || 
+                                    text.includes('Lưu') ||
+                                    text.includes('Xuất bản') ||
+                                    target.getAttribute('wire:click') === 'save' ||
+                                    target.classList.contains('fi-ac-action')
+                                ) {
+                                    isSave = true;
+                                    break;
+                                }
+                            }
+                            target = target.parentElement;
+                        }
+                        if (isSave) {
+                            console.log('TinyMCE click capture match, syncing...');
+                            performSync();
+                        }
+                    };
+
+                    // Handler 3: Keydown Capture (Window Level) - Intercepts Ctrl+S / Cmd+S
+                    this._keydownCaptureHandler = (event) => {
+                        if ((event.ctrlKey || event.metaKey) && event.key === 's') {
+                            console.log('TinyMCE keydown capture match (Ctrl+S), syncing...');
+                            performSync();
+                        }
+                    };
+
+                    // Register event listeners
+                    window.addEventListener('click', this._clickCaptureHandler, { capture: true });
+                    window.addEventListener('keydown', this._keydownCaptureHandler, { capture: true });
 
                     this.$nextTick(() => {
                         let form = this.$el.closest('form');
@@ -902,9 +953,23 @@
                 this._forceSyncHandler = null;
             }
             if (this._formElement && this._formSubmitHandler) {
-                this._formElement.removeEventListener('submit', this._formSubmitHandler, { capture: true });
+                try {
+                    this._formElement.removeEventListener('submit', this._formSubmitHandler, { capture: true });
+                } catch (e) {}
                 this._formElement = null;
                 this._formSubmitHandler = null;
+            }
+            if (this._clickCaptureHandler) {
+                try {
+                    window.removeEventListener('click', this._clickCaptureHandler, { capture: true });
+                } catch (e) {}
+                this._clickCaptureHandler = null;
+            }
+            if (this._keydownCaptureHandler) {
+                try {
+                    window.removeEventListener('keydown', this._keydownCaptureHandler, { capture: true });
+                } catch (e) {}
+                this._keydownCaptureHandler = null;
             }
             if (this.editorInstanceId) {
                 let editor = tinymce.get(this.editorInstanceId);
