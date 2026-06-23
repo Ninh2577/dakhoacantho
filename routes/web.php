@@ -257,7 +257,14 @@ Route::post('/tu-van', [ConsultationController::class, 'store'])
 Route::get('/tim-kiem', [SearchController::class, 'index'])->name('search');
 
 // 4. SEO Sitemap
-Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
+Route::get('/sitemap.xml', [SitemapController::class, 'index_v2'])->name('sitemap');
+
+// robots.txt route (dynamic sitemap declaration)
+Route::get('/robots.txt', function () {
+    $sitemapUrl = url('sitemap.xml');
+    $content = "User-agent: *\nDisallow:\n\nSitemap: {$sitemapUrl}";
+    return response($content)->header('Content-Type', 'text/plain; charset=utf-8');
+});
 
 // Old URL format redirect routes (.html) - placed BEFORE category wildcard to prevent hijack
 Route::get('/category/{category_path}/{slug}.html', [ArticleController::class, 'redirectOldUrl'])

@@ -93,9 +93,9 @@ class Article extends Model
         static::saved(function ($article) {
             Cache::forget('home_latest_articles');
             Cache::forget("dakhoacantho:articles:related:{$article->id}");
-            Cache::forget('dakhoacantho:sitemap:xml:'.parse_url(config('app.url'), PHP_URL_HOST));
+            Cache::forget('dakhoacantho:sitemap:entries:'.parse_url(config('app.url'), PHP_URL_HOST));
             if (request()->getHost()) {
-                Cache::forget('dakhoacantho:sitemap:xml:'.request()->getHost());
+                Cache::forget('dakhoacantho:sitemap:entries:'.request()->getHost());
             }
             foreach (Category::all() as $cat) {
                 Cache::forget("category_related_articles_{$cat->id}");
@@ -105,9 +105,9 @@ class Article extends Model
         static::deleted(function ($article) {
             Cache::forget('home_latest_articles');
             Cache::forget("dakhoacantho:articles:related:{$article->id}");
-            Cache::forget('dakhoacantho:sitemap:xml:'.parse_url(config('app.url'), PHP_URL_HOST));
+            Cache::forget('dakhoacantho:sitemap:entries:'.parse_url(config('app.url'), PHP_URL_HOST));
             if (request()->getHost()) {
-                Cache::forget('dakhoacantho:sitemap:xml:'.request()->getHost());
+                Cache::forget('dakhoacantho:sitemap:entries:'.request()->getHost());
             }
             foreach (Category::all() as $cat) {
                 Cache::forget("category_related_articles_{$cat->id}");

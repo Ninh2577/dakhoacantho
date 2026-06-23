@@ -132,9 +132,9 @@ class Category extends Model
             Cache::forget('dakhoacantho:categories:by_slug');
             Cache::forget('dakhoacantho:footer:categories');
             Cache::forget('dakhoacantho:categories:tree_options');
-            Cache::forget('dakhoacantho:sitemap:xml:'.parse_url(config('app.url'), PHP_URL_HOST));
+            Cache::forget('dakhoacantho:sitemap:entries:'.parse_url(config('app.url'), PHP_URL_HOST));
             if (request()->getHost()) {
-                Cache::forget('dakhoacantho:sitemap:xml:'.request()->getHost());
+                Cache::forget('dakhoacantho:sitemap:entries:'.request()->getHost());
             }
             foreach (self::all() as $cat) {
                 Cache::forget("category_full_path_{$cat->id}");
