@@ -33,7 +33,7 @@ UrlSettingHistory::whereIn('status', ['pending', 'processing'])->update([
 echo "-> Đã dọn dẹp tiến trình bị treo (PENDING/PROCESSING).\n";
 
 $artPattern = '{slug}';
-$catPattern = '{slug}';
+$catPattern = '{categories}';
 
 $routingService = app(UrlRoutingService::class);
 

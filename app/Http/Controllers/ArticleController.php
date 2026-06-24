@@ -28,7 +28,16 @@ class ArticleController extends Controller
         if (! auth()->check() || auth()->user()->role !== 'admin') {
             $query->where('is_published', true);
         }
-        $article = $query->firstOrFail();
+        $article = $query->first();
+
+        // Fallback: If not an article, check if it matches a category slug and render it
+        if (! $article) {
+            $category = \App\Models\Category::where('slug', $slug)->first();
+            if ($category) {
+                return app(CategoryController::class)->showResolved($category);
+            }
+            abort(404);
+        }
 
         $routingService = app(UrlRoutingService::class);
 
