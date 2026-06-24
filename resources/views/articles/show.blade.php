@@ -58,6 +58,9 @@
 @endsection
 
 @section('content')
+@php
+    $zaloUrl = \App\Models\Setting::site('zalo_url') ?: 'https://zalo.me/0966332352';
+@endphp
 <!-- Custom style overrides for rich text content formatting -->
 <style>
     .rich-content h2 {
@@ -578,7 +581,7 @@
                         <a href="tel:{{ preg_replace('/\D/', '', \App\Models\Setting::site('hotline')) }}" class="block w-full bg-white text-clinic-blue font-extrabold py-2.5 rounded-xl text-sm transition-all hover:bg-blue-50 active:scale-95 duration-150 text-center shadow-sm">
                             Gọi hotline: {{ \App\Models\Setting::site('hotline') }}
                         </a>
-                        <a href="{{ route('contact') }}" class="block w-full bg-clinic-teal text-white font-extrabold py-2.5 rounded-xl text-sm transition-all hover:bg-clinic-teal/90 active:scale-95 duration-150 text-center shadow-sm">
+                        <a href="{{ $zaloUrl }}" target="_blank" rel="noopener noreferrer" class="block w-full bg-clinic-teal text-white font-extrabold py-2.5 rounded-xl text-sm transition-all hover:bg-clinic-teal/90 active:scale-95 duration-150 text-center shadow-sm">
                             Đăng ký đặt lịch khám
                         </a>
                     </div>
@@ -632,7 +635,7 @@
         Gọi tư vấn
     </a>
     <!-- Booking Button -->
-    <a href="{{ route('contact') }}" class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 bg-clinic-blue text-white font-extrabold rounded-xl text-sm transition-all shadow-md active:scale-95 duration-150">
+    <a href="{{ $zaloUrl }}" target="_blank" rel="noopener noreferrer" class="flex-1 inline-flex items-center justify-center gap-2 px-4 py-3 bg-clinic-blue text-white font-extrabold rounded-xl text-sm transition-all shadow-md active:scale-95 duration-150">
         <svg class="w-4.5 h-4.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
         </svg>

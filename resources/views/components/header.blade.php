@@ -1,3 +1,6 @@
+@php
+    $zaloUrl = \App\Models\Setting::site('zalo_url') ?: 'https://zalo.me/0966332352';
+@endphp
 <!-- Header / Navbar -->
 <header class="sticky top-0 z-50 shadow-lg" x-data="{ mobileMenuOpen: false, searchOpen: false }">
 
@@ -127,9 +130,9 @@
                              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
                          </svg>
                      </button>
-                     <a href="{{ route('contact') }}" class="inline-flex items-center justify-center whitespace-nowrap w-max px-3 lg:px-4 xl:px-6 py-2 text-xs lg:text-sm font-extrabold text-white bg-clinic-blue hover:bg-opacity-90 rounded-lg shadow-md transition-all">
-                         ĐẶT LỊCH KHÁM
-                     </a>
+                      <a href="{{ $zaloUrl }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center whitespace-nowrap w-max px-3 lg:px-4 xl:px-6 py-2 text-xs lg:text-sm font-extrabold text-white bg-clinic-blue hover:bg-opacity-90 rounded-lg shadow-md transition-all">
+                          ĐẶT LỊCH KHÁM
+                      </a>
                  </div>
 
                  <!-- Mobile Actions -->
@@ -244,7 +247,7 @@
 
              {{-- Mobile CTA --}}
              <li class="px-4 py-4">
-                 <a href="{{ route('contact') }}" class="w-full inline-flex items-center justify-center px-4 py-2.5 text-sm font-extrabold text-white bg-clinic-blue rounded-lg hover:bg-opacity-90 transition-all">
+                 <a href="{{ $zaloUrl }}" target="_blank" rel="noopener noreferrer" class="w-full inline-flex items-center justify-center px-4 py-2.5 text-sm font-extrabold text-white bg-clinic-blue rounded-lg hover:bg-opacity-90 transition-all">
                      Đặt Lịch Khám
                  </a>
              </li>

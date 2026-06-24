@@ -42,11 +42,8 @@
             </ol>
         </nav>
 
-        <!-- Main Grid Layout -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-            
-            <!-- Left Info Area (lg:col-span-7) -->
-            <div class="lg:col-span-7 space-y-10">
+        <!-- Main Content Area -->
+        <div class="max-w-5xl mx-auto space-y-12">
                 
                 <!-- Map & Core Info Container -->
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
@@ -107,7 +104,7 @@
                     </div>
 
                     <!-- Details items list -->
-                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 border-t border-slate-100">
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-4 border-t border-slate-100">
                         <!-- Contact Item 1 -->
                         <div class="flex items-start gap-3">
                             <span class="p-3 bg-clinic-sky/10 text-clinic-blue rounded-xl flex-shrink-0">
@@ -150,13 +147,6 @@
                         </div>
                     </div>
                 </div>
-
-            </div>
-
-            <!-- Right Area (Consultation Form) (lg:col-span-5) -->
-            <div class="lg:col-span-5">
-                <x-consultation-form />
-            </div>
 
         </div>
 

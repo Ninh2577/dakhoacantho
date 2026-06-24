@@ -1,3 +1,6 @@
+@php
+    $zaloUrl = \App\Models\Setting::site('zalo_url') ?: 'https://zalo.me/0966332352';
+@endphp
 <!-- Article Inline CTA Box -->
 <div class="article-cta-box my-8 clear-both">
     <!-- Header -->
@@ -11,7 +14,7 @@
         Mọi thắc mắc liên quan đến bệnh bạn có thể liên hệ ngay với chúng tôi qua đường dây nóng:
         <a href="tel:{{ preg_replace('/\D/', '', \App\Models\Setting::site('hotline')) }}" class="article-cta-hotlink">{{ \App\Models\Setting::site('hotline') }}</a>
         hoặc
-        <a href="{{ route('contact') }}" class="article-cta-hotlink">nhấn vào đây để tư vấn trực tuyến</a>
+        <a href="{{ $zaloUrl }}" target="_blank" rel="noopener noreferrer" class="article-cta-hotlink">nhấn vào đây để tư vấn trực tuyến</a>
         để nhận được sự hỗ trợ tư vấn từ các chuyên gia giàu kinh nghiệm.
     </p>
 
@@ -106,9 +109,9 @@
             </svg>
             Gọi {{ \App\Models\Setting::site('hotline') }}
         </a>
-        <a href="{{ route('contact') }}" class="article-cta-btn article-cta-btn--primary">
+        <a href="{{ $zaloUrl }}" target="_blank" rel="noopener noreferrer" class="article-cta-btn article-cta-btn--primary">
             <svg class="article-cta-btn-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
             </svg>
             Đặt lịch tư vấn
         </a>
