@@ -15,6 +15,7 @@
     x-init="init()"
     x-on:destroy="destroy()"
     wire:ignore
+    :class="activeTab === 'text' ? 'active-tab-text' : 'active-tab-visual'"
     class="tinymce-editor-container w-full border border-slate-300 rounded-lg flex flex-col"
     style="border-color: #cbd5e1;"
 >
@@ -46,8 +47,8 @@
             x-ref="editor" 
             x-model.lazy="state"
             @input="state = $el.value"
-            class="w-full font-mono p-4 text-sm bg-slate-950 text-slate-200 focus:outline-none focus:ring-0 border-0"
-            style="height: 900px; min-height: 800px; font-family: Consolas, Monaco, monospace; line-height: 1.6; resize: vertical; display: block;"
+            class="w-full font-mono p-4 text-sm focus:outline-none focus:ring-0 border-0"
+            style="height: 900px; min-height: 800px; font-family: Consolas, Monaco, monospace; line-height: 1.6; resize: vertical; display: block; color: #e2e8f0 !important; background-color: #0f172a !important;"
             placeholder="Nhập nội dung bài viết..."
         ></textarea>
     </div>
@@ -102,6 +103,13 @@
 
                 // Watch for external Livewire state changes to update the editor content
                 this.$watch('state', (newVal) => {
+                    console.log('TINYMCE state watch', {
+                        activeTab: this.activeTab,
+                        editorReady: this.editorReady,
+                        newValLength: newVal ? newVal.length : 0,
+                        textareaLength: this.$refs.editor ? this.$refs.editor.value.length : 0,
+                        editorExists: !!(this.editorInstanceId && tinymce.get(this.editorInstanceId))
+                    });
                     if (!this.editorReady) {
                         // Editor not ready yet — store content so we can apply it after init
                         if (newVal) {
@@ -111,13 +119,21 @@
                     }
                     if (this.editorInstanceId) {
                         let editor = tinymce.get(this.editorInstanceId);
-                        if (editor && this.activeTab === 'visual' && !editor.hasFocus() && newVal !== editor.getContent()) {
-                            editor.setContent(newVal || '');
-                            try {
-                                if (editor.mode && typeof editor.mode.get === 'function' && editor.mode.get() !== 'design') {
-                                    editor.mode.set('design');
+                        if (editor) {
+                            if (this.activeTab === 'visual') {
+                                if (!editor.hasFocus() && newVal !== editor.getContent()) {
+                                    editor.setContent(newVal || '');
+                                    try {
+                                        if (editor.mode && typeof editor.mode.get === 'function' && editor.mode.get() !== 'design') {
+                                            editor.mode.set('design');
+                                        }
+                                    } catch (e) {}
                                 }
-                            } catch (e) {}
+                            } else if (this.activeTab === 'text') {
+                                if (this.$refs.editor && newVal !== this.$refs.editor.value) {
+                                    this.$refs.editor.value = newVal || '';
+                                }
+                            }
                         }
                     }
                 });
@@ -759,6 +775,10 @@
                         //   3. this.$wire.get(statePath) — direct Livewire fetch as final fallback
 
                         const activateEditor = (content) => {
+                            console.log('TINYMCE activateEditor', {
+                                activeTab: this.activeTab,
+                                contentLength: content ? content.length : 0
+                            });
                             if (this.activeTab === 'visual') {
                                 // Step 1: hide() then show() with a brief gap.
                                 // This is the CRITICAL step — show() triggers setActive() inside TinyMCE.
@@ -783,6 +803,9 @@
                                 }, 50);
                             } else {
                                 editor.hide();
+                                if (this.$refs.editor) {
+                                    this.$refs.editor.value = content || '';
+                                }
                                 this.editorReady = true;
                             }
                         };
@@ -823,14 +846,19 @@
                         try {
                             let editor = tinymce.get(this.editorInstanceId);
                             if (!editor) return;
-                            console.log('SYNC START');
                             const content = (this.activeTab === 'visual')
                                 ? editor.getContent()
                                 : (this.$refs.editor ? this.$refs.editor.value : this.state);
                             
+                            console.log('TINYMCE performSync', {
+                                activeTab: this.activeTab,
+                                contentLength: content ? content.length : 0,
+                                stateLength: this.state ? this.state.length : 0,
+                                textareaLength: this.$refs.editor ? this.$refs.editor.value.length : 0
+                            });
+                            
                             this.state = content;
                             this.$wire.set(this.statePath, content, false);
-                            console.log('SYNC COMPLETE', content.length);
                         } catch (e) {
                             console.warn('TinyMCE direct sync error:', e);
                         }
@@ -901,17 +929,39 @@
             
             let editor = this.editorInstanceId ? tinymce.get(this.editorInstanceId) : null;
             
+            console.log('TINYMCE switchTab', {
+                toTab: tab,
+                activeTabBefore: this.activeTab,
+                stateLength: this.state ? this.state.length : 0,
+                textareaLength: this.$refs.editor ? this.$refs.editor.value.length : 0,
+                editorExists: !!editor
+            });
+
             if (tab === 'text') {
                 if (editor) {
                     editor.save(); // Sync content to textarea
-                    this.state = editor.getContent();
-                    editor.hide(); // Hide visual editor and show styled textarea
+                    const content = editor.getContent();
+                    this.state = content;
+                    
+                    editor.hide(); // Hide visual editor internally
+                    
+                    if (this.$refs.editor) {
+                        this.$refs.editor.value = content;
+                    }
                 }
                 this.activeTab = 'text';
             } else {
                 if (editor) {
-                    editor.show(); // Hide textarea and show visual editor
-                    editor.setContent(this.state || '');
+                    // Sync from textarea back to editor before showing it
+                    let content = this.state || '';
+                    if (this.$refs.editor) {
+                        content = this.$refs.editor.value;
+                    }
+                    this.state = content;
+                    
+                    editor.setContent(content);
+                    editor.show(); // Show visual editor internally
+                    
                     // Force design mode and contenteditable
                     try {
                         if (editor.mode && typeof editor.mode.get === 'function' && editor.mode.get() !== 'design') {
@@ -1039,6 +1089,34 @@ document.addEventListener('alpine:init', registerTinyMceEditor);
     .tinymce-editor-container .tox-tinymce {
         border-radius: 0 0 0.5rem 0.5rem;
         border-top: none;
+    }
+
+    /*
+     * Tab-specific visibility overrides for Text tab
+     */
+    .tinymce-editor-container.active-tab-text .tox-tinymce {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+    }
+    .tinymce-editor-container.active-tab-visual textarea {
+        display: none !important;
+        visibility: hidden !important;
+        opacity: 0 !important;
+        height: 0 !important;
+        min-height: 0 !important;
+        overflow: hidden !important;
+    }
+    .tinymce-editor-container.active-tab-text textarea {
+        display: block !important;
+        visibility: visible !important;
+        opacity: 1 !important;
+        height: 900px !important;
+        min-height: 800px !important;
+        overflow: auto !important;
     }
 </style>
 </div>
