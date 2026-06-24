@@ -4,7 +4,9 @@
 require __DIR__.'/../vendor/autoload.php';
 $app = require_once __DIR__.'/../bootstrap/app.php';
 $kernel = $app->make(Illuminate\Contracts\Http\Kernel::class);
-$kernel->bootstrap();
+$response = $kernel->handle(
+    $request = Illuminate\Http\Request::capture()
+);
 
 // 2. Authorization Check (Must be Logged-in Administrator)
 if (!auth()->check() || auth()->user()->role !== 'admin') {
