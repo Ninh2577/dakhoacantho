@@ -36,7 +36,16 @@ class CategoryController extends Controller
         $slug = end($segments);
 
         // Retrieve category with its immediate children
-        $selectedCategory = Category::with('children')->where('slug', $slug)->firstOrFail();
+        $selectedCategory = Category::with('children')->where('slug', $slug)->first();
+
+        // Fallback: If not a category, check if it matches an article slug and redirect
+        if (! $selectedCategory) {
+            $article = \App\Models\Article::where('slug', $slug)->first();
+            if ($article) {
+                return redirect()->to($article->public_url, 301);
+            }
+            abort(404);
+        }
 
         // Strict SEO Path Verification: redirect or fail if the path segments are not perfectly matched
         if ($selectedCategory->full_path !== $category_path) {
