@@ -129,37 +129,6 @@
     </div>
 </section>
 
-<!-- Medical Knowledge Section ("Kiến thức y khoa") -->
-<section class="py-16 md:py-24 bg-slate-50/50 border-y border-slate-100">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        <!-- Section Header -->
-        <div class="flex flex-col md:flex-row items-center justify-between gap-6 mb-12 md:mb-16">
-            <div class="text-center md:text-left space-y-2">
-                <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Kiến thức y khoa</h2>
-                <p class="text-slate-600 text-sm sm:text-base leading-normal">
-                    Cập nhật những thông tin mới nhất về sức khỏe và các lời khuyên từ đội ngũ tư vấn sức khỏe.
-                </p>
-            </div>
-            <a href="{{ ($cat = \App\Models\Category::findBySlug('nam-khoa')) ? $cat->public_url : route('category.show', ['category_path' => 'nam-khoa']) }}" class="inline-flex items-center px-4 py-2 border border-slate-200 hover:bg-slate-50 text-xs font-extrabold text-slate-700 rounded-xl transition-all shadow-sm">
-                Xem tất cả chuyên khoa
-            </a>
-        </div>
-
-        <!-- Articles Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            @forelse($articles as $article)
-                <x-article-card :article="$article" />
-            @empty
-                <div class="col-span-full py-12 text-center text-slate-400">
-                    Chưa có bài viết nào được đăng tải.
-                </div>
-            @endforelse
-        </div>
-
-    </div>
-</section>
-
 <!-- Patient Reviews Section ("Ý kiến từ bệnh nhân") -->
 <style>
     /* Hide scrollbar for Chrome, Safari and Opera */
