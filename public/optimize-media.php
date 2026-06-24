@@ -101,21 +101,17 @@ function deleteDirectory($dir) {
         return true;
     }
     if (!is_dir($dir)) {
-        return unlink($dir);
+        return @unlink($dir);
     }
     foreach (scandir($dir) as $item) {
         if ($item == '.' || $item == '..') {
             continue;
         }
-        if (!deleteDirectory($dir . DIRECTORY_DIR_SEPARATOR . $item)) {
+        if (!deleteDirectory($dir . DIRECTORY_SEPARATOR . $item)) {
             return false;
         }
     }
-    return rmdir($dir);
-}
-// Fix dynamic OS separator
-if (!defined('DIRECTORY_DIR_SEPARATOR')) {
-    define('DIRECTORY_DIR_SEPARATOR', '/');
+    return @rmdir($dir);
 }
 
 // Helper: Get counts and list of unconverted files
