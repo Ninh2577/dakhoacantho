@@ -271,7 +271,18 @@
 </section>
 
 <!-- Patient Reviews Section ("Ý kiến từ bệnh nhân") -->
-<section class="py-16 md:py-24 bg-[#0a3875] text-white">
+<style>
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    .scrollbar-none::-webkit-scrollbar {
+        display: none;
+    }
+    /* Hide scrollbar for IE, Edge and Firefox */
+    .scrollbar-none {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
+</style>
+<section class="py-16 md:py-24 bg-[#0a3875] text-white" role="region" aria-label="Ý kiến đánh giá từ bệnh nhân">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <!-- Section Header -->
@@ -282,64 +293,350 @@
             </p>
         </div>
 
-        <!-- Reviews Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-            <!-- Review 1 -->
-            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10 space-y-4">
-                <div class="flex text-teal-400">
-                    @for($i = 0; $i < 5; $i++)
-                        <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    @endfor
-                </div>
-                <p class="text-sm italic leading-relaxed text-slate-200">
-                    "Dịch vụ rất chuyên nghiệp, đội ngũ nhân viên tư vấn tận tình, không làm tôi cảm thấy e ngại. Cơ sở vật chất rất hiện đại và sạch sẽ."
-                </p>
-                <div class="pt-4 border-t border-white/10 flex items-center gap-3">
-                    <span class="w-8 h-8 rounded-full bg-teal-400 text-[#0a3875] font-black flex items-center justify-center text-xs">AT</span>
-                    <div>
-                        <span class="block text-xs font-bold">Anh Nguyễn V. T.</span>
-                        <span class="block text-[10px] text-slate-300">Cần Thơ</span>
+        @php
+            $reviews = [
+                [
+                    'name' => 'Anh Nguyễn V. T.',
+                    'location' => 'Cần Thơ',
+                    'avatar' => 'AT',
+                    'stars' => 5,
+                    'content' => 'Dịch vụ rất chuyên nghiệp, đội ngũ nhân viên tư vấn tận tình, không làm tôi cảm thấy e ngại. Cơ sở vật chất rất hiện đại và sạch sẽ.',
+                    'category' => 'Khám tổng quát'
+                ],
+                [
+                    'name' => 'Chị Trần H. M.',
+                    'location' => 'Vĩnh Long',
+                    'avatar' => 'TM',
+                    'stars' => 5,
+                    'content' => 'Tôi đã điều trị trĩ tại đây bằng phương pháp HCPT, rất nhanh chóng và nhẹ nhàng. Rất cảm ơn đội ngũ hỗ trợ tại phòng khám.',
+                    'category' => 'Hậu môn - Trực tràng'
+                ],
+                [
+                    'name' => 'Chị Lê T. B.',
+                    'location' => 'Sóc Trăng',
+                    'avatar' => 'LB',
+                    'stars' => 5,
+                    'content' => 'Thủ tục nhanh gọn, bảo mật thông tin tuyệt đối. Chi phí cũng rất rõ ràng, không có phí ẩn trong quá trình điều trị.',
+                    'category' => 'Bảo mật thông tin'
+                ],
+                [
+                    'name' => 'Anh Hoàng M. D.',
+                    'location' => 'Cần Thơ',
+                    'avatar' => 'HD',
+                    'stars' => 5,
+                    'content' => 'Điều trị viêm bao quy đầu ở đây rất hiệu quả. Bác sĩ tư vấn kín đáo, nhiệt tình giải thích nên tôi thấy thoải mái, không lo lắng nữa.',
+                    'category' => 'Nam khoa'
+                ],
+                [
+                    'name' => 'Chị Nguyễn T. K.',
+                    'location' => 'Hậu Giang',
+                    'avatar' => 'NK',
+                    'stars' => 5,
+                    'content' => 'Tôi khám phụ khoa định kỳ ở đây. Phòng khám sạch sẽ, trang thiết bị mới, bác sĩ nữ rất nhẹ nhàng và chu đáo.',
+                    'category' => 'Phụ khoa'
+                ],
+                [
+                    'name' => 'Anh Phan Văn N.',
+                    'location' => 'Vĩnh Long',
+                    'avatar' => 'PN',
+                    'stars' => 5,
+                    'content' => 'Xét nghiệm máu ở đây nhanh chóng, không phải chờ đợi lâu như bệnh viện công. Nhân viên lấy mẫu nhẹ nhàng, kết quả trả về điện thoại tiện lợi.',
+                    'category' => 'Xét nghiệm'
+                ],
+                [
+                    'name' => 'Cô Lâm Thị S.',
+                    'location' => 'Sóc Trăng',
+                    'avatar' => 'LS',
+                    'stars' => 5,
+                    'content' => 'Quy trình khám sức khỏe tổng quát khoa học, hướng dẫn tận tình từ lúc đăng ký đến lúc lấy thuốc. Tôi rất hài lòng.',
+                    'category' => 'Khám tổng quát'
+                ],
+                [
+                    'name' => 'Anh Bùi Quốc V.',
+                    'location' => 'Kiên Giang',
+                    'avatar' => 'QV',
+                    'stars' => 5,
+                    'content' => 'Được đội ngũ tư vấn online giải thích kỹ về các triệu chứng trước khi đến khám. Tiết kiệm thời gian và giúp tôi yên tâm hơn.',
+                    'category' => 'Tư vấn sức khỏe'
+                ],
+                [
+                    'name' => 'Chị Huỳnh Mai L.',
+                    'location' => 'Đồng Tháp',
+                    'avatar' => 'ML',
+                    'stars' => 5,
+                    'content' => 'Thái độ phục vụ của nhân viên y tế rất lịch sự, nhiệt tình hướng dẫn bệnh nhân. Cảm thấy được tôn trọng khi thăm khám tại đây.',
+                    'category' => 'Thái độ phục vụ'
+                ],
+                [
+                    'name' => 'Anh Đỗ Tiến D.',
+                    'location' => 'Bạc Liêu',
+                    'avatar' => 'TD',
+                    'stars' => 5,
+                    'content' => 'Phòng khám khang trang, máy móc hiện đại và phòng chờ rất mát mẻ, sạch sẽ. Cảm giác rất thoải mái.',
+                    'category' => 'Cơ sở vật chất'
+                ],
+                [
+                    'name' => 'Anh Trương Minh K.',
+                    'location' => 'An Giang',
+                    'avatar' => 'MK',
+                    'stars' => 5,
+                    'content' => 'Đặt lịch hẹn trước qua mạng nên khi đến được vào khám ngay, không phải xếp hàng chờ đợi. Quy trình rất chuyên nghiệp.',
+                    'category' => 'Quy trình khám'
+                ],
+                [
+                    'name' => 'Anh Nguyễn Văn P.',
+                    'location' => 'Cà Mau',
+                    'avatar' => 'VP',
+                    'stars' => 5,
+                    'content' => 'Thông tin bệnh án được bảo mật tuyệt đối làm tôi rất an tâm khi khám các bệnh nhạy cảm. Rất chuyên nghiệp.',
+                    'category' => 'Bảo mật thông tin'
+                ],
+                [
+                    'name' => 'Chị Vũ Thị H.',
+                    'location' => 'Trà Vinh',
+                    'avatar' => 'VH',
+                    'stars' => 5,
+                    'content' => 'Bác sĩ dặn dò kỹ lưỡng chế độ ăn uống sau tiểu phẫu. Nhân viên còn gọi điện hỏi thăm tình hình hồi phục, chăm sóc chu đáo.',
+                    'category' => 'Chăm sóc sau khám'
+                ],
+                [
+                    'name' => 'Anh Trần Tấn L.',
+                    'location' => 'Cần Thơ',
+                    'avatar' => 'TL',
+                    'stars' => 5,
+                    'content' => 'Cắt bao quy đầu bằng công nghệ mới ở đây phục hồi nhanh, không đau. Chi phí hợp lý và công khai rõ ràng.',
+                    'category' => 'Nam khoa'
+                ],
+                [
+                    'name' => 'Chị Lê Hồng V.',
+                    'location' => 'Sóc Trăng',
+                    'avatar' => 'HV',
+                    'stars' => 5,
+                    'content' => 'Khám phụ khoa ở đây bảo mật thông tin tốt, quy trình 1 bác sĩ - 1 bệnh nhân giúp tôi dễ dàng chia sẻ tình trạng của mình.',
+                    'category' => 'Phụ khoa'
+                ],
+                [
+                    'name' => 'Anh Phạm Minh T.',
+                    'location' => 'Hậu Giang',
+                    'avatar' => 'MT',
+                    'stars' => 5,
+                    'content' => 'Dịch vụ xét nghiệm nhanh gọn, kết quả chính xác, bác sĩ phân tích kỹ các chỉ số và đưa ra lời khuyên hữu ích.',
+                    'category' => 'Xét nghiệm'
+                ],
+                [
+                    'name' => 'Bác Nguyễn Văn B.',
+                    'location' => 'Vĩnh Long',
+                    'avatar' => 'VB',
+                    'stars' => 5,
+                    'content' => 'Bác sĩ lớn tuổi khám rất kỹ, tận tâm giải thích bệnh lý. Phòng khám có lối đi rộng rãi, sạch sẽ cho người lớn tuổi.',
+                    'category' => 'Khám tổng quát'
+                ],
+                [
+                    'name' => 'Chị Đặng Thúy A.',
+                    'location' => 'Kiên Giang',
+                    'avatar' => 'TA',
+                    'stars' => 5,
+                    'content' => 'Từ lễ tân đến bác sĩ ai cũng niềm nở, chu đáo. Cảm giác e ngại ban đầu bay biến ngay khi bước vào phòng khám.',
+                    'category' => 'Thái độ phục vụ'
+                ]
+            ];
+        @endphp
+
+        <!-- Reviews Slider Component -->
+        <div x-data="{
+            currentPage: 0,
+            total: {{ count($reviews) }},
+            autoplayInterval: null,
+            isPaused: false,
+            itemsPerPage: 1,
+            translatePx: 0,
+            get totalPages() {
+                return Math.ceil(this.total / this.itemsPerPage);
+            },
+            get pages() {
+                let p = [];
+                for (let i = 0; i < this.totalPages; i++) { p.push(i); }
+                return p;
+            },
+            computeTranslate() {
+                const track = this.$refs.sliderTrack;
+                if (!track || track.children.length === 0) return;
+                const card = track.children[0];
+                const cardWidthWithGap = card.offsetWidth + parseInt(getComputedStyle(track).gap || 0);
+                const itemIndex = this.currentPage * this.itemsPerPage;
+                const targetCard = track.children[itemIndex];
+                if (targetCard) {
+                    this.translatePx = targetCard.offsetLeft;
+                }
+            },
+            next() {
+                this.currentPage = (this.currentPage + 1) % this.totalPages;
+                this.$nextTick(() => this.computeTranslate());
+            },
+            prev() {
+                this.currentPage = (this.currentPage - 1 + this.totalPages) % this.totalPages;
+                this.$nextTick(() => this.computeTranslate());
+            },
+            goTo(index) {
+                this.currentPage = index;
+                this.$nextTick(() => this.computeTranslate());
+            },
+            updateItemsPerPage() {
+                if (window.innerWidth >= 1280) {
+                    this.itemsPerPage = 3;
+                } else if (window.innerWidth >= 768) {
+                    this.itemsPerPage = 2;
+                } else {
+                    this.itemsPerPage = 1;
+                }
+                if (this.currentPage >= this.totalPages) {
+                    this.currentPage = Math.max(0, this.totalPages - 1);
+                }
+                this.$nextTick(() => this.computeTranslate());
+            },
+            startAutoplay() {
+                this.stopAutoplay();
+                this.autoplayInterval = setInterval(() => {
+                    if (!this.isPaused) { this.next(); }
+                }, 5000);
+            },
+            stopAutoplay() {
+                if (this.autoplayInterval) {
+                    clearInterval(this.autoplayInterval);
+                    this.autoplayInterval = null;
+                }
+            },
+            pause() { this.isPaused = true; },
+            resume() { this.isPaused = false; },
+            init() {
+                this.updateItemsPerPage();
+                this.visibilityHandler = () => {
+                    if (document.hidden) { this.pause(); } else { this.resume(); }
+                };
+                document.addEventListener('visibilitychange', this.visibilityHandler);
+                this.startAutoplay();
+            },
+            destroy() {
+                document.removeEventListener('visibilitychange', this.visibilityHandler);
+                this.stopAutoplay();
+            }
+        }"
+        @resize.window.debounce.150ms="updateItemsPerPage()"
+        @mouseenter="pause()"
+        @mouseleave="resume()"
+        @touchstart="pause()"
+        @touchend="resume()"
+        @touchcancel="resume()"
+        @keydown.arrow-left="prev()"
+        @keydown.arrow-right="next()"
+        class="relative">
+
+            <!-- Slider Outer: flex row with side nav buttons on desktop -->
+            <div class="flex items-center gap-2 md:gap-4">
+
+                <!-- Prev Button - Desktop/Tablet (left of slider) -->
+                <button @click="prev()"
+                        class="hidden md:flex shrink-0 w-11 h-11 rounded-full bg-white/10 backdrop-blur-md border border-white/10 items-center justify-center text-white hover:bg-white hover:text-[#0a3875] transition-all duration-200 shadow-md cursor-pointer z-20"
+                        aria-label="Đánh giá trước">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                </button>
+
+                <!-- Viewport Wrapper: overflow-hidden -->
+                <div class="relative overflow-hidden flex-1 min-w-0" aria-live="polite">
+                    <!-- Track: flex, transitions via translateX px -->
+                    <div x-ref="sliderTrack"
+                         class="flex gap-6 transition-transform duration-500 ease-out will-change-transform"
+                         :style="'transform: translateX(-' + translatePx + 'px)'">
+
+                        @foreach($reviews as $review)
+                            <!-- Card slot: fixed width per breakpoint -->
+                            <div class="shrink-0 flex flex-col"
+                                 :style="itemsPerPage === 3
+                                    ? 'width: calc((100%) / 3 - 16px)'
+                                    : (itemsPerPage === 2
+                                        ? 'width: calc((100%) / 2 - 12px)'
+                                        : 'width: 100%')
+                                 ">
+                                <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10 flex flex-col h-full justify-between select-none">
+                                    <div class="space-y-4 flex-1 flex flex-col">
+                                        <!-- Star Rating -->
+                                        <div class="flex text-teal-400">
+                                            @for($i = 0; $i < $review['stars']; $i++)
+                                                <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20" aria-hidden="true">
+                                                    <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path>
+                                                </svg>
+                                            @endfor
+                                        </div>
+                                        <!-- Review Content -->
+                                        <p class="text-sm italic leading-relaxed text-slate-200 flex-1">
+                                            "{{ $review['content'] }}"
+                                        </p>
+                                    </div>
+                                    <!-- Patient Footer -->
+                                    <div class="pt-4 border-t border-white/10 flex items-center gap-3 mt-4 shrink-0">
+                                        <span class="w-8 h-8 rounded-full bg-teal-400 text-[#0a3875] font-black flex items-center justify-center text-xs shrink-0 select-none">
+                                            {{ $review['avatar'] }}
+                                        </span>
+                                        <div>
+                                            <span class="block text-xs font-bold text-white">{{ $review['name'] }}</span>
+                                            <span class="block text-[10px] text-slate-300">{{ $review['location'] }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @endforeach
+
                     </div>
                 </div>
+
+                <!-- Next Button - Desktop/Tablet (right of slider) -->
+                <button @click="next()"
+                        class="hidden md:flex shrink-0 w-11 h-11 rounded-full bg-white/10 backdrop-blur-md border border-white/10 items-center justify-center text-white hover:bg-white hover:text-[#0a3875] transition-all duration-200 shadow-md cursor-pointer z-20"
+                        aria-label="Đánh giá tiếp theo">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </button>
+
             </div>
 
-            <!-- Review 2 -->
-            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10 space-y-4">
-                <div class="flex text-teal-400">
-                    @for($i = 0; $i < 5; $i++)
-                        <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    @endfor
+            <!-- Pagination Dots + Mobile Navigation -->
+            <div class="flex items-center justify-center gap-4 mt-8">
+                <!-- Prev Button - Mobile only -->
+                <button @click="prev()"
+                        class="md:hidden w-9 h-9 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-white active:bg-white active:text-[#0a3875] transition"
+                        aria-label="Đánh giá trước">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M15 19l-7-7 7-7"></path>
+                    </svg>
+                </button>
+
+                <!-- Dots -->
+                <div class="flex gap-2 flex-wrap justify-center">
+                    <template x-for="(pageIndex, dotIdx) in pages" :key="dotIdx">
+                        <button @click="goTo(pageIndex)"
+                                class="rounded-full transition-all duration-300 cursor-pointer"
+                                :class="currentPage === pageIndex
+                                    ? 'w-6 h-2.5 bg-teal-400'
+                                    : 'w-2.5 h-2.5 bg-white/40 hover:bg-white/60'"
+                                :aria-label="'Trang đánh giá ' + (dotIdx + 1)"
+                                :aria-current="currentPage === pageIndex ? 'true' : 'false'">
+                        </button>
+                    </template>
                 </div>
-                <p class="text-sm italic leading-relaxed text-slate-200">
-                    "Tôi đã điều trị trĩ tại đây bằng phương pháp HCPT, rất nhanh chóng và nhẹ nhàng. Rất cảm ơn đội ngũ hỗ trợ tại phòng khám."
-                </p>
-                <div class="pt-4 border-t border-white/10 flex items-center gap-3">
-                    <span class="w-8 h-8 rounded-full bg-teal-400 text-[#0a3875] font-black flex items-center justify-center text-xs">TM</span>
-                    <div>
-                        <span class="block text-xs font-bold">Chị Trần H. M.</span>
-                        <span class="block text-[10px] text-slate-300">Vĩnh Long</span>
-                    </div>
-                </div>
+
+                <!-- Next Button - Mobile only -->
+                <button @click="next()"
+                        class="md:hidden w-9 h-9 rounded-full bg-white/10 border border-white/10 flex items-center justify-center text-white active:bg-white active:text-[#0a3875] transition"
+                        aria-label="Đánh giá tiếp theo">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"></path>
+                    </svg>
+                </button>
             </div>
 
-            <!-- Review 3 -->
-            <div class="bg-white/10 backdrop-blur-md rounded-2xl p-6 border border-white/10 space-y-4">
-                <div class="flex text-teal-400">
-                    @for($i = 0; $i < 5; $i++)
-                        <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"></path></svg>
-                    @endfor
-                </div>
-                <p class="text-sm italic leading-relaxed text-slate-200">
-                    "Thủ tục nhanh gọn, bảo mật thông tin tuyệt đối. Chi phí cũng rất rõ ràng, không có phí ẩn trong quá trình điều trị."
-                </p>
-                <div class="pt-4 border-t border-white/10 flex items-center gap-3">
-                    <span class="w-8 h-8 rounded-full bg-teal-400 text-[#0a3875] font-black flex items-center justify-center text-xs">LB</span>
-                    <div>
-                        <span class="block text-xs font-bold">Chị Lê T. B.</span>
-                        <span class="block text-[10px] text-slate-300">Sóc Trăng</span>
-                    </div>
-                </div>
-            </div>
         </div>
 
     </div>
