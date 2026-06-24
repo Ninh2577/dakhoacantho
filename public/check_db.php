@@ -5,35 +5,45 @@ $app = require_once __DIR__.'/../bootstrap/app.php';
 $kernel = $app->make(Illuminate\Contracts\Console\Kernel::class);
 $kernel->bootstrap();
 
-use App\Models\Category;
-use App\Models\Setting;
-use App\Services\UrlRoutingService;
-
 header('Content-Type: text/plain; charset=utf-8');
 
-echo "Article Pattern: " . Setting::get('url_pattern_article') . "\n";
-echo "Category Pattern: " . Setting::get('url_pattern_category') . "\n";
-
-echo "\n=== CATEGORIES URL PATHS ===\n";
-$categories = Category::all();
-foreach ($categories as $cat) {
-    echo "ID: {$cat->id} | Name: {$cat->name} | Slug: {$cat->slug} | URL Path: {$cat->url_path} | Public URL: {$cat->public_url}\n";
+function getFolderSize($dir) {
+    $size = 0;
+    if (!is_dir($dir)) {
+        return 0;
+    }
+    foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($dir, FilesystemIterator::SKIP_DOTS)) as $file) {
+        $size += $file->getSize();
+    }
+    return $size;
 }
 
-echo "\n=== TESTING ROUTER RESOLVE FOR 'nam-khoa' ===\n";
-$path = 'nam-khoa';
-$category = Category::where('url_path', $path)->first();
-if ($category) {
-    echo "Found Category: ID {$category->id} | Name: {$category->name}\n";
-} else {
-    echo "Category not found for path: '{$path}'\n";
+function formatSize($bytes) {
+    if ($bytes >= 1073741824) {
+        return number_format($bytes / 1073741824, 2) . ' GB';
+    } elseif ($bytes >= 1048576) {
+        return number_format($bytes / 1048576, 2) . ' MB';
+    } elseif ($bytes >= 1024) {
+        return number_format($bytes / 1024, 2) . ' KB';
+    } elseif ($bytes > 1) {
+        return $bytes . ' bytes';
+    } elseif ($bytes == 1) {
+        return '1 byte';
+    } else {
+        return '0 bytes';
+    }
 }
 
-echo "\n=== TESTING ROUTER RESOLVE FOR 'nam-khoa/bao-quy-dau' ===\n";
-$path = 'nam-khoa/bao-quy-dau';
-$category = Category::where('url_path', $path)->first();
-if ($category) {
-    echo "Found Category: ID {$category->id} | Name: {$category->name}\n";
-} else {
-    echo "Category not found for path: '{$path}'\n";
+$uploadsDir = storage_path('app/public/uploads');
+
+echo "=== UPLOADS DIRECTORY SIZE ANALYSIS ===\n";
+echo "Path: " . $uploadsDir . "\n";
+$totalSize = getFolderSize($uploadsDir);
+echo "Total Size: " . formatSize($totalSize) . "\n\n";
+
+$subfolders = glob($uploadsDir . '/*', GLOB_ONLYDIR);
+foreach ($subfolders as $sub) {
+    $name = basename($sub);
+    $size = getFolderSize($sub);
+    echo "- /" . $name . ": " . formatSize($size) . "\n";
 }

@@ -22,3 +22,8 @@
 Homestead.json
 Homestead.yaml
 Thumbs.db
+
+# Exclude media uploads and generated files from Git, keeping .htaccess configuration
+/storage/app/public/uploads/*
+!/storage/app/public/uploads/.htaccess
+/storage/app/public/articles/*
