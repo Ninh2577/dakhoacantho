@@ -173,7 +173,7 @@
         </div>
     </div>
 
-    <div class="pointer-events-none fixed bottom-20 right-4 z-40 flex flex-col gap-3 md:bottom-6 md:right-6">
+    <div class="pointer-events-none fixed bottom-36 right-4 z-40 flex flex-col gap-3 md:bottom-24 md:right-6">
         <a href="{{ $zaloUrl }}" target="_blank" rel="noopener noreferrer" aria-label="Chat Zalo" class="pointer-events-auto inline-flex h-14 w-14 items-center justify-center rounded-full bg-[#36b8f6] text-white shadow-[0_12px_24px_rgba(54,184,246,0.32)] transition hover:bg-[#1eaaf0] focus:outline-none focus:ring-2 focus:ring-[#7ad7ff] focus:ring-offset-2 focus:ring-offset-[#343b3f] md:h-16 md:w-16">
             <svg class="h-7 w-7" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h8M8 14h5m8-2c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
@@ -185,4 +185,12 @@
             </svg>
         </a>
     </div>
+    {{-- Keyframe animation for gentle float effect (shared with app.blade.php) --}}
+    <style>
+        @keyframes gpFloat {
+            0%, 100% { transform: translateY(0px); }
+            50%       { transform: translateY(-5px); }
+        }
+    </style>
+
 </footer>

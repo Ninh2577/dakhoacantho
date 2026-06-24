@@ -515,10 +515,6 @@
                 };
                 document.addEventListener('visibilitychange', this.visibilityHandler);
                 this.startAutoplay();
-            },
-            destroy() {
-                document.removeEventListener('visibilitychange', this.visibilityHandler);
-                this.stopAutoplay();
             }
         }"
         @resize.window.debounce.150ms="updateItemsPerPage()"
