@@ -6,9 +6,10 @@
     $address = \App\Models\Setting::site('address');
     $email = \App\Models\Setting::site('email');
     $emailHref = 'mailto:' . $email;
-    $directionUrl = \App\Models\Setting::site('google_maps_url');
-    $facebookUrl = \App\Models\Setting::site('facebook_url');
-    $zaloUrl = \App\Models\Setting::site('zalo_url');
+    $directionUrl  = \App\Models\Setting::site('google_maps_url');
+    $mapEmbedUrl   = \App\Models\Setting::site('google_maps_embed_url');
+    $facebookUrl   = \App\Models\Setting::site('facebook_url');
+    $zaloUrl       = \App\Models\Setting::site('zalo_url');
 
     $serviceLabels = [
         'nam-khoa' => 'Nam khoa',
@@ -120,21 +121,19 @@
                     <section>
                         <h2 class="text-[1.7rem] font-black uppercase tracking-tight text-white">LIÊN HỆ &amp; VỊ TRÍ</h2>
 
-                        <div class="mt-6 overflow-hidden rounded-2xl border border-white/10 bg-[#566169]">
-                            <div class="relative h-[108px] bg-gradient-to-br from-[#5a9fd4] via-[#4a8cc0] to-[#3a7aac]" style="background-image: url('data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 400 200%22><defs><pattern id=%22grid%22 width=%2240%22 height=%2240%22 patternUnits=%22userSpaceOnUse%22><path d=%22M 40 0 L 0 0 0 40%22 fill=%22none%22 stroke=%22rgba(255,255,255,0.1)%22 stroke-width=%220.5%22/></pattern></defs><rect width=%22400%22 height=%22200%22 fill=%22url(%23grid)%22/><circle cx=%22200%22 cy=%22100%22 r=%2230%22 fill=%22%23ff6b5b%22 opacity=%220.3%22/><path d=%22M 100 50 Q 150 80 200 100 T 300 120%22 stroke=%22rgba(255,255,255,0.15)%22 stroke-width=%221%22 fill=%22none%22/></svg>');">
-                                <div class="absolute inset-0 bg-gradient-to-tr from-transparent via-transparent to-[rgba(137,168,195,0.3)]"></div>
-                                <div class="absolute inset-y-0 right-0 w-24 bg-gradient-to-l from-[#89a8c3]/40 to-transparent"></div>
-                                <div class="absolute left-4 top-1/2 -translate-y-1/2">
-                                    <p class="text-[10px] font-bold uppercase tracking-[0.22em] text-slate-100/80">YOUR HEALTH</p>
-                                    <p class="mt-1 text-[10px] font-bold uppercase tracking-[0.22em] text-slate-100/80">OUR PRIORITY</p>
-                                </div>
-                                <a href="{{ $directionUrl }}" target="_blank" rel="noopener noreferrer" class="absolute left-1/2 top-1/2 inline-flex -translate-x-1/2 -translate-y-1/2 items-center gap-2 rounded-full bg-[#0d58c8] px-5 py-2.5 text-sm font-extrabold text-white shadow-lg shadow-blue-950/25 transition hover:bg-[#0b4cb0] focus:outline-none focus:ring-2 focus:ring-[#2db8ff] focus:ring-offset-2 focus:ring-offset-[#343b3f]">
-                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.2" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
-                                    </svg>
-                                    Chỉ đường
-                                </a>
-                            </div>
+                        {{-- Google Maps Iframe nhúng trực tiếp --}}
+                        <div class="mt-6 overflow-hidden rounded-2xl border border-white/10 shadow-lg">
+                            <iframe
+                                src="{{ $mapEmbedUrl }}"
+                                width="100%"
+                                height="260"
+                                style="border:0; display:block;"
+                                allowfullscreen=""
+                                loading="lazy"
+                                referrerpolicy="no-referrer-when-downgrade"
+                                title="Bản đồ {{ $clinicName }}"
+                                aria-label="Bản đồ vị trí {{ $clinicFullName }}"
+                            ></iframe>
                         </div>
 
                         <div class="mt-5 flex items-start gap-3 text-[15px] font-semibold text-slate-200">
