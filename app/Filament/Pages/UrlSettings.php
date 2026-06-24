@@ -60,7 +60,7 @@ class UrlSettings extends Page implements HasForms
     {
         $this->form->fill([
             'article_pattern' => Setting::get('url_pattern_article') ?: '{slug}',
-            'category_pattern' => Setting::get('url_pattern_category') ?: 'category/{categories}',
+            'category_pattern' => Setting::get('url_pattern_category') ?: '{categories}',
         ]);
 
         // Check if there is an active running recompile job
@@ -148,7 +148,7 @@ class UrlSettings extends Page implements HasForms
 
         $categories = Category::take(10)->get();
         foreach ($categories as $cat) {
-            $oldPath = $cat->url_path ?: 'category/'.$cat->full_path;
+            $oldPath = $cat->url_path ?: $cat->full_path;
             $newPath = $service->compileCategoryPath($cat, $catPattern);
             if ($oldPath !== $newPath && ! empty($oldPath)) {
                 $this->redirectCount++;

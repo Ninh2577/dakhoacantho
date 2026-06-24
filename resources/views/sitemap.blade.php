@@ -32,7 +32,7 @@
     <!-- Categories -->
     @foreach($categories as $category)
         <url>
-            <loc>{{ url('category/' . $category->full_path) }}</loc>
+            <loc>{{ $category->public_url }}</loc>
             <changefreq>weekly</changefreq>
             <priority>0.8</priority>
         </url>

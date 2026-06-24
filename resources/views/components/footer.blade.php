@@ -35,7 +35,7 @@
 
             return [
                 'label' => $label,
-                'url' => url('/category/' . $category->full_path),
+                'url' => $category->public_url,
             ];
         })
         ->filter()

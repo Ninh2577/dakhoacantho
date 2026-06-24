@@ -48,11 +48,11 @@ class CategoryController extends Controller
         // Heal null url_path for legacy category records
         if ($selectedCategory->url_path === null) {
             try {
-                $pattern = Setting::get('url_pattern_category') ?: 'category/{categories}';
+                $pattern = Setting::get('url_pattern_category') ?: '{categories}';
                 $selectedCategory->url_path = $routingService->compileCategoryPath($selectedCategory, $pattern);
                 $selectedCategory->saveQuietly();
             } catch (\Throwable) {
-                $selectedCategory->url_path = 'category/'.$category_path;
+                $selectedCategory->url_path = $category_path;
             }
         }
 

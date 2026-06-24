@@ -31,8 +31,8 @@
                                 <div class="relative group" x-data="{ open: false }" @mouseenter="open = true" @mouseleave="open = false">
 
                                     {{-- Nav trigger --}}
-                                    <a href="{{ url('/category/' . $category->full_path) }}"
-                                       class="px-1.5 lg:px-2 xl:px-3 flex items-center whitespace-nowrap gap-1 transition duration-200 py-6 font-semibold relative border-b-2 {{ request()->is('category/' . $category->full_path . '*') ? 'text-clinic-blue font-extrabold border-clinic-blue' : 'text-gray-800 hover:text-blue-600 border-transparent' }}"
+                                    <a href="{{ $category->public_url }}"
+                                       class="px-1.5 lg:px-2 xl:px-3 flex items-center whitespace-nowrap gap-1 transition duration-200 py-6 font-semibold relative border-b-2 {{ request()->is(ltrim(str_replace(url('/'), '', $category->public_url), '/') . '*') ? 'text-clinic-blue font-extrabold border-clinic-blue' : 'text-gray-800 hover:text-blue-600 border-transparent' }}"
                                        :class="open ? 'text-blue-600' : ''">
                                         {{ $category->name }}
                                         <svg class="w-3.5 h-3.5 text-gray-400 transition-transform duration-200" :class="open ? 'rotate-180 text-blue-500' : ''" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
@@ -62,7 +62,7 @@
                                              <div style="width:640px; flex-shrink:0; padding:2rem; display:grid; grid-template-columns:1fr 1fr; gap:1.75rem 2.5rem; align-content:start;">
                                                  @foreach($category->children as $child)
                                                      <div style="display:flex; flex-direction:column;">
-                                                         <a href="{{ url('/category/' . $child->full_path) }}"
+                                                         <a href="{{ $child->public_url }}"
                                                             class="group/cat hover:text-blue-600 transition"
                                                             style="display:flex; align-items:center; gap:10px; margin-bottom:10px; text-decoration:none;">
                                                              <span class="bg-blue-50 border-2 border-blue-200 rounded-full flex items-center justify-center group-hover/cat:bg-blue-100 group-hover/cat:border-blue-500 transition"
@@ -75,7 +75,7 @@
                                                              <ul style="margin-left:46px; display:flex; flex-direction:column; gap:7px;">
                                                                  @foreach($child->children as $subChild)
                                                                      <li>
-                                                                         <a href="{{ url('/category/' . $subChild->full_path) }}"
+                                                                         <a href="{{ $subChild->public_url }}"
                                                                             class="text-slate-500 hover:text-blue-600 transition-colors"
                                                                             style="font-size:13px; line-height:1.4; display:block;"
                                                                             title="{{ $subChild->name }}">{{ $subChild->name }}</a>
@@ -102,7 +102,7 @@
                                                  @endif
                                                  <h4 class="font-bold text-slate-800" style="font-size:15px;margin-bottom:6px;">Highlight</h4>
                                                  <p class="text-slate-500" style="font-size:12px;line-height:1.6;margin-bottom:1.25rem;">Đội ngũ tư vấn tận tâm luôn sẵn sàng hỗ trợ và giải đáp thắc mắc của bạn.</p>
-                                                 <a href="{{ url('/category/' . $category->full_path) }}"
+                                                 <a href="{{ $category->public_url }}"
                                                     class="inline-block bg-blue-600 text-white font-semibold rounded-full hover:bg-blue-700 transition shadow-sm"
                                                     style="font-size:13.5px;padding:8px 24px;">Xem chi tiết</a>
                                              </div>
@@ -111,7 +111,7 @@
                                      </div>
                                  </div>
                              @else
-                                 <a href="{{ url('/category/' . $category->full_path) }}" class="px-1.5 lg:px-2 xl:px-3 whitespace-nowrap transition duration-200 py-6 border-b-2 {{ request()->is('category/' . $category->full_path . '*') ? 'text-clinic-blue font-extrabold border-clinic-blue' : 'text-gray-800 hover:text-blue-600 border-transparent' }}">{{ $category->name }}</a>
+                                 <a href="{{ $category->public_url }}" class="px-1.5 lg:px-2 xl:px-3 whitespace-nowrap transition duration-200 py-6 border-b-2 {{ request()->is(ltrim(str_replace(url('/'), '', $category->public_url), '/') . '*') ? 'text-clinic-blue font-extrabold border-clinic-blue' : 'text-gray-800 hover:text-blue-600 border-transparent' }}">{{ $category->name }}</a>
                              @endif
                          @endforeach
                      @endif
@@ -178,7 +178,7 @@
                      <li x-data="{ openL1: false }">
                          <button @click="openL1 = !openL1"
                                  class="w-full flex items-center justify-between px-4 py-3 text-white font-bold uppercase border-b border-gray-700 hover:bg-blue-600 transition-colors focus:outline-none">
-                             <a href="{{ url('/category/' . $category->full_path) }}" class="flex-1 text-left" @click.stop>
+                             <a href="{{ $category->public_url }}" class="flex-1 text-left" @click.stop>
                                  {{ $category->name }}
                              </a>
                              <svg class="w-4 h-4 flex-shrink-0 transition-transform" :class="openL1 ? 'rotate-180' : ''"
@@ -194,7 +194,7 @@
                                      <li x-data="{ openL2: false }">
                                          <button @click="openL2 = !openL2"
                                                  class="w-full flex items-center justify-between pl-6 pr-4 py-3 text-gray-200 text-sm border-b border-gray-700 hover:bg-blue-600 transition-colors focus:outline-none">
-                                             <a href="{{ url('/category/' . $child->full_path) }}" class="flex-1 text-left" @click.stop>
+                                             <a href="{{ $child->public_url }}" class="flex-1 text-left" @click.stop>
                                                  {{ $child->name }}
                                              </a>
                                              <svg class="w-3 h-3 flex-shrink-0 transition-transform" :class="openL2 ? 'rotate-180' : ''"
@@ -205,7 +205,7 @@
                                          <ul x-show="openL2" x-transition class="bg-gray-700" style="display: none;">
                                              @foreach($child->children as $grandchild)
                                                  <li>
-                                                     <a href="{{ url('/category/' . $grandchild->full_path) }}"
+                                                     <a href="{{ $grandchild->public_url }}"
                                                         class="block pl-10 pr-4 py-2 text-gray-300 text-sm border-b border-gray-600 hover:bg-blue-600 hover:text-white transition-colors">
                                                          {{ $grandchild->name }}
                                                      </a>
@@ -215,8 +215,8 @@
                                      </li>
                                  @else
                                      <li>
-                                         <a href="{{ url('/category/' . $child->full_path) }}"
-                                            class="block pl-6 pr-4 py-3 text-gray-200 text-sm border-b border-gray-700 hover:bg-blue-600 transition-colors">
+                                          <a href="{{ $child->public_url }}"
+                                             class="block pl-6 pr-4 py-3 text-gray-200 text-sm border-b border-gray-700 hover:bg-blue-600 transition-colors">
                                              {{ $child->name }}
                                          </a>
                                      </li>
@@ -226,8 +226,8 @@
                      </li>
                  @else
                      <li>
-                         <a href="{{ url('/category/' . $category->full_path) }}"
-                            class="block px-4 py-3 text-white font-bold uppercase border-b border-gray-700 hover:bg-blue-600 transition-colors">
+                          <a href="{{ $category->public_url }}"
+                             class="block px-4 py-3 text-white font-bold uppercase border-b border-gray-700 hover:bg-blue-600 transition-colors">
                              {{ $category->name }}
                          </a>
                      </li>

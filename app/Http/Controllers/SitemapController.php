@@ -39,7 +39,7 @@ class SitemapController extends Controller
 
             // Categories
             foreach ($categories as $category) {
-                $path = ltrim($category->url_path ?: ('category/' . $category->full_path), '/');
+                $path = ltrim($category->url_path ?: $category->full_path, '/');
                 $entries[] = ['loc' => '__ROOT__/' . $path, 'changefreq' => 'weekly', 'priority' => '0.8'];
             }
 

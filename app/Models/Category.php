@@ -94,7 +94,7 @@ class Category extends Model
 
     public function getPublicUrlAttribute()
     {
-        $path = $this->url_path ?: 'category/'.$this->full_path;
+        $path = $this->url_path ?: $this->full_path;
 
         return url(ltrim($path, '/'));
     }
