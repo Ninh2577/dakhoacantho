@@ -76,10 +76,12 @@ if (isset($_GET['action'])) {
                         $deleted++;
                     }
                 } else {
-                    $errors[] = "Failed to convert: " . $file;
+                    $errors[] = "Failed to convert (corrupt): " . $file;
+                    @rename($filePath, $filePath . '.unsupported');
                 }
             } catch (\Throwable $e) {
                 $errors[] = "Error processing {$file}: " . $e->getMessage();
+                @rename($filePath, $filePath . '.unsupported');
             }
         }
 
