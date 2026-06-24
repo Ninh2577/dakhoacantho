@@ -8,11 +8,6 @@
         description="{{ \App\Models\Setting::site('clinic_name') }} - Địa chỉ khám chữa bệnh uy tín, riêng tư và chuyên nghiệp hàng đầu tại Cần Thơ. Đăng ký tư vấn trực tuyến nhanh chóng." 
         canonical="{{ url('/') }}"
         :breadcrumbs="[['name' => 'Trang chủ', 'url' => url('/')]]"
-        :faqs="[
-            ['q' => 'Thời gian làm việc của phòng khám là khi nào?', 'a' => \App\Models\Setting::site('clinic_name') . ' hoạt động từ 07:30 đến 20:00 tất cả các ngày trong tuần, kể cả ngày lễ.'],
-            ['q' => 'Thông tin đăng ký có được bảo mật không?', 'a' => 'Mọi hồ sơ đăng ký và bệnh án của bệnh nhân đều được bảo mật tuyệt đối theo quy trình khép kín nội bộ.'],
-            ['q' => 'Tôi có thể liên hệ bằng số hotline nào?', 'a' => 'Vui lòng liên hệ trực tiếp qua số hotline ' . \App\Models\Setting::site('hotline') . ' để nhận tư vấn và hướng dẫn kịp thời.']
-        ]"
     />
 @endsection
 
@@ -93,72 +88,6 @@
     </div>
 </section>
 
-<x-home.appointment-banner />
-
-<!-- Specialties Section ("Chuyên khoa mũi nhọn") -->
-<section class="py-16 md:py-24 bg-white">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
-        <!-- Section Header -->
-        <div class="text-center max-w-3xl mx-auto space-y-3 mb-12 md:mb-16">
-            <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Lĩnh vực hoạt động chính</h2>
-            <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
-                Chúng tôi cung cấp các dịch vụ tư vấn sức khỏe chuyên sâu và quy trình điều trị cá nhân hóa tối ưu.
-            </p>
-        </div>
-
-        <!-- Specialty Cards Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            <!-- Card 1: Nam khoa -->
-            <x-specialty-card 
-                title="Nam khoa" 
-                description="Điều trị yếu sinh lý, xuất tinh sớm và các bệnh lý nam khoa chuyên sâu."
-                slug="nam-khoa"
-                bgImage="{{ asset('images/nam_khoa.webp') }}"
-                icon='<svg class="w-6 h-6 text-teal-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>'
-            />
-            <!-- Card 2: Phụ khoa -->
-            <x-specialty-card 
-                title="Phụ khoa" 
-                description="Chăm sóc sức khỏe phụ nữ toàn diện và tầm soát bệnh lý phụ khoa định kỳ."
-                slug="phu-khoa"
-                bgImage="{{ asset('images/phu_khoa.webp') }}"
-                icon='<svg class="w-6 h-6 text-teal-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path></svg>'
-            />
-            <!-- Card 3: Bệnh xã hội -->
-            <x-specialty-card 
-                title="Bệnh xã hội" 
-                description="Xét nghiệm bảo mật tuyệt đối, điều trị dứt điểm sùi mào gà, lậu, giang mai."
-                slug="benh-xa-hoi"
-                bgImage="{{ asset('images/benh_xa_hoi.webp') }}"
-                icon='<svg class="w-6 h-6 text-teal-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path></svg>'
-            />
-        </div>
-
-        <!-- Highlight specialty banner -->
-        <div class="mt-8 md:mt-12 p-6 md:p-8 bg-slate-50 rounded-3xl border border-slate-100 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div class="flex items-center gap-4">
-                <span class="p-3 bg-clinic-blue text-white rounded-2xl shadow-md">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
-                    </svg>
-                </span>
-                <div>
-                    <h3 class="text-base md:text-lg font-extrabold text-slate-900">Hậu môn - Trực tràng</h3>
-                    <p class="text-xs md:text-sm text-slate-500 leading-normal">Chẩn đoán trĩ nội, trĩ ngoại và rò hậu môn bằng phương pháp HCPT hiện đại, giảm thiểu xâm lấn.</p>
-                </div>
-            </div>
-            <a href="{{ ($cat = \App\Models\Category::findBySlug('nam-khoa')) ? $cat->public_url : route('category.show', ['category_path' => 'nam-khoa']) }}" class="inline-flex items-center text-xs font-extrabold text-clinic-teal hover:underline">
-                <span>Tìm hiểu quy trình điều trị</span>
-                <svg class="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
-                </svg>
-            </a>
-        </div>
-
-    </div>
-</section>
-
 <x-home.services-banner />
 
 <!-- Vì sao chọn Gia Phước? Section -->
@@ -195,45 +124,6 @@
                 <span class="w-12 h-12 rounded-full bg-clinic-blue/10 text-clinic-blue flex items-center justify-center mx-auto text-xl font-bold">💬</span>
                 <h3 class="font-extrabold text-slate-900 text-base">Tư vấn trực tuyến</h3>
                 <p class="text-slate-550 text-xs leading-relaxed font-semibold">Đội ngũ hỗ trợ liên tục giải đáp các lo lắng về triệu chứng bệnh qua điện thoại hoặc Zalo.</p>
-            </div>
-        </div>
-    </div>
-</section>
-
-<!-- Quy trình thăm khám Section -->
-<section class="py-16 md:py-24 bg-slate-50/50 border-t border-slate-100">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center max-w-3xl mx-auto space-y-3 mb-16">
-            <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Quy trình thăm khám</h2>
-            <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
-                4 bước đơn giản giúp bạn tiết kiệm thời gian chờ đợi khi đến phòng khám.
-            </p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-4 gap-8 relative">
-            <!-- step 1 -->
-            <div class="relative flex flex-col items-center text-center space-y-4">
-                <span class="w-16 h-16 rounded-full bg-clinic-blue text-white font-extrabold flex items-center justify-center text-lg shadow-md">1</span>
-                <h3 class="font-bold text-slate-900 text-sm uppercase tracking-wide">Gửi thông tin tư vấn</h3>
-                <p class="text-slate-500 text-xs leading-relaxed font-semibold">Đăng ký thông tin liên hệ và tình trạng sức khỏe qua form hoặc hotline.</p>
-            </div>
-            <!-- step 2 -->
-            <div class="relative flex flex-col items-center text-center space-y-4">
-                <span class="w-16 h-16 rounded-full bg-clinic-blue text-white font-extrabold flex items-center justify-center text-lg shadow-md">2</span>
-                <h3 class="font-bold text-slate-900 text-sm uppercase tracking-wide">Xác nhận lịch hẹn</h3>
-                <p class="text-slate-500 text-xs leading-relaxed font-semibold">Đội ngũ tư vấn gọi điện xác nhận mốc thời gian khám phù hợp.</p>
-            </div>
-            <!-- step 3 -->
-            <div class="relative flex flex-col items-center text-center space-y-4">
-                <span class="w-16 h-16 rounded-full bg-clinic-blue text-white font-extrabold flex items-center justify-center text-lg shadow-md">3</span>
-                <h3 class="font-bold text-slate-900 text-sm uppercase tracking-wide">Thăm khám theo lịch</h3>
-                <p class="text-slate-500 text-xs leading-relaxed font-semibold">Đến phòng khám theo giờ đã hẹn, được ưu tiên hướng dẫn làm thủ tục.</p>
-            </div>
-            <!-- step 4 -->
-            <div class="relative flex flex-col items-center text-center space-y-4">
-                <span class="w-16 h-16 rounded-full bg-clinic-blue text-white font-extrabold flex items-center justify-center text-lg shadow-md">4</span>
-                <h3 class="font-bold text-slate-900 text-sm uppercase tracking-wide">Nhận hướng dẫn phù hợp</h3>
-                <p class="text-slate-500 text-xs leading-relaxed font-semibold">Nhận kết quả chẩn đoán và hướng dẫn chăm sóc y tế chi tiết.</p>
             </div>
         </div>
     </div>
@@ -638,50 +528,4 @@
     </div>
 </section>
 
-<!-- FAQ Section -->
-<section class="py-16 md:py-24 bg-white border-t border-slate-100">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center max-w-3xl mx-auto space-y-3 mb-16">
-            <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Câu hỏi thường gặp</h2>
-            <p class="text-slate-600 text-sm sm:text-base leading-relaxed font-semibold">
-                Giải đáp nhanh một số lo lắng thường gặp của quý khách hàng khi thăm khám.
-            </p>
-        </div>
-
-        <div x-data="{ active: null }" class="max-w-3xl mx-auto space-y-4">
-            <!-- FAQ 1 -->
-            <div class="bg-slate-50/50 border border-slate-100 rounded-2xl overflow-hidden">
-                <button @click="active = (active === 1 ? null : 1)" class="w-full flex items-center justify-between p-5 text-left font-bold text-slate-905 outline-none focus:outline-none">
-                    <span class="text-sm">Phòng khám có làm việc cuối tuần không?</span>
-                    <svg class="w-5 h-5 text-slate-400 transform transition-transform" :class="{'rotate-180': active === 1}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                </button>
-                <div x-show="active === 1" x-cloak class="px-5 pb-5 text-slate-500 text-xs leading-relaxed font-semibold pt-2 border-t border-slate-100/50">
-                    {{ \App\Models\Setting::site('clinic_name') }} mở cửa từ 07:30 đến 20:00 tất cả các ngày trong tuần, kể cả ngày Thứ 7, Chủ Nhật và các ngày nghỉ Lễ.
-                </div>
-            </div>
-            <!-- FAQ 2 -->
-            <div class="bg-slate-50/50 border border-slate-100 rounded-2xl overflow-hidden">
-                <button @click="active = (active === 2 ? null : 2)" class="w-full flex items-center justify-between p-5 text-left font-bold text-slate-905 outline-none focus:outline-none">
-                    <span class="text-sm">Quy trình đăng ký hẹn trước như thế nào?</span>
-                    <svg class="w-5 h-5 text-slate-400 transform transition-transform" :class="{'rotate-180': active === 2}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                </button>
-                <div x-show="active === 2" x-cloak class="px-5 pb-5 text-slate-500 text-xs leading-relaxed font-semibold pt-2 border-t border-slate-100/50">
-                    Quý khách chỉ cần điền họ tên, số điện thoại vào form đăng ký trên website hoặc gọi trực tiếp đến hotline {{ \App\Models\Setting::site('hotline') }}. Đội ngũ nhân viên tư vấn sẽ liên hệ lại ngay để sắp xếp khung giờ khám thuận tiện nhất.
-                </div>
-            </div>
-            <!-- FAQ 3 -->
-            <div class="bg-slate-50/50 border border-slate-100 rounded-2xl overflow-hidden">
-                <button @click="active = (active === 3 ? null : 3)" class="w-full flex items-center justify-between p-5 text-left font-bold text-slate-905 outline-none focus:outline-none">
-                    <span class="text-sm">Thông tin cá nhân có được giữ bí mật không?</span>
-                    <svg class="w-5 h-5 text-slate-400 transform transition-transform" :class="{'rotate-180': active === 3}" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
-                </button>
-                <div x-show="active === 3" x-cloak class="px-5 pb-5 text-slate-500 text-xs leading-relaxed font-semibold pt-2 border-t border-slate-100/50">
-                    {{ \App\Models\Setting::site('clinic_short_name') }} cam kết bảo mật tuyệt đối mọi thông tin đăng ký, hồ sơ bệnh án và lịch sử trao đổi của khách hàng theo quy trình khép kín nội bộ.
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<x-home.contact-banner />
 @endsection
