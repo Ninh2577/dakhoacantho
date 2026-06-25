@@ -135,29 +135,6 @@
             </span>
         </a>
 
-        {{-- Facebook Button --}}
-        <a href="{{ $_facebookUrl }}"
-           target="_blank"
-           rel="noopener noreferrer"
-           aria-label="Facebook Đa Khoa Cần Thơ"
-           class="pointer-events-auto gp-floating-btn group relative inline-flex items-center justify-center rounded-full
-                  ring-2 ring-white ring-offset-1
-                  text-white
-                  transition-all duration-300
-                  hover:scale-110
-                  focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-           style="background:#1877F2; box-shadow:0 6px 20px rgba(24,119,242,0.5); animation:gpFloat 3s ease-in-out 0.8s infinite;"
-           onmouseenter="this.style.background='#0F5FCC'" onmouseleave="this.style.background='#1877F2'">
-            <svg class="gp-icon-social" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/>
-            </svg>
-            <span class="pointer-events-none absolute left-full ml-3 whitespace-nowrap rounded-lg bg-slate-900/90 px-3 py-1.5
-                         text-xs font-semibold text-white opacity-0 shadow-lg backdrop-blur-sm
-                         transition-opacity duration-200 group-hover:opacity-100 hidden md:block">
-                Facebook
-            </span>
-        </a>
-
     </div>
 
     {{-- Cần Thơ Live Chat Widget - loaded once globally, async to avoid render blocking --}}

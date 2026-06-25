@@ -149,22 +149,6 @@
         <div class="border-t border-white/10 pt-6 mt-6">
             <div class="flex flex-col gap-4 text-sm text-slate-300 lg:flex-row lg:items-center lg:justify-between">
                 <p>Copyright © 2026 {{ $clinicName }}. All rights reserved.</p>
-
-                <div class="flex flex-wrap items-center gap-6 lg:justify-end">
-                    <a href="{{ $facebookUrl }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 font-semibold transition hover:text-white">
-                        <svg class="h-5 w-5 text-[#9fdcff]" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M13.5 22v-8h2.7l.4-3h-3.1V9.1c0-.9.3-1.6 1.6-1.6h1.7V4.8c-.3 0-1.3-.1-2.5-.1-2.4 0-4 1.4-4 4.1V11H8v3h2.3v8h3.2Z" />
-                        </svg>
-                        Facebook
-                    </a>
-                    <a href="{{ $zaloUrl }}" target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 font-semibold transition hover:text-white">
-                        <svg class="h-5 w-5 text-[#9fdcff]" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.1" d="M4 5.5h16v10.5H8l-4 3v-13.5Z" />
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.1" d="M8.5 9.5h7M8.5 12.5h4.5" />
-                        </svg>
-                        Zalo
-                    </a>
-                </div>
             </div>
         </div>
     </div>
