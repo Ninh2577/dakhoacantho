@@ -69,18 +69,7 @@
                 <div class="absolute inset-10 bg-clinic-blue/10 rounded-full blur-3xl -z-10"></div>
                 
                 <div class="relative max-w-sm sm:max-w-md lg:max-w-none rounded-3xl overflow-hidden shadow-2xl border-4 border-white bg-white">
-                    <img src="{{ asset('images/doctor.webp') }}" alt="{{ \App\Models\Setting::site('clinic_name') }}" class="w-full h-auto object-cover max-h-[500px]" decoding="async" fetchpriority="high">
-                    <div class="absolute bottom-4 left-4 right-4 p-4 bg-white/90 backdrop-blur-md rounded-2xl border border-white/50 shadow-lg flex items-center gap-3">
-                        <span class="p-2.5 bg-clinic-teal text-white rounded-lg">
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
-                            </svg>
-                        </span>
-                        <div>
-                            <span class="block text-xs font-extrabold text-slate-900">Chuyên nghiệp & An toàn</span>
-                            <span class="block text-[10px] text-slate-500 font-bold uppercase tracking-wide">Tiêu chuẩn chất lượng</span>
-                        </div>
-                    </div>
+                    <img src="{{ asset('images/doctor_new.jpg') }}" alt="{{ \App\Models\Setting::site('clinic_name') }}" class="w-full h-auto object-cover max-h-[500px]" decoding="async" fetchpriority="high">
                 </div>
             </div>
 
