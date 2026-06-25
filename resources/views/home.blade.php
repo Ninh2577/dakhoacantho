@@ -48,16 +48,16 @@
                 <!-- Stats Row -->
                 <div class="grid grid-cols-3 gap-4 pt-8 border-t border-slate-100 max-w-lg mx-auto lg:mx-0">
                     <div class="text-center lg:text-left">
-                        <span class="block text-2xl sm:text-3xl font-extrabold text-clinic-blue">15+</span>
-                        <span class="block text-xs font-bold text-slate-400 uppercase tracking-wide">Năm hoạt động</span>
+                        <span class="block text-2xl sm:text-3xl font-extrabold text-clinic-blue">10+</span>
+                        <span class="block text-xs font-bold text-slate-400 uppercase tracking-wide">Năm Hoạt Động</span>
                     </div>
                     <div class="text-center lg:text-left">
-                        <span class="block text-2xl sm:text-3xl font-extrabold text-clinic-blue">20k+</span>
-                        <span class="block text-xs font-bold text-slate-400 uppercase tracking-wide">Lượt hỗ trợ</span>
+                        <span class="block text-2xl sm:text-3xl font-extrabold text-clinic-blue">40K+</span>
+                        <span class="block text-xs font-bold text-slate-400 uppercase tracking-wide">lượt Tư Vấn</span>
                     </div>
                     <div class="text-center lg:text-left">
-                        <span class="block text-2xl sm:text-3xl font-extrabold text-clinic-blue">20+</span>
-                        <span class="block text-xs font-bold text-slate-400 uppercase tracking-wide">Phòng tư vấn</span>
+                        <span class="block text-2xl sm:text-3xl font-extrabold text-clinic-blue">10K+</span>
+                        <span class="block text-xs font-bold text-slate-400 uppercase tracking-wide">CA BỆNH</span>
                     </div>
                 </div>
             </div>
