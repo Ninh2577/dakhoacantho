@@ -21,6 +21,11 @@ class HomePageSettings extends Page implements HasForms
 {
     use InteractsWithForms;
 
+    public static function canAccess(): bool
+    {
+        return auth()->user() && auth()->user()->hasPermission(static::class);
+    }
+
     protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
 
     protected static string $view = 'filament.pages.home-page-settings';

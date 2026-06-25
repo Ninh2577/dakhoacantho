@@ -16,6 +16,11 @@ class LoginAttemptResource extends Resource
 {
     protected static ?string $model = LoginAttempt::class;
 
+    public static function canAccess(): bool
+    {
+        return auth()->user() && auth()->user()->hasPermission(static::class);
+    }
+
     protected static ?string $navigationIcon = 'heroicon-o-lock-closed';
 
     protected static ?string $navigationGroup = 'Bảo mật';

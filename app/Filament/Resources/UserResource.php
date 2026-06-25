@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\UserResource\Pages;
 use App\Models\User;
+use App\Models\Setting;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -15,6 +16,11 @@ use Illuminate\Support\Facades\Hash;
 class UserResource extends Resource
 {
     protected static ?string $model = User::class;
+
+    public static function canAccess(): bool
+    {
+        return auth()->user() && auth()->user()->hasPermission(static::class);
+    }
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
 
@@ -52,11 +58,22 @@ class UserResource extends Resource
                     ->placeholder(fn (string $context): string => $context === 'edit' ? 'Để trống nếu không muốn đổi' : ''),
                 Forms\Components\Select::make('role')
                     ->label('Vai trò')
-                    ->options([
-                        'admin' => 'Quản trị viên',
-                        'doctor' => 'Bác sĩ',
-                        'editor' => 'Biên tập viên',
-                    ])
+                    ->options(function () {
+                        $options = ['admin' => 'Quản trị viên'];
+                        $customRoles = Setting::get('custom_roles', []);
+                        
+                        if (empty($customRoles)) {
+                            $options['doctor'] = 'Bác sĩ';
+                            $options['editor'] = 'Biên tập viên';
+                        } else {
+                            foreach ($customRoles as $role) {
+                                if (!empty($role['slug']) && !empty($role['name'])) {
+                                    $options[$role['slug']] = $role['name'];
+                                }
+                            }
+                        }
+                        return $options;
+                    })
                     ->required()
                     ->default('editor'),
             ]);
@@ -91,7 +108,15 @@ class UserResource extends Resource
                         'admin' => 'Quản trị viên',
                         'doctor' => 'Bác sĩ',
                         'editor' => 'Biên tập viên',
-                        default => $state,
+                        default => (function() use ($state) {
+                            $customRoles = Setting::get('custom_roles', []);
+                            foreach ($customRoles as $role) {
+                                if (($role['slug'] ?? '') === $state) {
+                                    return $role['name'] ?? $state;
+                                }
+                            }
+                            return $state;
+                        })(),
                     })
                     ->searchable()
                     ->sortable(),
@@ -103,11 +128,22 @@ class UserResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('role')
                     ->label('Vai trò')
-                    ->options([
-                        'admin' => 'Quản trị viên',
-                        'doctor' => 'Bác sĩ',
-                        'editor' => 'Biên tập viên',
-                    ]),
+                    ->options(function () {
+                        $options = ['admin' => 'Quản trị viên'];
+                        $customRoles = Setting::get('custom_roles', []);
+                        
+                        if (empty($customRoles)) {
+                            $options['doctor'] = 'Bác sĩ';
+                            $options['editor'] = 'Biên tập viên';
+                        } else {
+                            foreach ($customRoles as $role) {
+                                if (!empty($role['slug']) && !empty($role['name'])) {
+                                    $options[$role['slug']] = $role['name'];
+                                }
+                            }
+                        }
+                        return $options;
+                    }),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),

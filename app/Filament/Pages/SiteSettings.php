@@ -34,7 +34,7 @@ class SiteSettings extends Page implements HasForms
 
     public static function canAccess(): bool
     {
-        return auth()->user() && auth()->user()->role === 'admin';
+        return auth()->user() && auth()->user()->hasPermission(static::class);
     }
 
     public function mount(): void

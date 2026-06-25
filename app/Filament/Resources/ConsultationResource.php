@@ -23,6 +23,11 @@ class ConsultationResource extends Resource
 {
     protected static ?string $model = Consultation::class;
 
+    public static function canAccess(): bool
+    {
+        return auth()->user() && auth()->user()->hasPermission(static::class);
+    }
+
     protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-left-right';
 
     protected static ?string $navigationLabel = 'Tư vấn';

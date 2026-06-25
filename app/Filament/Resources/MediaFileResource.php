@@ -17,6 +17,11 @@ class MediaFileResource extends Resource
 {
     protected static ?string $model = MediaFile::class;
 
+    public static function canAccess(): bool
+    {
+        return auth()->user() && auth()->user()->hasPermission(static::class);
+    }
+
     protected static ?string $navigationIcon = 'heroicon-o-photo';
 
     protected static ?string $navigationLabel = 'Thư viện Media';

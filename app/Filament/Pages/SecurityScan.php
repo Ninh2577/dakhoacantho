@@ -18,6 +18,11 @@ class SecurityScan extends Page implements Tables\Contracts\HasTable
 {
     use Tables\Concerns\InteractsWithTable;
 
+    public static function canAccess(): bool
+    {
+        return auth()->user() && auth()->user()->hasPermission(static::class);
+    }
+
     protected static ?string $navigationIcon = 'heroicon-o-shield-check';
 
     protected static string $view = 'filament.pages.security-scan';

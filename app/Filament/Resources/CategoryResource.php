@@ -18,6 +18,11 @@ class CategoryResource extends Resource
 {
     protected static ?string $model = Category::class;
 
+    public static function canAccess(): bool
+    {
+        return auth()->user() && auth()->user()->hasPermission(static::class);
+    }
+
     protected static ?string $navigationIcon = 'heroicon-o-folder';
 
     protected static ?string $navigationLabel = 'Danh mục';

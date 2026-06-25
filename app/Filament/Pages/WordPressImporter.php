@@ -23,6 +23,11 @@ class WordPressImporter extends Page implements HasForms
     use InteractsWithForms;
     use WithPagination;
 
+    public static function canAccess(): bool
+    {
+        return auth()->user() && auth()->user()->hasPermission(static::class);
+    }
+
     protected static ?string $navigationIcon = 'heroicon-o-arrow-down-tray';
 
     protected static ?string $navigationLabel = 'Nhập dữ liệu WordPress';

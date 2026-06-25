@@ -16,6 +16,11 @@ class SecurityEventResource extends Resource
 {
     protected static ?string $model = SecurityEvent::class;
 
+    public static function canAccess(): bool
+    {
+        return auth()->user() && auth()->user()->hasPermission(static::class);
+    }
+
     protected static ?string $navigationIcon = 'heroicon-o-shield-exclamation';
 
     protected static ?string $navigationGroup = 'Bảo mật';

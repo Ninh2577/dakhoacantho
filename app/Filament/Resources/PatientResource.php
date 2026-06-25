@@ -25,6 +25,11 @@ class PatientResource extends Resource
 {
     protected static ?string $model = Patient::class;
 
+    public static function canAccess(): bool
+    {
+        return auth()->user() && auth()->user()->hasPermission(static::class);
+    }
+
     protected static ?string $navigationIcon = 'heroicon-o-user-group';
 
     protected static ?string $navigationLabel = 'Bệnh nhân';

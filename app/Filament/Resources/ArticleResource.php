@@ -31,6 +31,11 @@ class ArticleResource extends Resource
 {
     protected static ?string $model = Article::class;
 
+    public static function canAccess(): bool
+    {
+        return auth()->user() && auth()->user()->hasPermission(static::class);
+    }
+
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
     protected static ?string $navigationLabel = 'Bài viết';

@@ -10,6 +10,10 @@ use Illuminate\Support\Carbon;
 
 class ReportsAnalytics extends Page
 {
+    public static function canAccess(): bool
+    {
+        return auth()->user() && auth()->user()->hasPermission(static::class);
+    }
     protected static ?string $navigationIcon = 'heroicon-o-chart-bar';
 
     protected static ?string $navigationLabel = 'Báo cáo & Phân tích';
