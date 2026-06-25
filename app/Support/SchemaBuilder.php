@@ -67,11 +67,6 @@ class SchemaBuilder
             'alternateName' => \App\Models\Setting::site('clinic_short_name'),
             'url' => $siteUrl,
             'logo' => $logoUrl,
-            'founder' => [
-                '@type' => 'Person',
-                'url' => $siteUrl . '/gioi-thieu',
-                'name' => $authorName
-            ],
             'image' => $logoUrl,
             'description' => \App\Models\Setting::get('site_description') ?: 'Chia sẻ các tin tức sức khỏe - tư vấn và đưa ra những kiến thức bổ ích về : Bệnh nam khoa, phụ khoa, bệnh trĩ, sức khỏe sinh sản, bệnh xã hội,...',
             'address' => [
