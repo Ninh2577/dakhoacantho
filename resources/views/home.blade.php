@@ -13,7 +13,7 @@
 
 @section('content')
 <!-- Hero Section -->
-<section id="gioi-thieu" class="bg-gradient-to-br from-blue-50 via-white to-teal-50/30 py-12 md:py-20 overflow-hidden">
+<section id="gioi-thieu" class="bg-gradient-to-br from-blue-50 via-white to-teal-50/30 pt-10 pb-6 md:pt-14 md:pb-8 overflow-hidden">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
             
@@ -91,9 +91,9 @@
 <x-home.services-banner />
 
 <!-- Vì sao chọn Đa Khoa Cần Thơ? Section -->
-<section class="py-16 md:py-24 bg-white">
+<section class="py-10 md:py-14 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div class="text-center max-w-3xl mx-auto space-y-3 mb-16">
+        <div class="text-center max-w-3xl mx-auto space-y-3 mb-10 md:mb-12">
             <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Vì sao chọn Đa Khoa Cần Thơ?</h2>
             <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
                 Chúng tôi nỗ lực tối đa mang lại dịch vụ y tế an tâm, riêng tư và hiệu quả cho từng khách hàng.
@@ -141,11 +141,11 @@
         scrollbar-width: none;  /* Firefox */
     }
 </style>
-<section class="py-16 md:py-24 bg-[#0a3875] text-white" role="region" aria-label="Ý kiến đánh giá từ bệnh nhân">
+<section class="py-10 md:py-14 bg-[#0a3875] text-white" role="region" aria-label="Ý kiến đánh giá từ bệnh nhân">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <!-- Section Header -->
-        <div class="text-center max-w-3xl mx-auto space-y-3 mb-12 md:mb-16">
+        <div class="text-center max-w-3xl mx-auto space-y-3 mb-8 md:mb-12">
             <h2 class="text-2xl sm:text-3xl md:text-4xl font-black tracking-tight text-white">Ý kiến từ bệnh nhân</h2>
             <p class="text-slate-200 text-sm sm:text-base leading-relaxed">
                 Niềm tin và sự hồi phục của người bệnh là thước đo chính xác nhất cho uy tín của chúng tôi.

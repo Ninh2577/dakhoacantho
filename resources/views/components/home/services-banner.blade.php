@@ -39,7 +39,7 @@
     ];
 @endphp
 
-<section class="py-16 bg-slate-50/50">
+<section class="py-8 md:py-12 bg-slate-50/50">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="bg-gradient-to-br from-white to-slate-50 border border-slate-100 rounded-3xl p-8 md:p-12 shadow-sm relative overflow-hidden">
             <!-- Decorative circle -->
