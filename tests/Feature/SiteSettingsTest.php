@@ -106,7 +106,7 @@ class SiteSettingsTest extends TestCase
         // Search inside raw response to find JSON-LD components
         $html = $response->getContent();
         
-        $this->assertStringContainsString('"@type":["Organization","MedicalClinic","LocalBusiness"]', $html);
+        $this->assertStringContainsString('"@type":"LocalBusiness"', $html);
         $this->assertStringContainsString('"name":"Gia Ph\u01b0\u1edbc Schema Clinic"', $html); // Unicode escape for Gia Phước Schema Clinic
         $this->assertStringContainsString('"telephone":"+84922222222"', $html); // Cleaned E164 number
         $this->assertStringContainsString('"email":"schema@dakhoagiaphuoc.vn"', $html);

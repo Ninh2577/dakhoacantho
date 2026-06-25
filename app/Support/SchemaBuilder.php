@@ -40,25 +40,40 @@ class SchemaBuilder
         }
 
         $sameAs = array_filter([
-            \App\Models\Setting::site('facebook_url'),
             \App\Models\Setting::site('youtube_url'),
             \App\Models\Setting::site('zalo_url'),
             \App\Models\Setting::site('tiktok_url'),
         ]);
 
+        $authorName = null;
+        if (! empty($options['article'])) {
+            $article = $options['article'];
+            $authorName = ($article->author ? $article->author->name : null) ?: match ($article->category?->slug) {
+                'nam-khoa' => 'BS. Nguyễn Văn An',
+                'phu-khoa' => 'BS. Trần Thị Mai',
+                default => 'Ban Biên Tập',
+            };
+        }
+        if (empty($authorName)) {
+            $authorName = 'BS. CK1 Nguyễn Văn An';
+        }
+
         // 1. Organization / MedicalClinic / LocalBusiness combined node
         $organization = [
             '@context' => 'https://schema.org',
-            '@type' => ['Organization', 'MedicalClinic', 'LocalBusiness'],
+            '@type' => 'LocalBusiness',
             '@id' => $siteUrl.'/#organization',
             'name' => \App\Models\Setting::site('clinic_name'),
             'alternateName' => \App\Models\Setting::site('clinic_short_name'),
             'url' => $siteUrl,
-            'logo' => [
-                '@type' => 'ImageObject',
-                'url' => $logoUrl,
+            'logo' => $logoUrl,
+            'founder' => [
+                '@type' => 'Person',
+                'url' => $siteUrl . '/gioi-thieu',
+                'name' => $authorName
             ],
             'image' => $logoUrl,
+            'description' => \App\Models\Setting::get('site_description') ?: 'Phòng khám Đa khoa Cần Thơ chuyên tư vấn, chăm sóc sức khỏe toàn diện và điều trị các bệnh nam khoa, bệnh xã hội, viêm phụ khoa hiệu quả, uy tín tại Cần Thơ.',
             'telephone' => $phoneE164,
             'email' => \App\Models\Setting::site('email'),
             'priceRange' => '$$',
@@ -78,7 +93,8 @@ class SchemaBuilder
                 'streetAddress' => $streetAddress,
                 'addressLocality' => $addressLocality,
                 'addressRegion' => $addressRegion,
-                'addressCountry' => 'VN',
+                'postalCode' => '900000',
+                'addressCountry' => 'VietNam',
             ],
             'openingHoursSpecification' => [
                 '@type' => 'OpeningHoursSpecification',
