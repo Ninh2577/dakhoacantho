@@ -45,13 +45,10 @@ class PageController extends Controller
             ->where('category_id', $selectedCategory->id)
             ->where('is_published', true)
             ->latest()
-            ->paginate(4);
+            ->paginate(7);
 
-        // Get a featured article (the first one)
-        $featuredArticle = Article::with('category')
-            ->where('category_id', $selectedCategory->id)
-            ->where('is_published', true)
-            ->first();
+        // Get a featured article (the first one of current page)
+        $featuredArticle = $articles->first();
 
         return view('categories.show', compact('categories', 'selectedCategory', 'articles', 'featuredArticle'));
     }

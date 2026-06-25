@@ -116,13 +116,17 @@
  
             <!-- Article Grid -->
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-                @forelse($articles as $article)
+                @php
+                    $gridArticles = $articles->slice(1);
+                @endphp
+                @foreach($gridArticles as $article)
                     <x-article-card :article="$article" />
-                @empty
+                @endforeach
+                @if($gridArticles->isEmpty() && !$featuredArticle)
                     <div class="col-span-full py-12 text-center text-slate-400 bg-white rounded-3xl border border-slate-100 shadow-sm">
                         Không tìm thấy bài viết nào thuộc chuyên mục này.
                     </div>
-                @endforelse
+                @endif
             </div>
  
             <!-- Highlight alert / info banner -->

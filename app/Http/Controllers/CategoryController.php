@@ -88,13 +88,10 @@ class CategoryController extends Controller
             ->whereIn('category_id', $categoryIds)
             ->where('is_published', true)
             ->latest()
-            ->paginate(6);
+            ->paginate(7);
 
-        // Retrieve the first featured article
-        $featuredArticle = Article::with('category.parent.parent')
-            ->whereIn('category_id', $categoryIds)
-            ->where('is_published', true)
-            ->first();
+        // Retrieve the first article on the current page as the featured article
+        $featuredArticle = $articles->first();
 
         // Retrieve and cache 9 latest related articles for 15 minutes
         $cacheKey = "category_related_articles_{$selectedCategory->id}";
