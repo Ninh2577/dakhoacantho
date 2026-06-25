@@ -55,10 +55,6 @@
             'label' => 'Chính sách bảo mật',
             'url' => route('privacy.policy'),
         ] : null,
-        [
-            'label' => 'Sơ đồ website',
-            'url' => url('/sitemap.xml'),
-        ],
     ]);
 @endphp
 
