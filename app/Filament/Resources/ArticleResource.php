@@ -230,7 +230,7 @@ class ArticleResource extends Resource
 
                                             // --- Thumbnail Card ---
                                             Section::make('Ảnh đại diện')->schema([
-                                                FileUpload::make('featured_image')
+                                                FileUpload::make('thumbnail_image')
                                                     ->label('Ảnh đại diện')
                                                     ->image()
                                                     ->directory('articles/featured')
@@ -388,7 +388,7 @@ class ArticleResource extends Resource
                     ->label('ID')
                     ->sortable()
                     ->searchable(),
-                Tables\Columns\ImageColumn::make('featured_image')
+                Tables\Columns\ImageColumn::make('thumbnail_image')
                     ->label('Ảnh')
                     ->disk('public'),
                 Tables\Columns\TextColumn::make('title')

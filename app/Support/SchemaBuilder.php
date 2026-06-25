@@ -55,7 +55,7 @@ class SchemaBuilder
             };
         }
         if (empty($authorName)) {
-            $authorName = 'BS. CK1 Nguyễn Văn An';
+            $authorName = 'BS. Tư Vấn';
         }
 
         // 1. Organization / MedicalClinic / LocalBusiness combined node
@@ -73,21 +73,7 @@ class SchemaBuilder
                 'name' => $authorName
             ],
             'image' => $logoUrl,
-            'description' => \App\Models\Setting::get('site_description') ?: 'Phòng khám Đa khoa Cần Thơ chuyên tư vấn, chăm sóc sức khỏe toàn diện và điều trị các bệnh nam khoa, bệnh xã hội, viêm phụ khoa hiệu quả, uy tín tại Cần Thơ.',
-            'telephone' => $phoneE164,
-            'email' => \App\Models\Setting::site('email'),
-            'priceRange' => '$$',
-            'medicalSpecialty' => [
-                'ObstetricsAndGynecology',
-                'Urology',
-                'InfectiousDisease'
-            ],
-            'geo' => [
-                '@type' => 'GeoCoordinates',
-                'latitude' => \App\Models\Setting::site('latitude'),
-                'longitude' => \App\Models\Setting::site('longitude')
-            ],
-            'sameAs' => array_values($sameAs),
+            'description' => \App\Models\Setting::get('site_description') ?: 'Chia sẻ các tin tức sức khỏe - tư vấn và đưa ra những kiến thức bổ ích về : Bệnh nam khoa, phụ khoa, bệnh trĩ, sức khỏe sinh sản, bệnh xã hội,...',
             'address' => [
                 '@type' => 'PostalAddress',
                 'streetAddress' => $streetAddress,
@@ -262,7 +248,7 @@ class SchemaBuilder
 
             // Standardize medical reviewer information for E-E-A-T
             $reviewerName = match ($article->category?->slug) {
-                'nam-khoa' => 'BS. CK1 Nguyễn Văn An',
+                'nam-khoa' => 'BS. Tư Vấn',
                 'phu-khoa' => 'BS. CK1 Trần Thị Mai',
                 default => 'Ban cố vấn y khoa ' . \App\Models\Setting::site('clinic_short_name'),
             };
