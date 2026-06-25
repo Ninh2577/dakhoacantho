@@ -1,1 +1,0 @@
-<?php // Scratch script cleaned.
