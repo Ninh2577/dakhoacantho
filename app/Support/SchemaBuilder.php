@@ -61,7 +61,7 @@ class SchemaBuilder
         // 1. Organization / MedicalClinic / LocalBusiness combined node
         $organization = [
             '@context' => 'https://schema.org',
-            '@type' => 'LocalBusiness',
+            '@type' => 'MedicalBusiness',
             '@id' => $siteUrl.'/#organization',
             'name' => \App\Models\Setting::site('clinic_name'),
             'alternateName' => \App\Models\Setting::site('clinic_short_name'),
