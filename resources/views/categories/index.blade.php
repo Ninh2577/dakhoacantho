@@ -12,7 +12,7 @@
     <x-seo
         page-type="category"
         title="Tất cả Chuyên khoa | Danh mục Chuyên khoa"
-        description="Tổng hợp tất cả các danh mục chuyên khoa tại Phòng Khám Đa Khoa Gia Phước Cần Thơ: Nam khoa, Phụ khoa, Bệnh xã hội..."
+        description="Tổng hợp tất cả các danh mục chuyên khoa tại Phòng Khám Đa Khoa Cần Thơ: Nam khoa, Phụ khoa, Bệnh xã hội..."
         :canonical="route('categories.index')"
         :breadcrumbs="$indexBreadcrumbs"
     />

@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Bản xem trước hết hạn | Phòng Khám Đa Khoa Gia Phước')
+@section('title', 'Bản xem trước hết hạn | Phòng Khám Đa Khoa Cần Thơ')
 
 @section('content')
 <div class="min-h-[60vh] flex flex-col items-center justify-center px-4 py-16 bg-slate-50">

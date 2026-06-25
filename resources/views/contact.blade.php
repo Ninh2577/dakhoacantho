@@ -99,7 +99,7 @@
                             Chúng tôi luôn sẵn sàng hỗ trợ bạn
                         </h2>
                         <p class="text-sm text-slate-600 leading-relaxed max-w-xl">
-                            Phòng Khám Đa Khoa Gia Phước tự hào là cơ sở y tế uy tín hàng đầu tại Đồng bằng sông Cửu Long, nơi quy tụ đội ngũ chuyên môn cao và trang thiết bị hiện đại nhất.
+                            Phòng Khám Đa Khoa Cần Thơ tự hào là cơ sở y tế uy tín hàng đầu tại Đồng bằng sông Cửu Long, nơi quy tụ đội ngũ chuyên môn cao và trang thiết bị hiện đại nhất.
                         </p>
                     </div>
 
@@ -161,7 +161,7 @@
                 <!-- FAQ 1 -->
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden transition-all duration-300">
                     <button @click="active = active === 1 ? null : 1" class="w-full flex items-center justify-between p-5 text-left focus:outline-none">
-                        <span class="font-bold text-slate-900 pr-4 text-sm md:text-base">Địa chỉ Phòng Khám Đa Khoa Gia Phước ở đâu Cần Thơ?</span>
+                        <span class="font-bold text-slate-900 pr-4 text-sm md:text-base">Địa chỉ Phòng Khám Đa Khoa Cần Thơ ở đâu?</span>
                         <span class="flex-shrink-0 w-6 h-6 rounded-full bg-slate-50 flex items-center justify-center text-slate-500 transition-transform duration-300" :class="active === 1 ? 'rotate-180 bg-clinic-blue text-white' : ''">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </span>
@@ -176,7 +176,7 @@
                 <!-- FAQ 2 -->
                 <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden transition-all duration-300">
                     <button @click="active = active === 2 ? null : 2" class="w-full flex items-center justify-between p-5 text-left focus:outline-none">
-                        <span class="font-bold text-slate-900 pr-4 text-sm md:text-base">Phòng Khám Đa Khoa Gia Phước làm việc vào những ngày nào?</span>
+                        <span class="font-bold text-slate-900 pr-4 text-sm md:text-base">Phòng Khám Đa Khoa Cần Thơ làm việc vào những ngày nào?</span>
                         <span class="flex-shrink-0 w-6 h-6 rounded-full bg-slate-50 flex items-center justify-center text-slate-500 transition-transform duration-300" :class="active === 2 ? 'rotate-180 bg-clinic-blue text-white' : ''">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                         </span>

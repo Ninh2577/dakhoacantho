@@ -90,11 +90,11 @@
 
 <x-home.services-banner />
 
-<!-- Vì sao chọn Gia Phước? Section -->
+<!-- Vì sao chọn Đa Khoa Cần Thơ? Section -->
 <section class="py-16 md:py-24 bg-white">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="text-center max-w-3xl mx-auto space-y-3 mb-16">
-            <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Vì sao chọn Gia Phước?</h2>
+            <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-slate-900 tracking-tight">Vì sao chọn Đa Khoa Cần Thơ?</h2>
             <p class="text-slate-600 text-sm sm:text-base leading-relaxed">
                 Chúng tôi nỗ lực tối đa mang lại dịch vụ y tế an tâm, riêng tư và hiệu quả cho từng khách hàng.
             </p>

@@ -28,7 +28,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
-            ->brandName('Đa Khoa Gia Phước CMS')
+            ->brandName('Đa Khoa Cần Thơ CMS')
             ->sidebarCollapsibleOnDesktop()
             ->colors([
                 'primary' => '#1e40af',

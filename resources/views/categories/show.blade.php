@@ -5,7 +5,7 @@
 @section('meta')
     @php
         $categoryName = $selectedCategory->name ?? 'Danh mục Chuyên khoa';
-        $categoryDescription = $selectedCategory->description ?? ('Chuyên khoa ' . $categoryName . ' tại Phòng Khám Đa Khoa Gia Phước Cần Thơ. Đội ngũ y tế giàu kinh nghiệm, tư vấn riêng tư.');
+        $categoryDescription = $selectedCategory->description ?? ('Chuyên khoa ' . $categoryName . ' tại Phòng Khám Đa Khoa Cần Thơ. Đội ngũ y tế giàu kinh nghiệm, tư vấn riêng tư.');
         $categoryCanonical = $selectedCategory->public_url;
         $categoryBreadcrumbs = [
             ['name' => 'Trang chủ', 'url' => route('home')],

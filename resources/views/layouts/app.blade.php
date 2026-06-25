@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     
     <!-- SEO Meta Tags -->
-    <title>@yield('title', 'Phòng Khám Đa Khoa Gia Phước - Cần Thơ')</title>
+    <title>@yield('title', 'Phòng Khám Đa Khoa Cần Thơ')</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
     @yield('meta')
 
@@ -139,7 +139,7 @@
         <a href="{{ $_facebookUrl }}"
            target="_blank"
            rel="noopener noreferrer"
-           aria-label="Facebook Đa Khoa Gia Phước"
+           aria-label="Facebook Đa Khoa Cần Thơ"
            class="pointer-events-auto gp-floating-btn group relative inline-flex items-center justify-center rounded-full
                   ring-2 ring-white ring-offset-1
                   text-white
@@ -160,7 +160,7 @@
 
     </div>
 
-    {{-- Gia Phước Live Chat Widget - loaded once globally, async to avoid render blocking --}}
+    {{-- Cần Thơ Live Chat Widget - loaded once globally, async to avoid render blocking --}}
     <script src="https://chat.dakhoagiaphuoc.vn/embed.js"
             data-site-id="app.dakhoacantho.com"
             data-site-name="App Đa Khoa Cần Thơ"

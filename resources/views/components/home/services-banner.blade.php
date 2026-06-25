@@ -49,7 +49,7 @@
                 <!-- Left column: Banner info -->
                 <div class="lg:col-span-4 space-y-6 text-center lg:text-left">
                     <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-clinic-blue/5 text-clinic-blue uppercase tracking-wider">
-                        Phòng khám Gia Phước
+                        Phòng khám Đa Khoa Cần Thơ
                     </span>
                     
                     <h2 class="text-2xl sm:text-3xl font-black text-slate-900 leading-tight tracking-tight">

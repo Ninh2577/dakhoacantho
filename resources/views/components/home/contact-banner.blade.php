@@ -14,7 +14,7 @@
                     </span>
 
                     <h2 class="text-2xl sm:text-3xl font-black leading-tight tracking-tight text-white">
-                        Cần tư vấn sức khỏe? <br class="hidden sm:inline"> Gia Phước luôn sẵn sàng hỗ trợ
+                        Cần tư vấn sức khỏe? <br class="hidden sm:inline"> Đa Khoa Cần Thơ luôn sẵn sàng hỗ trợ
                     </h2>
 
                     <p class="text-blue-100 text-sm sm:text-base leading-relaxed max-w-xl mx-auto lg:mx-0 font-medium">

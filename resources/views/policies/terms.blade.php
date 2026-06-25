@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('title', 'Điều Khoản Sử Dụng | Phòng Khám Đa Khoa Gia Phước')
+@section('title', 'Điều Khoản Sử Dụng | Phòng Khám Đa Khoa Cần Thơ')
 
 @section('meta')
     <x-seo
         page-type="webpage"
-        title="Điều Khoản Sử Dụng | Phòng Khám Đa Khoa Gia Phước"
-        description="Điều khoản sử dụng dịch vụ và thông tin trên website của Phòng Khám Đa Khoa Gia Phước Cần Thơ."
+        title="Điều Khoản Sử Dụng | Phòng Khám Đa Khoa Cần Thơ"
+        description="Điều khoản sử dụng dịch vụ và thông tin trên website của Phòng Khám Đa Khoa Cần Thơ."
         :canonical="route('terms.policy')"
         :breadcrumbs="[
             ['name' => 'Trang chủ', 'url' => route('home')],
@@ -24,7 +24,7 @@
             </span>
             <h1 class="mt-4 text-3xl font-black tracking-tight text-slate-900">Điều khoản sử dụng website</h1>
             <p class="mt-4 text-sm leading-7 text-slate-600">
-                Khi truy cập website Phòng Khám Đa Khoa Gia Phước, người dùng đồng ý sử dụng nội dung theo đúng mục đích tham khảo và liên hệ tư vấn phù hợp.
+                Khi truy cập website Phòng Khám Đa Khoa Cần Thơ, người dùng đồng ý sử dụng nội dung theo đúng mục đích tham khảo và liên hệ tư vấn phù hợp.
             </p>
 
             <div class="mt-8 space-y-6 text-sm leading-7 text-slate-700">

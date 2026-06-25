@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Kết quả tìm kiếm cho: "' . ($query ?? '') . '" | Đa Khoa Gia Phước')
+@section('title', 'Kết quả tìm kiếm cho: "' . ($query ?? '') . '" | Đa Khoa Cần Thơ')
 
 @section('meta')
     @php
@@ -12,8 +12,8 @@
     @endphp
     <x-seo
         page-type="search"
-        title="Kết quả tìm kiếm cho: '{{ $query }}' | Đa Khoa Gia Phước"
-        description="Kết quả tìm kiếm bài viết y khoa và thông tin tư vấn sức khỏe theo từ khóa '{{ $query }}' tại Phòng Khám Gia Phước."
+        title="Kết quả tìm kiếm cho: '{{ $query }}' | Đa Khoa Cần Thơ"
+        description="Kết quả tìm kiếm bài viết y khoa và thông tin tư vấn sức khỏe theo từ khóa '{{ $query }}' tại Phòng Khám Đa Khoa Cần Thơ."
         :canonical="$searchCanonical"
         :breadcrumbs="$searchBreadcrumbs"
     />

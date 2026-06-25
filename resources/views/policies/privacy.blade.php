@@ -1,12 +1,12 @@
 @extends('layouts.app')
 
-@section('title', 'Chính Sách Bảo Mật | Phòng Khám Đa Khoa Gia Phước')
+@section('title', 'Chính Sách Bảo Mật | Phòng Khám Đa Khoa Cần Thơ')
 
 @section('meta')
     <x-seo
         page-type="webpage"
-        title="Chính Sách Bảo Mật | Phòng Khám Đa Khoa Gia Phước"
-        description="Chính sách bảo mật thông tin cá nhân và bệnh án của bệnh nhân tại Phòng Khám Đa Khoa Gia Phước Cần Thơ."
+        title="Chính Sách Bảo Mật | Phòng Khám Đa Khoa Cần Thơ"
+        description="Chính sách bảo mật thông tin cá nhân và bệnh án của bệnh nhân tại Phòng Khám Đa Khoa Cần Thơ."
         :canonical="route('privacy.policy')"
         :breadcrumbs="[
             ['name' => 'Trang chủ', 'url' => route('home')],
@@ -24,7 +24,7 @@
             </span>
             <h1 class="mt-4 text-3xl font-black tracking-tight text-slate-900">Chính sách bảo mật thông tin</h1>
             <p class="mt-4 text-sm leading-7 text-slate-600">
-                Phòng Khám Đa Khoa Gia Phước cam kết bảo mật thông tin người dùng khi gửi yêu cầu tư vấn, đặt lịch và liên hệ qua website.
+                Phòng Khám Đa Khoa Cần Thơ cam kết bảo mật thông tin người dùng khi gửi yêu cầu tư vấn, đặt lịch và liên hệ qua website.
             </p>
 
             <div class="mt-8 space-y-6 text-sm leading-7 text-slate-700">

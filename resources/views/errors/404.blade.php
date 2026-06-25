@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', '404 - Không tìm thấy trang | Phòng Khám Đa Khoa Gia Phước')
+@section('title', '404 - Không tìm thấy trang | Phòng Khám Đa Khoa Cần Thơ')
 
 @section('content')
 <div class="min-h-[75vh] flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100/50 py-16 px-4">

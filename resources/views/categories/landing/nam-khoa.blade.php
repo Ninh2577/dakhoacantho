@@ -215,7 +215,7 @@
         </div>
     </section>
 
-    <!-- Tại sao hàng ngàn nam giới tin tưởng Gia Phước? -->
+    <!-- Tại sao hàng ngàn nam giới tin tưởng Đa Khoa Cần Thơ? -->
     <section class="py-16 lg:py-24 bg-slate-900 text-white relative overflow-hidden">
         <div class="absolute inset-0 z-0">
             <div class="absolute left-1/4 top-1/4 w-96 h-96 bg-clinic-blue/20 rounded-full blur-3xl pointer-events-none"></div>
@@ -227,7 +227,7 @@
                 <div class="lg:col-span-6 space-y-8">
                     <div>
                         <h2 class="text-3xl md:text-4xl font-extrabold tracking-tight leading-tight">
-                            Tại sao hàng ngàn nam giới tin tưởng Gia Phước?
+                            Tại sao hàng ngàn nam giới tin tưởng Đa Khoa Cần Thơ?
                         </h2>
                         <div class="w-12 h-1 bg-clinic-sky mt-4 rounded-full"></div>
                     </div>

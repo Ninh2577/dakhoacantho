@@ -186,7 +186,7 @@
                 <div class="space-y-6 lg:pl-6">
                     <span class="text-xs font-bold text-rose-500 uppercase tracking-widest">Dịch vụ Chẩn đoán Công nghệ cao</span>
                     <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight leading-tight">
-                        Phòng khám Gia Phước đầu tư trang thiết bị y tế hiện đại bậc nhất
+                        Phòng khám Đa Khoa Cần Thơ đầu tư trang thiết bị y tế hiện đại bậc nhất
                     </h2>
                     <p class="text-slate-600 leading-relaxed text-sm md:text-base">
                         Chúng tôi trang bị các hệ thống máy siêu âm 4D, máy nội soi cổ tử cung kỹ thuật số độ phân giải cao giúp phát hiện sớm các bệnh lý tử cung, buồng trứng và tầm soát ung thư chính xác nhất.

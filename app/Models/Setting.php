@@ -68,8 +68,8 @@ class Setting extends Model
     public static function site(?string $key = null): mixed
     {
         $defaults = [
-            'clinic_name' => 'Phòng Khám Đa Khoa Gia Phước',
-            'clinic_short_name' => 'Đa Khoa Gia Phước',
+            'clinic_name' => 'Phòng Khám Đa Khoa Cần Thơ',
+            'clinic_short_name' => 'Đa Khoa Cần Thơ',
             'address' => 'Số 57 Hùng Vương, P. Ninh Kiều, TP. Cần Thơ',
             'hotline' => '0966.332.352',
             'email' => 'info@dakhoagiaphuoc.vn',

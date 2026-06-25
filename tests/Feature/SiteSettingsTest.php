@@ -15,8 +15,8 @@ class SiteSettingsTest extends TestCase
      */
     public function test_site_settings_fallbacks(): void
     {
-        $this->assertEquals('Phòng Khám Đa Khoa Gia Phước', Setting::site('clinic_name'));
-        $this->assertEquals('Đa Khoa Gia Phước', Setting::site('clinic_short_name'));
+        $this->assertEquals('Phòng Khám Đa Khoa Cần Thơ', Setting::site('clinic_name'));
+        $this->assertEquals('Đa Khoa Cần Thơ', Setting::site('clinic_short_name'));
         $this->assertEquals('Số 57 Hùng Vương, P. Ninh Kiều, TP. Cần Thơ', Setting::site('address'));
         $this->assertEquals('0966.332.352', Setting::site('hotline'));
         $this->assertEquals('info@dakhoagiaphuoc.vn', Setting::site('email'));

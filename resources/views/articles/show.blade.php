@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', e($article->meta_title ?? $article->title . ' | Phòng Khám Đa Khoa Gia Phước'))
+@section('title', e($article->meta_title ?? $article->title . ' | Phòng Khám Đa Khoa Cần Thơ'))
 
 @section('meta')
     @php
@@ -17,7 +17,7 @@
         $ogImage  = $article->og_image      ? asset('storage/' . $article->og_image)      : $articleImage;
         $twImage  = $article->twitter_image ? asset('storage/' . $article->twitter_image) : $articleImage;
 
-        $seoTitle   = $article->meta_title ?? ($article->title . ' | Phòng Khám Đa Khoa Gia Phước');
+        $seoTitle   = $article->meta_title ?? ($article->title . ' | Phòng Khám Đa Khoa Cần Thơ');
         $ogTitle    = $article->og_title      ?: $seoTitle;
         $ogDesc     = $article->og_description ?: $seoDesc;
         $twTitle    = $article->twitter_title  ?: $seoTitle;
