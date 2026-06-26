@@ -39,6 +39,50 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Đăng ký macro nén ảnh cho Filament FileUpload
+        \Filament\Forms\Components\FileUpload::macro('compress', function (int $quality = 75) {
+            return $this->saveUploadedFileUsing(function ($file) use ($quality) {
+                $filePath = $file->getRealPath();
+                $mimeType = $file->getMimeType();
+                
+                if (in_array($mimeType, ['image/jpeg', 'image/png', 'image/webp'])) {
+                    try {
+                        switch ($mimeType) {
+                            case 'image/jpeg':
+                                $image = @imagecreatefromjpeg($filePath);
+                                if ($image) {
+                                    imagejpeg($image, $filePath, $quality);
+                                    imagedestroy($image);
+                                }
+                                break;
+                            case 'image/webp':
+                                $image = @imagecreatefromwebp($filePath);
+                                if ($image) {
+                                    imagewebp($image, $filePath, $quality);
+                                    imagedestroy($image);
+                                }
+                                break;
+                            case 'image/png':
+                                $image = @imagecreatefrompng($filePath);
+                                if ($image) {
+                                    imagealphablending($image, false);
+                                    imagesavealpha($image, true);
+                                    imagepng($image, $filePath, 8); // Mức nén 8 cho PNG
+                                    imagedestroy($image);
+                                }
+                                break;
+                        }
+                    } catch (\Exception $e) {
+                        // Bỏ qua nếu có lỗi nén và giữ nguyên file gốc
+                    }
+                }
+                
+                // Thực hiện lưu trữ file bằng phương thức mặc định của Filament
+                $storeMethod = $this->getDiskName() === 'local' ? 'store' : 'storePublicly';
+                return $file->{$storeMethod}($this->getDirectory(), $this->getDiskName());
+            });
+        });
+
         \Illuminate\Support\Facades\App::setLocale('vi');
         \Illuminate\Support\Facades\Config::set('app.locale', 'vi');
         \Illuminate\Support\Carbon::setLocale('vi');

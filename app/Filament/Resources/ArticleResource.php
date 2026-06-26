@@ -238,6 +238,7 @@ class ArticleResource extends Resource
                                                     ->imagePreviewHeight('160')
                                                     ->panelAspectRatio('16:9')
                                                     ->panelLayout('integrated')
+                                                    ->compress()
                                                     ->live(),
                                             ]),
 
@@ -341,6 +342,7 @@ class ArticleResource extends Resource
                                                             ->image()
                                                             ->directory('articles/seo')
                                                             ->disk('public')
+                                                            ->compress()
                                                             ->live(),
                                                         TextInput::make('twitter_title')
                                                             ->label('Tiêu đề Twitter')
@@ -354,6 +356,7 @@ class ArticleResource extends Resource
                                                             ->image()
                                                             ->directory('articles/seo')
                                                             ->disk('public')
+                                                            ->compress()
                                                             ->live(),
                                                     ]),
                                                     Tabs\Tab::make('Nâng cao')->schema([

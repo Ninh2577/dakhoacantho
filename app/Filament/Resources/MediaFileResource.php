@@ -47,6 +47,7 @@ class MediaFileResource extends Resource
                             ->directory('uploads/filament')
                             ->required()
                             ->maxSize(10240) // 10MB
+                            ->compress()
                             ->helperText('Hỗ trợ định dạng: hình ảnh (png, jpg, jpeg, gif, webp, svg) hoặc tài liệu (pdf, doc, docx, xls, xlsx).'),
                     ])
             ]);
