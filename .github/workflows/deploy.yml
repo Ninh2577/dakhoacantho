@@ -39,11 +39,12 @@ jobs:
         password: ${{ secrets.FTP_PASSWORD }}
         port: 21
         timeout: 120000
-        server-dir: /
+        server-dir: /public_html/
         exclude: |
           **/.git*
           **/.git*/**
           **/node_modules/**
+          .env
           .env.example
           README.md
           vendor/**
