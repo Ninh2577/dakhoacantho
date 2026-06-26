@@ -5,7 +5,7 @@ namespace App\Providers\Filament;
 use App\Filament\Widgets\DashboardStatsWidget;
 use App\Filament\Widgets\PatientVisitsChart;
 use App\Filament\Widgets\SpecialtiesChart;
-use Filament\Http\Middleware\Authenticate;
+use App\Http\Middleware\AdminAuthenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -28,6 +28,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->login()
+            ->loginRouteSlug('giaphuoc57hv')
             ->brandName('Đa Khoa Cần Thơ CMS')
             ->sidebarCollapsibleOnDesktop()
             ->colors([
@@ -56,7 +57,7 @@ class AdminPanelProvider extends PanelProvider
                 DispatchServingFilamentEvent::class,
             ])
             ->authMiddleware([
-                Authenticate::class,
+                AdminAuthenticate::class,
             ])
             ->renderHook(
                 'panels::head.end',
