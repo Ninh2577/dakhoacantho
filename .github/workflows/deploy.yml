@@ -50,3 +50,4 @@ jobs:
           vendor/**
           tests/**
           storage/**
+          !storage/.htaccess
