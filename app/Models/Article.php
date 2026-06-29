@@ -133,9 +133,21 @@ class Article extends Model
             return $value;
         }
 
-        // 1. Resolve all /storage/uploads to dynamic asset path
+        // 0. Clean up accumulated duplicate domain prefixes from previous bugs
+        $domain = rtrim(config('app.url'), '/');
+        $escapedDomain = preg_quote($domain, '/');
+        $value = preg_replace('/(' . $escapedDomain . ')+/i', $domain, $value);
+
+        $requestDomain = rtrim(request()->getSchemeAndHttpHost(), '/');
+        if ($requestDomain !== $domain) {
+            $escapedRequestDomain = preg_quote($requestDomain, '/');
+            $value = preg_replace('/(' . $escapedRequestDomain . ')+/i', $requestDomain, $value);
+        }
+
+        // 1. Resolve relative /storage/uploads to dynamic asset path safely using regex
         $assetUrl = rtrim(asset('storage/uploads'), '/');
-        $value = str_replace('/storage/uploads', $assetUrl, $value);
+        $value = preg_replace('/(src|href)="\/storage\/uploads/i', '$1="' . $assetUrl, $value);
+        $value = preg_replace('/(src|href)="storage\/uploads/i', '$1="' . $assetUrl, $value);
 
         // 2. Resolve broken image URLs in content dynamically
         return preg_replace_callback('/(<img[^>]+src=")([^"]+)("[^>]*>)/i', function ($m) {
@@ -149,9 +161,17 @@ class Article extends Model
         $parsed = parse_url($url);
         $path = $parsed['path'] ?? '';
         
-        $prefix = '/dakhoacantho_web/public/';
-        if (strpos($path, $prefix) === 0) {
-            $path = substr($path, strlen($prefix));
+        $prefixes = [
+            '/dakhoacantho_web/public/',
+            '/benhtridkgp/public/',
+            '/' . basename(base_path()) . '/public/',
+            '/' . basename(base_path()) . '/',
+        ];
+        foreach ($prefixes as $prefix) {
+            if (strpos($path, $prefix) === 0) {
+                $path = substr($path, strlen($prefix));
+                break;
+            }
         }
         $path = ltrim($path, '/');
         
