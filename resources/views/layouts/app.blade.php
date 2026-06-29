@@ -2,7 +2,7 @@
 <html lang="vi" class="scroll-smooth">
 <head>
     <!-- Google Analytics (gtag.js) -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-44F46EFJN0"></script>
+    <!-- <script async src="https://www.googletagmanager.com/gtag/js?id=G-44F46EFJN0"></script> -->
     <script>
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}
