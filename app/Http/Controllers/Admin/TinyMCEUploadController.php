@@ -50,11 +50,63 @@ class TinyMCEUploadController extends Controller
         $extension = $file->getClientOriginalExtension();
         $fileName = Str::slug($originalName).'-'.time().'.'.$extension;
 
+        // --- Compress image using GD library ---
+        $filePath = $file->getRealPath();
+        $mimeType = $file->getMimeType();
+        $quality = 75;
+
+        if (in_array($mimeType, ['image/jpeg', 'image/png', 'image/webp'])) {
+            try {
+                switch ($mimeType) {
+                    case 'image/jpeg':
+                        $image = @imagecreatefromjpeg($filePath);
+                        if ($image) {
+                            imagejpeg($image, $filePath, $quality);
+                            imagedestroy($image);
+                        }
+                        break;
+                    case 'image/webp':
+                        $image = @imagecreatefromwebp($filePath);
+                        if ($image) {
+                            imagewebp($image, $filePath, $quality);
+                            imagedestroy($image);
+                        }
+                        break;
+                    case 'image/png':
+                        $image = @imagecreatefrompng($filePath);
+                        if ($image) {
+                            imagealphablending($image, false);
+                            imagesavealpha($image, true);
+                            imagepng($image, $filePath, 8); // PNG compression 8
+                            imagedestroy($image);
+                        }
+                        break;
+                }
+            } catch (\Exception $e) {
+                // Skip compression on error and keep original
+            }
+        }
+
         // Store file on the public disk
         $path = $file->storeAs("uploads/articles/{$year}/{$month}", $fileName, 'public');
 
         if (! $path) {
             return response()->json(['error' => 'Failed to store uploaded file.'], 500);
+        }
+
+        // --- Sync with Media Library (media_files table) ---
+        try {
+            clearstatcache(true, Storage::disk('public')->path($path));
+            $fileSize = Storage::disk('public')->size($path);
+
+            \App\Models\MediaFile::create([
+                'name' => $file->getClientOriginalName(),
+                'file_path' => $path,
+                'file_type' => $mimeType,
+                'file_size' => $fileSize,
+            ]);
+        } catch (\Exception $e) {
+            // Silence DB exceptions to not interrupt user's editor experience
         }
 
         // 4. Return correct JSON structure expected by TinyMCE

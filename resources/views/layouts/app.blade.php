@@ -1,9 +1,20 @@
 <!DOCTYPE html>
 <html lang="vi" class="scroll-smooth">
 <head>
+    <!-- Google Analytics (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-44F46EFJN0"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+
+        gtag('config', 'G-44F46EFJN0');
+    </script>
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="google-site-verification" content="2d5ot0pPjZ3YMvY3VRNUtqAWVkjyYu8oRzDHgbLsALY" />
     
     <!-- SEO Meta Tags -->
     <title>@yield('title', 'Phòng Khám Đa Khoa Cần Thơ')</title>
