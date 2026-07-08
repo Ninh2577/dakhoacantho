@@ -285,6 +285,7 @@
 
                 tinymce.init({
                     target: this.$refs.editor,
+                    entity_encoding: 'raw',
                     base_url: 'https://cdnjs.cloudflare.com/ajax/libs/tinymce/6.8.2',
                     suffix: '.min',
                     language: 'vi',

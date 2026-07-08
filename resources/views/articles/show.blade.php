@@ -6,8 +6,8 @@
     @php
         $rawDesc = $article->meta_description 
             ?? $article->excerpt 
-            ?? (trim(strip_tags($article->content ?? '')) !== '' ? Str::limit(strip_tags($article->content), 160) : $article->title);
-        $seoDesc = trim($rawDesc);
+            ?? (trim(strip_tags($article->content ?? '')) !== '' ? Str::limit(html_entity_decode(strip_tags($article->content), ENT_QUOTES, 'UTF-8'), 160) : $article->title);
+        $seoDesc = trim(html_entity_decode($rawDesc, ENT_QUOTES, 'UTF-8'));
         
         // OG image: use og_image if set, else thumbnail, else default
         $articleImage = $article->thumbnail_image ? asset('storage/' . $article->thumbnail_image) : asset('images/doctor.webp');
@@ -107,6 +107,24 @@
         max-width: 100%;
         height: auto;
         box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    }
+    /* Style for inline icons/GIFs/emojis inside rich-content */
+    .rich-content img[src*=".gif"],
+    .rich-content img[src*="icon"],
+    .rich-content img.inline,
+    .rich-content img[width="16"],
+    .rich-content img[width="20"],
+    .rich-content img[width="24"],
+    .rich-content img[width="30"],
+    .rich-content img[width="32"] {
+        display: inline-block !important;
+        vertical-align: middle;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        margin-left: 0.25rem;
+        margin-right: 0.25rem;
+        border-radius: 0 !important;
+        box-shadow: none !important;
     }
     .rich-content strong {
         color: #0f172a;
@@ -416,7 +434,7 @@
                                             <h4 class="text-sm font-extrabold text-slate-800 line-clamp-2 group-hover:text-clinic-teal transition-colors leading-snug">{{ $related->title }}</h4>
                                         </a>
                                         <p class="text-xs text-slate-500 line-clamp-2 leading-relaxed">
-                                            {{ trim(strip_tags($related->content)) !== '' ? Str::limit(strip_tags($related->content), 80) : $related->title }}
+                                            {{ trim(strip_tags($related->content)) !== '' ? Str::limit(html_entity_decode(strip_tags($related->content), ENT_QUOTES, 'UTF-8'), 80) : $related->title }}
                                         </p>
                                     </div>
                                     <span class="text-[11px] text-slate-400 font-semibold block pt-2">{{ $related->created_at->format('d/m/Y') }}</span>

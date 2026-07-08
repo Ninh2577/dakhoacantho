@@ -33,7 +33,7 @@ class ArticleSeoAnalyzerService
         $twitterImage = trim($article->twitter_image ?? '');
 
         // Pre-parse content details
-        $cleanContent = strip_tags($content);
+        $cleanContent = html_entity_decode(strip_tags($content), ENT_QUOTES, 'UTF-8');
         // Clean Vietnamese words
         $words = array_filter(explode(' ', preg_replace('/\s+/', ' ', $cleanContent)));
         $wordCount = count($words);

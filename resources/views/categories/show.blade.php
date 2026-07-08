@@ -98,7 +98,7 @@
                             </h2>
                             
                             <p class="text-sm text-slate-600 leading-relaxed line-clamp-3">
-                                {{ $featuredArticle->meta_description ?? Str::limit(strip_tags($featuredArticle->content), 150) }}
+                                {{ html_entity_decode($featuredArticle->meta_description ?? Str::limit(html_entity_decode(strip_tags($featuredArticle->content), ENT_QUOTES, 'UTF-8'), 150), ENT_QUOTES, 'UTF-8') }}
                             </p>
                         </div>
  

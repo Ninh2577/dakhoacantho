@@ -218,7 +218,7 @@ class SchemaBuilder
                     '@id' => $articleUrl.'#webpage',
                 ],
                 'headline' => $article->title,
-                'description' => $options['description'] ?? $article->meta_description ?? Str::limit(strip_tags($article->content), 150),
+                'description' => html_entity_decode($options['description'] ?? $article->meta_description ?? Str::limit(html_entity_decode(strip_tags($article->content), ENT_QUOTES, 'UTF-8'), 150), ENT_QUOTES, 'UTF-8'),
                 'image' => $articleImage,
                 'datePublished' => $pubDate,
                 'dateModified' => $modDate,

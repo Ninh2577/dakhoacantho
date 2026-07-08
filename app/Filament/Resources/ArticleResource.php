@@ -305,7 +305,7 @@ class ArticleResource extends Resource
                                                                     ->tooltip('Tạo từ nội dung bài viết')
                                                                     ->action(function (Forms\Set $set, Forms\Get $get) {
                                                                         $content = $get('content') ?? '';
-                                                                        $plain = preg_replace('/\s+/', ' ', strip_tags($content));
+                                                                        $plain = preg_replace('/\s+/', ' ', html_entity_decode(strip_tags($content), ENT_QUOTES, 'UTF-8'));
                                                                         $set('meta_description', mb_substr(trim($plain), 0, 155));
                                                                     })
                                                             )

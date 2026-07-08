@@ -5,9 +5,12 @@
     $articlesList = $articles->map(function($article) {
         $excerpt = trim($article->excerpt ?? '');
         if (empty($excerpt)) {
-            $excerpt = trim(strip_tags($article->content ?? ''));
+            $excerpt = html_entity_decode(strip_tags($article->content ?? ''), ENT_QUOTES, 'UTF-8');
             $excerpt = Str::limit($excerpt, 130);
+        } else {
+            $excerpt = html_entity_decode($excerpt, ENT_QUOTES, 'UTF-8');
         }
+        $excerpt = trim($excerpt);
         return [
             'id' => $article->id,
             'title' => $article->title,

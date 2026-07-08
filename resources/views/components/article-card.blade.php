@@ -32,7 +32,7 @@
             </h3>
 
             <p class="text-sm text-slate-600 line-clamp-3 leading-relaxed">
-                {{ $article->meta_description ?? Str::limit(strip_tags($article->content), 120) }}
+                {{ html_entity_decode($article->meta_description ?? Str::limit(html_entity_decode(strip_tags($article->content), ENT_QUOTES, 'UTF-8'), 120), ENT_QUOTES, 'UTF-8') }}
             </p>
         </div>
 
