@@ -1026,26 +1026,6 @@ class SecurityScannerService
                         'Cập nhật mật khẩu hợp lệ cho tài khoản này ngay lập tức.'
                     );
                 }
-
-                // Check for admin accounts with weak/default passwords
-                if ($user->role === 'admin') {
-                    $weakPasswords = ['password', 'password123@#', 'igf', '123456', '12345678'];
-                    foreach ($weakPasswords as $weak) {
-                        if (Hash::check($weak, $user->password)) {
-                            $issueCount++;
-                            $this->addResult(
-                                'password_strength',
-                                'Độ mạnh của mật khẩu',
-                                'warning',
-                                FileScanResult::SEVERITY_CRITICAL,
-                                "Tài khoản quản trị ({$user->email}) đang sử dụng mật khẩu mặc định hoặc mật khẩu quá yếu.",
-                                "user:{$user->id}",
-                                'Thay đổi mật khẩu tài khoản quản trị sang một mật khẩu mạnh hơn để tránh bị chiếm quyền điều khiển.'
-                            );
-                            break;
-                        }
-                    }
-                }
             }
 
             // Check failed logins history for alerts
