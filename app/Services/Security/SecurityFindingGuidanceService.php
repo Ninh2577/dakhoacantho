@@ -170,7 +170,7 @@ class SecurityFindingGuidanceService
                 break;
 
             case 'password_strength':
-                $whyFlagged = 'Mật khẩu yếu, tài khoản admin sử dụng mật khẩu mặc định (password), hoặc mã băm mật khẩu rỗng/lỗi là những kẽ hở lớn nhất để kẻ tấn công dò tìm mật khẩu (brute-force) và xâm nhập trang quản trị.';
+                $whyFlagged = 'Mật khẩu yếu, tài khoản admin sử dụng mật khẩu mặc định (), hoặc mã băm mật khẩu rỗng/lỗi là những kẽ hở lớn nhất để kẻ tấn công dò tìm mật khẩu (brute-force) và xâm nhập trang quản trị.';
                 $impact = 'Nguy hiểm cực kỳ nghiêm trọng (CRITICAL). Chiếm được tài khoản admin đồng nghĩa với việc kiểm soát hoàn toàn hệ thống.';
                 $falsePositiveHint = 'Không có cảnh báo giả cho mật khẩu yếu hay tài khoản admin dùng mật khẩu mặc định.';
 

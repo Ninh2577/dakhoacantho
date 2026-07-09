@@ -88,80 +88,6 @@ if (app()->environment('local')) {
         ]);
     });
 
-    Route::get('/db-test', function () {
-        $user = User::where('email', 'admin@dakhoacantho.com')->first();
-
-        if (request()->has('reset')) {
-            if (! $user) {
-                $user = User::create([
-                    'name' => 'Admin',
-                    'email' => 'admin@dakhoacantho.com',
-                    'password' => Hash::make('password'),
-                    'role' => 'admin',
-                ]);
-
-                return response()->json([
-                    'status' => 'success',
-                    'message' => 'Admin user created successfully with password "password"!',
-                    'user' => $user,
-                ]);
-            } else {
-                $user->password = Hash::make('password');
-                $user->save();
-
-                return response()->json([
-                    'status' => 'success',
-                    'message' => 'Admin user password reset to "password" successfully!',
-                    'user' => $user,
-                ]);
-            }
-        }
-
-        if (! $user) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'User admin@dakhoacantho.com does not exist in the database! Go to /db-test?reset=1 to create it.',
-            ]);
-        }
-
-        $password_matches = Hash::check('password', $user->password);
-
-        $implements_filament_user = $user instanceof FilamentUser;
-        $can_access_panel = 'N/A';
-        if ($implements_filament_user) {
-            try {
-                $panel = Filament::getCurrentPanel();
-                if (! $panel) {
-                    $panel = Filament::getPanel('admin');
-                }
-                $can_access_panel = $user->canAccessPanel($panel) ? 'YES' : 'NO';
-            } catch (Exception $e) {
-                $can_access_panel = 'ERROR: '.$e->getMessage();
-            }
-        }
-
-        $tables = [];
-        try {
-            $dbTables = DB::select('SHOW TABLES');
-            $tables = array_map(function ($table) {
-                return array_values((array) $table)[0];
-            }, $dbTables);
-        } catch (Exception $e) {
-            $tables = 'ERROR: '.$e->getMessage();
-        }
-
-        return response()->json([
-            'status' => 'success',
-            'user_found' => true,
-            'email' => $user->email,
-            'role' => $user->role,
-            'password_hash' => $user->password,
-            'password_matches_default_password' => $password_matches ? 'YES' : 'NO',
-            'implements_filament_user' => $implements_filament_user ? 'YES' : 'NO',
-            'can_access_panel' => $can_access_panel,
-            'database_tables' => $tables,
-        ]);
-    });
 
     Route::get('/request-test', function () {
         return response()->json([
@@ -180,35 +106,6 @@ if (app()->environment('local')) {
         ]);
     });
 
-    Route::get('/debug-login-run', function () {
-        $user = User::where('email', 'admin@dakhoacantho.com')->first();
-        if (! $user) {
-            return 'User not found';
-        }
-
-        // Log the user in
-        auth()->login($user);
-
-        // Set a session value
-        session(['test_auth' => 'authenticated_ok']);
-        session()->save();
-
-        return response()->json([
-            'authenticated' => auth()->check(),
-            'user_id' => auth()->id(),
-            'session_id' => session()->getId(),
-            'session_test_auth' => session('test_auth'),
-        ]);
-    });
-
-    Route::get('/debug-login-check', function () {
-        return response()->json([
-            'authenticated' => auth()->check(),
-            'user_id' => auth()->id(),
-            'session_id' => session()->getId(),
-            'session_test_auth' => session('test_auth'),
-        ]);
-    });
 
     Route::get('/debug-logs', function () {
         $routingServiceFile = app_path('Services/UrlRoutingService.php');

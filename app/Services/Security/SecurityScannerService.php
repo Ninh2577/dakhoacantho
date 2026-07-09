@@ -1036,7 +1036,7 @@ class SecurityScannerService
                             'Độ mạnh của mật khẩu',
                             'warning',
                             FileScanResult::SEVERITY_CRITICAL,
-                            "Tài khoản quản trị mặc định (admin@dakhoacantho.com) đang sử dụng mật khẩu mặc định 'password'.",
+                            "Tài khoản quản trị mặc định đang sử dụng mật khẩu mặc định",
                             "user:{$user->id}",
                             'Thay đổi mật khẩu tài khoản quản trị sang một mật khẩu mạnh hơn để tránh bị chiếm quyền điều khiển.'
                         );

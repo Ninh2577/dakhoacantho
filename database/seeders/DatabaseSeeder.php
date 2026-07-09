@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Article;
 use App\Models\Category;
-use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -17,29 +16,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create Admin User for Filament
-        User::create([
-            'name' => 'Admin',
-            'email' => 'admin@dakhoacantho.com',
-            'password' => bcrypt('password'),
-            'role' => 'admin',
-        ]);
 
-        User::create([
-            'name' => 'Admin VN',
-            'email' => 'admin@dakhoacantho.vn',
-            'password' => bcrypt('password123@#'),
-            'role' => 'admin',
-        ]);
-
-        User::create([
-            'name' => 'IGF Admin',
-            'email' => 'igf@dakhoacantho.vn',
-            'password' => bcrypt('igf'),
-            'role' => 'admin',
-        ]);
-
-        // User::factory(10)->create();
 
         // Create categories matching the mockups
         $catNamKhoa = Category::create([
