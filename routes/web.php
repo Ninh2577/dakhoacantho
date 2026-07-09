@@ -12,33 +12,36 @@ use App\Http\Controllers\PageController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\SitemapController;
 use App\Models\User;
+use App\Http\Controllers\Api\ArticleSyncController;
 use Filament\Facades\Filament;
 use Filament\Models\Contracts\FilamentUser;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 
+// API Sync Endpoint
+Route::get('/api/v1/sync/articles', [ArticleSyncController::class, 'getArticlesForSync']);
+
 Route::get('/my-test-debug', function () {
-    $article = \App\Models\Article::find(1222);
-    $logFile = storage_path('logs/laravel.log');
-    $matches = [];
-    if (file_exists($logFile)) {
-        $lines = file($logFile);
-        foreach ($lines as $line) {
-            if (strpos($line, 'MUTATE_BEFORE_SAVE_DEBUG') !== false ||
-                strpos($line, 'SAVE_START') !== false ||
-                strpos($line, 'SAVE_VALIDATION_FAILED') !== false ||
-                strpos($line, 'SAVE_FAILED_EXCEPTION') !== false ||
-                strpos($line, 'error') !== false ||
-                strpos($line, 'Exception') !== false
-            ) {
-                $matches[] = trim($line);
-            }
-        }
+    \Illuminate\Support\Facades\Artisan::call('config:clear');
+    \Illuminate\Support\Facades\Artisan::call('cache:clear');
+    
+    $dbConnection = config('database.default');
+    $dbConfig = config("database.connections.{$dbConnection}");
+    
+    $article = null;
+    $error = null;
+    try {
+        $article = \App\Models\Article::find(1222);
+    } catch (\Exception $e) {
+        $error = $e->getMessage();
     }
+    
     return response()->json([
+        'default_connection' => $dbConnection,
+        'config' => $dbConfig,
         'article' => $article ? $article->toArray() : null,
-        'save_logs' => array_slice($matches, -20)
+        'error' => $error,
     ]);
 });
 
