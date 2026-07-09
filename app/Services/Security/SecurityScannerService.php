@@ -1027,19 +1027,23 @@ class SecurityScannerService
                     );
                 }
 
-                // Check for default admin@dakhoacantho.com with default password "password"
-                if ($user->email === 'admin@dakhoacantho.com') {
-                    if (Hash::check('password', $user->password)) {
-                        $issueCount++;
-                        $this->addResult(
-                            'password_strength',
-                            'Độ mạnh của mật khẩu',
-                            'warning',
-                            FileScanResult::SEVERITY_CRITICAL,
-                            "Tài khoản quản trị mặc định đang sử dụng mật khẩu mặc định",
-                            "user:{$user->id}",
-                            'Thay đổi mật khẩu tài khoản quản trị sang một mật khẩu mạnh hơn để tránh bị chiếm quyền điều khiển.'
-                        );
+                // Check for admin accounts with weak/default passwords
+                if ($user->role === 'admin') {
+                    $weakPasswords = ['password', 'password123@#', 'igf', '123456', '12345678'];
+                    foreach ($weakPasswords as $weak) {
+                        if (Hash::check($weak, $user->password)) {
+                            $issueCount++;
+                            $this->addResult(
+                                'password_strength',
+                                'Độ mạnh của mật khẩu',
+                                'warning',
+                                FileScanResult::SEVERITY_CRITICAL,
+                                "Tài khoản quản trị ({$user->email}) đang sử dụng mật khẩu mặc định hoặc mật khẩu quá yếu.",
+                                "user:{$user->id}",
+                                'Thay đổi mật khẩu tài khoản quản trị sang một mật khẩu mạnh hơn để tránh bị chiếm quyền điều khiển.'
+                            );
+                            break;
+                        }
                     }
                 }
             }

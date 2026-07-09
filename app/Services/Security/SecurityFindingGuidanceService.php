@@ -170,13 +170,13 @@ class SecurityFindingGuidanceService
                 break;
 
             case 'password_strength':
-                $whyFlagged = 'Mật khẩu yếu, tài khoản admin sử dụng mật khẩu mặc định (), hoặc mã băm mật khẩu rỗng/lỗi là những kẽ hở lớn nhất để kẻ tấn công dò tìm mật khẩu (brute-force) và xâm nhập trang quản trị.';
+                $whyFlagged = 'Mật khẩu yếu, tài khoản admin sử dụng mật khẩu mặc định hoặc mật khẩu quá đơn giản, hoặc mã băm mật khẩu rỗng/lỗi là những kẽ hở lớn nhất để kẻ tấn công dò tìm mật khẩu (brute-force) và xâm nhập trang quản trị.';
                 $impact = 'Nguy hiểm cực kỳ nghiêm trọng (CRITICAL). Chiếm được tài khoản admin đồng nghĩa với việc kiểm soát hoàn toàn hệ thống.';
                 $falsePositiveHint = 'Không có cảnh báo giả cho mật khẩu yếu hay tài khoản admin dùng mật khẩu mặc định.';
 
                 $confidence = 'high';
-                array_unshift($manualChecks, 'Kiểm tra xem tài khoản admin@dakhoacantho.com có đổi mật khẩu mặc định chưa.', 'Kiểm tra nhật ký đăng nhập thất bại gần đây của hệ thống.');
-                array_unshift($remediationSteps, 'Đổi ngay mật khẩu của tài khoản admin@dakhoacantho.com thành mật khẩu mạnh (chứa chữ hoa, chữ thường, số và ký tự đặc biệt).', 'Kích hoạt chính sách mật khẩu mạnh trong Laravel và Filament.', 'Kích hoạt xác thực 2 lớp (2FA) cho toàn bộ tài khoản quản trị nếu có thể.');
+                array_unshift($manualChecks, 'Kiểm tra xem các tài khoản quản trị đã được đổi mật khẩu mặc định chưa.', 'Kiểm tra nhật ký đăng nhập thất bại gần đây của hệ thống.');
+                array_unshift($remediationSteps, 'Đổi ngay mật khẩu của các tài khoản quản trị thành mật khẩu mạnh (chứa chữ hoa, chữ thường, số và ký tự đặc biệt).', 'Kích hoạt chính sách mật khẩu mạnh trong Laravel và Filament.', 'Kích hoạt xác thực 2 lớp (2FA) cho toàn bộ tài khoản quản trị nếu có thể.');
                 break;
 
             case 'vulnerability_scan':
