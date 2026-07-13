@@ -6,6 +6,7 @@
         statePath: '{{ $getStatePath() }}',
         uploadUrl: '{{ route('admin.tinymce.upload-image') }}',
         searchUrl: '{{ route('admin.internal-links.search') }}',
+        mediaSearchUrl: '{{ route('admin.media-files.search') }}',
         csrfToken: '{{ csrf_token() }}',
         excludeId: '{{ optional($this->record)->id ?? '' }}'
     })" x-init="init()" x-on:destroy="destroy()" wire:ignore
@@ -49,6 +50,7 @@
                     statePath: config.statePath,
                     uploadUrl: config.uploadUrl,
                     searchUrl: config.searchUrl,
+                    mediaSearchUrl: config.mediaSearchUrl,
                     csrfToken: config.csrfToken,
                     excludeId: config.excludeId || '',
                     editorInstanceId: null,
@@ -243,6 +245,212 @@
                         }
                     },
 
+                    openGalleryDialog(editor) {
+                        let currentPage = 1;
+                        let lastPage = 1;
+                        let searchQuery = '';
+                        let isLoading = false;
+                        
+                        let dialogApi = editor.windowManager.open({
+                            title: 'Chọn ảnh từ Thư viện Media',
+                            size: 'large',
+                            body: {
+                                type: 'panel',
+                                items: [
+                                    {
+                                        type: 'input',
+                                        name: 'search_image',
+                                        label: 'Tìm kiếm ảnh',
+                                        placeholder: 'Nhập tên ảnh để tìm kiếm...'
+                                    },
+                                    {
+                                        type: 'htmlpanel',
+                                        html: `
+                                            \x3cdiv class="gallery-dialog-container" style="display: flex; flex-direction: column; gap: 15px; margin-top: 10px;"\x3e
+                                                <!-- Grid of Images -->
+                                                \x3cdiv id="tinymce-gallery-results" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; max-height: 380px; min-height: 200px; overflow-y: auto; padding: 10px; border: 1px solid #cbd5e1; border-radius: 6px; background: #f8fafc;"\x3e
+                                                    \x3cdiv style="grid-column: span 4; text-align: center; color: #64748b; padding: 20px;"\x3eĐang tải danh sách ảnh...\x3c/div\x3e
+                                                \x3c/div\x3e
+                                                
+                                                <!-- Pagination Footer -->
+                                                \x3cdiv style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid #e2e8f0; padding-top: 10px;"\x3e
+                                                    \x3cbutton type="button" id="gallery-prev-btn" class="tox-button tox-button--secondary" style="display: none;"\x3e« Trang trước\x3c/button\x3e
+                                                    \x3cdiv style="display: flex; align-items: center; gap: 4px; font-weight: 600; color: #475569; font-size: 13px;"\x3e
+                                                        Trang 
+                                                        \x3cinput type="number" id="gallery-page-input" value="1" min="1" max="1" style="width: 70px; height: 28px; padding: 2px 6px; border: 1px solid #cbd5e1; border-radius: 4px; font-weight: bold; text-align: center; outline: none; margin: 0 4px;" onfocus="this.style.borderColor='#3b82f6'" onblur="this.style.borderColor='#cbd5e1'" /\x3e
+                                                        / \x3cspan id="gallery-page-total"\x3e1\x3c/span\x3e
+                                                    \x3c/div\x3e
+                                                    \x3cbutton type="button" id="gallery-next-btn" class="tox-button tox-button--secondary" style="display: none;"\x3eTrang sau »\x3c/button\x3e
+                                                \x3c/div\x3e
+                                            \x3c/div\x3e
+                                        `
+                                    }
+                                ]
+                            },
+                            buttons: [
+                                { type: 'cancel', text: 'Đóng' }
+                            ]
+                        });
+
+                        const fetchImages = (page = 1, query = '') => {
+                            if (isLoading) return;
+                            isLoading = true;
+                            
+                            const resultsDiv = document.querySelector('#tinymce-gallery-results');
+                            if (resultsDiv) {
+                                resultsDiv.innerHTML = '\x3cdiv style="grid-column: span 4; text-align: center; color: #64748b; padding: 20px;"\x3eĐang tải...\x3c/div\x3e';
+                            }
+
+                            const url = new URL(this.mediaSearchUrl, window.location.origin);
+                            url.searchParams.append('page', page);
+                            url.searchParams.append('q', query);
+                            url.searchParams.append('limit', 12);
+
+                            fetch(url.toString(), {
+                                headers: {
+                                    'X-Requested-With': 'XMLHttpRequest'
+                                }
+                            })
+                            .then(res => res.json())
+                            .then(res => {
+                                isLoading = false;
+                                currentPage = res.current_page;
+                                lastPage = res.last_page;
+                                
+                                if (!resultsDiv) return;
+                                
+                                if (res.data.length === 0) {
+                                    resultsDiv.innerHTML = '\x3cdiv style="grid-column: span 4; text-align: center; color: #64748b; padding: 20px;"\x3eKhông tìm thấy hình ảnh nào.\x3c/div\x3e';
+                                    updatePagination();
+                                    return;
+                                }
+
+                                let html = '';
+                                res.data.forEach(img => {
+                                    html += `
+                                        \x3cdiv class="gallery-item-card" 
+                                             data-url="${img.url}" 
+                                             data-name="${img.name.replace(/"/g, '&quot;')}"
+                                             style="cursor: pointer; border: 1px solid #e2e8f0; border-radius: 8px; overflow: hidden; background: #fff; transition: all 0.2s; box-shadow: 0 1px 3px rgba(0,0,0,0.05);"
+                                             onmouseover="this.style.borderColor='#3b82f6'; this.style.transform='translateY(-2px)'"
+                                             onmouseout="this.style.borderColor='#e2e8f0'; this.style.transform='none'"\x3e
+                                            \x3cdiv style="width: 100%; height: 100px; background: #f1f5f9; display: flex; align-items: center; justify-content: center; overflow: hidden; border-bottom: 1px solid #f1f5f9;"\x3e
+                                                \x3cimg src="${img.url}" alt="${img.name.replace(/"/g, '&quot;')}" style="max-width: 100%; max-height: 100%; object-fit: contain;" onerror="this.src='https://ui-avatars.com/api/?name=IMG&color=7F9CF5&background=EBF4FF'" /\x3e
+                                            \x3c/div\x3e
+                                            \x3cdiv style="padding: 6px; font-size: 11px; color: #334155; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${img.name.replace(/"/g, '&quot;')}"\x3e
+                                                ${img.name}
+                                            \x3c/div\x3e
+                                        \x3c/div\x3e
+                                    `;
+                                });
+                                resultsDiv.innerHTML = html;
+                                
+                                const cards = resultsDiv.querySelectorAll('.gallery-item-card');
+                                cards.forEach(card => {
+                                    card.addEventListener('click', () => {
+                                        const imgUrl = card.getAttribute('data-url');
+                                        const imgName = card.getAttribute('data-name');
+                                        
+                                        const imgHtml = `\x3cfigure class="image"\x3e\x3cimg src="${imgUrl}" alt="${imgName}" /\x3e\x3cfigcaption\x3e${imgName}\x3c/figcaption\x3e\x3c/figure\x3e`;
+                                        editor.insertContent(imgHtml);
+                                        dialogApi.close();
+                                    });
+                                });
+
+                                updatePagination();
+                            })
+                            .catch(err => {
+                                isLoading = false;
+                                console.error('Fetch gallery images error:', err);
+                                if (resultsDiv) {
+                                    resultsDiv.innerHTML = '\x3cdiv style="grid-column: span 4; text-align: center; color: #ef4444; padding: 20px;"\x3eLỗi tải dữ liệu. Vui lòng thử lại.\x3c/div\x3e';
+                                }
+                            });
+                        };
+
+                        const updatePagination = () => {
+                            const prevBtn = document.querySelector('#gallery-prev-btn');
+                            const nextBtn = document.querySelector('#gallery-next-btn');
+                            const pageInput = document.querySelector('#gallery-page-input');
+                            const pageTotal = document.querySelector('#gallery-page-total');
+
+                            if (pageInput) {
+                                pageInput.value = currentPage;
+                                pageInput.max = lastPage;
+                            }
+                            if (pageTotal) {
+                                pageTotal.textContent = lastPage;
+                            }
+
+                            if (prevBtn) {
+                                prevBtn.style.display = currentPage > 1 ? 'block' : 'none';
+                            }
+                            if (nextBtn) {
+                                nextBtn.style.display = currentPage < lastPage ? 'block' : 'none';
+                            }
+                        };
+
+                        setTimeout(() => {
+                            fetchImages(1);
+
+                            const dialogEl = document.querySelector('.tox-dialog');
+                            if (dialogEl) {
+                                const searchInput = dialogEl.querySelector('input[placeholder="Nhập tên ảnh để tìm kiếm..."]');
+                                if (searchInput) {
+                                    let debounceTimer = null;
+                                    searchInput.addEventListener('input', () => {
+                                        clearTimeout(debounceTimer);
+                                        debounceTimer = setTimeout(() => {
+                                            searchQuery = searchInput.value.trim();
+                                            fetchImages(1, searchQuery);
+                                        }, 300);
+                                    });
+                                }
+
+                                const pageInput = dialogEl.querySelector('#gallery-page-input');
+                                if (pageInput) {
+                                    pageInput.addEventListener('change', () => {
+                                        let targetPage = parseInt(pageInput.value, 10);
+                                        if (!isNaN(targetPage) && targetPage >= 1 && targetPage <= lastPage) {
+                                            fetchImages(targetPage, searchQuery);
+                                        } else {
+                                            pageInput.value = currentPage;
+                                        }
+                                    });
+                                    pageInput.addEventListener('keydown', (e) => {
+                                        if (e.key === 'Enter') {
+                                            e.preventDefault();
+                                            let targetPage = parseInt(pageInput.value, 10);
+                                            if (!isNaN(targetPage) && targetPage >= 1 && targetPage <= lastPage) {
+                                                fetchImages(targetPage, searchQuery);
+                                            } else {
+                                                pageInput.value = currentPage;
+                                            }
+                                        }
+                                    });
+                                }
+
+                                const prevBtn = dialogEl.querySelector('#gallery-prev-btn');
+                                const nextBtn = dialogEl.querySelector('#gallery-next-btn');
+                                
+                                if (prevBtn) {
+                                    prevBtn.addEventListener('click', () => {
+                                        if (currentPage > 1) {
+                                            fetchImages(currentPage - 1, searchQuery);
+                                        }
+                                    });
+                                }
+                                if (nextBtn) {
+                                    nextBtn.addEventListener('click', () => {
+                                        if (currentPage < lastPage) {
+                                            fetchImages(currentPage + 1, searchQuery);
+                                        }
+                                    });
+                                }
+                            }
+                        }, 100);
+                    },
+
                     initEditor() {
                         let id = this.$refs.editor.id;
                         let element = this.$refs.editor;
@@ -288,7 +496,7 @@
                             remove_script_host: false,
                             menubar: 'file edit view insert format tools table',
                             plugins: 'advlist autolink lists link image charmap preview anchor searchreplace visualblocks code fullscreen insertdatetime media table help wordcount directionality emoticons codesample',
-                            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | blockquote | link image media table | removeformat searchreplace code preview fullscreen',
+                            toolbar: 'undo redo | blocks fontfamily fontsize | bold italic underline strikethrough | forecolor backcolor | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | blockquote | link image gallery media table | removeformat searchreplace code preview fullscreen',
                             // toolbar_sticky: false — Tắt hoàn toàn sticky toolbar
                             // Lý do: TinyMCE 6 sticky dùng position:fixed và tính left từ getBoundingClientRect()
                             // Trong Filament Tabs (race condition), getBoundingClientRect().left = 0
@@ -345,6 +553,15 @@
                             setup: (editor) => {
                                 // Save instance ID to refer in destroy() and watches
                                 this.editorInstanceId = editor.id;
+
+                                // Register gallery button
+                                editor.ui.registry.addButton('gallery', {
+                                    text: 'Thư viện',
+                                    tooltip: 'Chọn ảnh từ Thư viện',
+                                    onAction: () => {
+                                        this.openGalleryDialog(editor);
+                                    }
+                                });
 
                                 // Intercept clicks on figcaption to manually focus and select its content for editing
                                 editor.on('click', (e) => {

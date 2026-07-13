@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\ArticlePreviewController;
 use App\Http\Controllers\Admin\InternalLinkSearchController;
 use App\Http\Controllers\Admin\TinyMCEUploadController;
+use App\Http\Controllers\Admin\MediaFileApiController;
 use App\Http\Controllers\ArticleCommentController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\CategoryController;
@@ -143,6 +144,11 @@ Route::post('/admin/tinymce/upload-image', [TinyMCEUploadController::class, 'upl
 // TinyMCE admin internal links search API route
 Route::get('/admin/api/internal-links/search', [InternalLinkSearchController::class, 'search'])
     ->name('admin.internal-links.search')
+    ->middleware(['web', 'auth']);
+
+// TinyMCE admin media files search API route
+Route::get('/admin/api/media-files/search', [MediaFileApiController::class, 'search'])
+    ->name('admin.media-files.search')
     ->middleware(['web', 'auth']);
 
 // Article preview create route (supports POST for synchronous preview form submits)

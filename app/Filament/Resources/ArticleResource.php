@@ -389,8 +389,7 @@ class ArticleResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('id')
                     ->label('ID')
-                    ->sortable()
-                    ->searchable(),
+                    ->rowIndex(),
                 Tables\Columns\ImageColumn::make('thumbnail_image')
                     ->label('Ảnh')
                     ->disk('public'),
