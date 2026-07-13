@@ -562,4 +562,240 @@ button[aria-expanded] svg {
     font-size: 0.8125rem !important;
     font-weight: 500 !important;
 }
+
+/* === Premium Category Tree Page Overrides === */
+
+.filament-tree-page #nestable-menu {
+    gap: 0.75rem !important;
+    margin-bottom: 1.5rem !important;
+    display: flex !important;
+}
+
+.filament-tree-page #nestable-menu .btn-group {
+    display: flex !important;
+    gap: 0.5rem !important;
+}
+
+.filament-tree-page #nestable-menu button {
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    font-size: 0.8125rem !important;
+    transition: all 0.2s ease !important;
+}
+
+/* Save Button */
+.filament-tree-page #nestable-menu button[data-action="save"] {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25) !important;
+    border: none !important;
+}
+
+.filament-tree-page #nestable-menu button[data-action="save"]:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35) !important;
+}
+
+/* Expand / Collapse All */
+.filament-tree-page #nestable-menu button[data-action="expand-all"],
+.filament-tree-page #nestable-menu button[data-action="collapse-all"] {
+    border: 1px solid rgba(226, 232, 240, 0.8) !important;
+    background: #ffffff !important;
+    color: #475569 !important;
+}
+
+.filament-tree-page #nestable-menu button[data-action="expand-all"]:hover,
+.filament-tree-page #nestable-menu button[data-action="collapse-all"]:hover {
+    background: #f8fafc !important;
+    color: #0f172a !important;
+    border-color: rgba(99, 102, 241, 0.2) !important;
+}
+
+/* Create New Category Header Button */
+.fi-header-actions button,
+.fi-header-actions a {
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+    font-size: 0.8125rem !important;
+    transition: all 0.2s ease !important;
+    background: linear-gradient(135deg, #1e40af 0%, #1d4ed8 100%) !important;
+    box-shadow: 0 4px 12px rgba(30, 64, 175, 0.2) !important;
+    border: none !important;
+}
+
+.fi-header-actions button:hover,
+.fi-header-actions a:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 16px rgba(30, 64, 175, 0.3) !important;
+}
+
+/* Tree Rows */
+.filament-tree-row {
+    margin-bottom: 0.625rem !important;
+}
+
+.filament-tree-row .dd-handle {
+    height: 48px !important;
+    min-height: 48px !important;
+    border-radius: 10px !important;
+    border: 1px solid rgba(226, 232, 240, 0.8) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.01) !important;
+    background: #ffffff !important;
+    padding-left: 0 !important;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease !important;
+}
+
+.filament-tree-row .dd-handle:hover {
+    border-color: rgba(99, 102, 241, 0.2) !important;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.05) !important;
+}
+
+.dark .filament-tree-row .dd-handle {
+    background: #1e1b4b !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark .filament-tree-row .dd-handle:hover {
+    border-color: rgba(165, 180, 252, 0.15) !important;
+}
+
+/* Drag Handle Button (left-side) */
+.filament-tree-row .dd-handle > button {
+    height: 100% !important;
+    width: 32px !important;
+    background: #f8fafc !important;
+    border-right: 1px solid rgba(226, 232, 240, 0.8) !important;
+    border-radius: 10px 0 0 10px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    color: #94a3b8 !important;
+    padding: 0 !important;
+    transition: all 0.2s ease !important;
+}
+
+.filament-tree-row .dd-handle > button:hover {
+    background: #f1f5f9 !important;
+    color: #64748b !important;
+}
+
+.dark .filament-tree-row .dd-handle > button {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Content wrapper */
+.filament-tree-row .dd-content {
+    align-items: center !important;
+    padding-left: 0.75rem !important;
+    gap: 0.5rem !important;
+}
+
+/* Category Label Text */
+.filament-tree-row .filament-tree-row-display,
+.filament-tree-row .filament-tree-row-display span,
+.filament-tree-row .dd-content span {
+    font-size: 0.875rem !important;
+    font-weight: 600 !important;
+    color: #1e293b !important;
+}
+
+.dark .filament-tree-row .filament-tree-row-display,
+.dark .filament-tree-row .dd-content span {
+    color: #f1f5f9 !important;
+}
+
+/* --- Tree Hierarchical Connection Lines --- */
+.filament-tree .dd-list .dd-list {
+    padding-left: 24px !important; /* space for nesting */
+    position: relative !important;
+    border-left: 1.5px dashed rgba(99, 102, 241, 0.3) !important; /* dashed connection line */
+    margin-left: 16px !important;
+    margin-top: 0.25rem !important;
+    margin-bottom: 0.5rem !important;
+}
+
+.dark .filament-tree .dd-list .dd-list {
+    border-left: 1.5px dashed rgba(165, 180, 252, 0.2) !important;
+}
+
+/* Right side action buttons */
+.filament-tree-row .dd-nodrag.ml-auto {
+    display: flex !important;
+    gap: 0.375rem !important;
+    align-items: center !important;
+}
+
+/* Expand / Collapse Chevrons */
+.filament-tree-row .dd-item-btns button svg {
+    color: #64748b !important;
+    width: 1.125rem !important;
+    height: 1.125rem !important;
+    transition: transform 0.2s ease !important;
+}
+
+.filament-tree-row .dd-item-btns button:hover svg {
+    color: #6366f1 !important;
+    transform: scale(1.1) !important;
+}
+
+/* --- Edit & Delete Action Buttons --- */
+.filament-tree-row .filament-tree-icon-button-action {
+    width: 32px !important;
+    height: 32px !important;
+    border-radius: 8px !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border: 1px solid transparent !important;
+    background: transparent !important;
+    margin-left: 6px !important;
+}
+
+/* Edit Button Styling */
+.filament-tree-row .filament-tree-icon-button-action:has(svg[class*="pencil"]),
+.filament-tree-row .filament-tree-icon-button-action:has(svg[class*="edit"]),
+.filament-tree-row .filament-tree-icon-button-action.fi-color-primary,
+.filament-tree-row .filament-tree-icon-button-action.fi-color-custom:not(.fi-color-danger) {
+    color: #6366f1 !important; /* Premium Indigo */
+    background: rgba(99, 102, 241, 0.06) !important;
+    border-color: rgba(99, 102, 241, 0.12) !important;
+}
+
+.filament-tree-row .filament-tree-icon-button-action:has(svg[class*="pencil"]):hover,
+.filament-tree-row .filament-tree-icon-button-action:has(svg[class*="edit"]):hover,
+.filament-tree-row .filament-tree-icon-button-action.fi-color-primary:hover,
+.filament-tree-row .filament-tree-icon-button-action.fi-color-custom:not(.fi-color-danger):hover {
+    background: #6366f1 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3) !important;
+    border-color: #6366f1 !important;
+    transform: translateY(-2px) !important;
+}
+
+/* Delete Button Styling */
+.filament-tree-row .filament-tree-icon-button-action:has(svg[class*="trash"]),
+.filament-tree-row .filament-tree-icon-button-action.fi-color-danger {
+    color: #ef4444 !important; /* Premium Red */
+    background: rgba(239, 68, 68, 0.06) !important;
+    border-color: rgba(239, 68, 68, 0.12) !important;
+}
+
+.filament-tree-row .filament-tree-icon-button-action:has(svg[class*="trash"]):hover,
+.filament-tree-row .filament-tree-icon-button-action.fi-color-danger:hover {
+    background: #ef4444 !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3) !important;
+    border-color: #ef4444 !important;
+    transform: translateY(-2px) !important;
+}
+
+/* SVG icons inside action buttons */
+.filament-tree-row .filament-tree-icon-button-action svg {
+    width: 1rem !important;
+    height: 1rem !important;
+    color: inherit !important;
+    transition: transform 0.2s ease !important;
+}
 </style>
