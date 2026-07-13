@@ -24,6 +24,9 @@ class ArticleSyncSettings extends Page
     public ?string $apiUrl = null;
     public ?string $syncToken = null;
 
+    public bool $isConfirmed = false;
+    public string $password = '';
+
     public static function canAccess(): bool
     {
         return auth()->user() && auth()->user()->hasPermission(static::class);
@@ -37,27 +40,47 @@ class ArticleSyncSettings extends Page
 
     protected function getHeaderActions(): array
     {
-        return [
-            Action::make('regenerateToken')
-                ->label('Tạo lại Token mới')
-                ->color('warning')
-                ->requiresConfirmation()
-                ->action(function () {
-                    $newToken = Str::random(40);
-                    $this->updateEnvToken($newToken);
-                    
-                    $this->syncToken = $newToken;
-                    
-                    // Clear config cache to apply immediately in current request
-                    \Illuminate\Support\Facades\Artisan::call('config:clear');
-                    
-                    Notification::make()
-                        ->title('Đã tạo mới Token thành công!')
-                        ->body('Vui lòng copy Token mới này cấu hình vào website nhận.')
-                        ->success()
-                        ->send();
-                })
-        ];
+        return [];
+    }
+
+    public function regenerateToken(): void
+    {
+        if (! $this->isConfirmed) {
+            return;
+        }
+
+        $newToken = Str::random(40);
+        $this->updateEnvToken($newToken);
+        
+        $this->syncToken = $newToken;
+        
+        // Clear config cache to apply immediately in current request
+        \Illuminate\Support\Facades\Artisan::call('config:clear');
+        
+        Notification::make()
+            ->title('Đã tạo mới Token thành công!')
+            ->body('Vui lòng copy Token mới này cấu hình vào website nhận.')
+            ->success()
+            ->send();
+    }
+
+    public function confirmPassword(): void
+    {
+        $this->validate([
+            'password' => 'required',
+        ]);
+
+        if (\Illuminate\Support\Facades\Hash::check($this->password, auth()->user()->password)) {
+            $this->isConfirmed = true;
+            $this->password = ''; // clear password state
+            
+            Notification::make()
+                ->title('Xác thực bảo mật thành công!')
+                ->success()
+                ->send();
+        } else {
+            $this->addError('password', 'Mật khẩu xác thực không chính xác.');
+        }
     }
 
     protected function updateEnvToken(string $value): void

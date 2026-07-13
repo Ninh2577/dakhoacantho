@@ -1125,4 +1125,178 @@ button[aria-expanded] svg {
     background: #05070c !important;
     border: 1px solid rgba(255, 255, 255, 0.04) !important;
 }
+
+/* === Premium API Sync Settings Page Overrides === */
+
+/* 1. Security Lock Screen Card */
+.fi-api-sync-page .fi-lock-card {
+    background: #ffffff !important;
+    border: 1px solid rgba(226, 232, 240, 0.8) !important;
+    box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.04), 0 8px 10px -6px rgba(0, 0, 0, 0.04) !important;
+}
+
+.dark .fi-api-sync-page .fi-lock-card {
+    background: #111827 !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* 2. Top Banner Card */
+.fi-api-sync-page .fi-info-banner {
+    background: linear-gradient(135deg, #1e1b4b 0%, #311042 100%) !important; /* deep rich indigo/purple */
+    color: #ffffff !important;
+    border: 1px solid rgba(99, 102, 241, 0.15) !important;
+}
+
+.fi-api-sync-page .fi-info-banner h4 {
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}
+
+.fi-api-sync-page .fi-info-banner p {
+    color: #cbd5e1 !important; /* high contrast slate text */
+}
+
+/* 3. Developer Console Terminal Card */
+.fi-api-sync-page .fi-terminal-card {
+    background: #0f172a !important; /* Slate 900 code terminal background */
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    color: #cbd5e1 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25) !important;
+}
+
+.dark .fi-api-sync-page .fi-terminal-card {
+    background: #090d16 !important; /* deep pitch black code terminal in dark mode */
+}
+
+.fi-api-sync-page .fi-terminal-card label {
+    color: #94a3b8 !important; /* light slate labels */
+}
+
+.fi-api-sync-page .fi-terminal-card .fi-terminal-header {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+}
+
+/* Terminal input codes */
+.fi-api-sync-page .fi-code-box {
+    background: #090d16 !important; /* deep pitch black */
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    color: #38bdf8 !important; /* clean light blue code text */
+}
+
+.dark .fi-api-sync-page .fi-code-box {
+    background: #05070c !important;
+}
+
+.fi-api-sync-page .fi-code-box button {
+    color: #64748b !important;
+}
+
+.fi-api-sync-page .fi-code-box button:hover {
+    color: #34d399 !important; /* neon emerald on hover */
+}
+
+/* === Security Lock Form Design === */
+.fi-api-sync-page .fi-lock-card {
+    max-width: 400px !important;
+    margin: 3rem auto !important;
+    background: #ffffff !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.04) !important;
+    border-radius: 20px !important;
+    padding: 2.5rem 2rem !important;
+}
+
+.dark .fi-api-sync-page .fi-lock-card {
+    background: #111827 !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 10px 10px -5px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Custom Password Input Wrapper */
+.fi-api-sync-page .fi-lock-input-wrapper {
+    position: relative !important;
+    margin-top: 1.5rem !important;
+    margin-bottom: 1.5rem !important;
+}
+
+.fi-api-sync-page .fi-lock-input {
+    width: 100% !important;
+    padding: 0.75rem 1rem 0.75rem 2.75rem !important; /* space for left icon */
+    background: #f8fafc !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 12px !important;
+    font-size: 0.875rem !important;
+    color: #0f172a !important;
+    transition: all 0.2s ease-in-out !important;
+    outline: none !important;
+}
+
+.dark .fi-api-sync-page .fi-lock-input {
+    background: #090d16 !important;
+    border: 1px solid #1e293b !important;
+    color: #f8fafc !important;
+}
+
+.fi-api-sync-page .fi-lock-input:focus {
+    border-color: #6366f1 !important;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15) !important;
+    background: #ffffff !important;
+}
+
+.dark .fi-api-sync-page .fi-lock-input:focus {
+    background: #090d16 !important;
+}
+
+/* Left & Right Icons inside Input */
+.fi-api-sync-page .fi-lock-input-icon-left {
+    position: absolute !important;
+    left: 0.875rem !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    color: #64748b !important;
+    pointer-events: none !important;
+}
+
+.fi-api-sync-page .fi-lock-input-icon-right {
+    position: absolute !important;
+    right: 0.875rem !important;
+    top: 50% !important;
+    transform: translateY(-50%) !important;
+    color: #64748b !important;
+    cursor: pointer !important;
+    transition: color 0.15s ease !important;
+    background: none !important;
+    border: none !important;
+    padding: 0 !important;
+}
+
+.fi-api-sync-page .fi-lock-input-icon-right:hover {
+    color: #6366f1 !important;
+}
+
+/* Custom Unlock Button */
+.fi-api-sync-page .fi-lock-btn {
+    width: 100% !important;
+    padding: 0.75rem 1.5rem !important;
+    background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+    border-radius: 12px !important;
+    border: none !important;
+    cursor: pointer !important;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25) !important;
+    transition: all 0.2s ease-in-out !important;
+    text-align: center !important;
+    display: block !important;
+}
+
+.fi-api-sync-page .fi-lock-btn:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.35) !important;
+}
+
+.fi-api-sync-page .fi-lock-btn:active {
+    transform: translateY(1px) !important;
+}
 </style>
