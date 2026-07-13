@@ -1,5 +1,7 @@
 <x-filament-panels::page>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+
 <style>
     .cms-reports-grid {
         display: grid;
@@ -42,7 +44,7 @@
     <div>
         <p class="text-sm text-gray-500 font-medium">Theo dõi và phân tích hiệu suất nội dung của website Phòng Khám Đa Khoa Cần Thơ</p>
     </div>
-    <div class="flex items-center gap-2 self-start md:self-auto bg-gray-150 p-1 rounded-xl" style="background-color: #f1f5f9; padding: 4px;">
+    <div class="flex items-center gap-2 self-start md:self-auto bg-gray-100 p-1 rounded-xl" style="background-color: #f1f5f9; padding: 4px;">
         @foreach(['today' => 'Hôm nay', '7' => '7 ngày', '30' => '30 ngày', 'month' => 'Tháng này'] as $key => $label)
             <button
                 wire:click="setRange('{{ $key }}')"
@@ -135,7 +137,7 @@
 </div>
 
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
-    {{-- Trend Chart --}}
+    {{-- Trend Chart with Alpine.js --}}
     <div class="bg-white rounded-xl border border-gray-200/80 shadow-sm p-6 lg:col-span-2">
         <div class="flex items-center justify-between mb-6">
             <div class="flex items-center gap-2">
@@ -156,8 +158,99 @@
                 </div>
             </div>
         </div>
-        <div style="position:relative; height:240px;">
-            <canvas id="cmsTrendChart"></canvas>
+        <div 
+            id="cmsTrendChartContainer"
+            x-data="{}"
+            x-init="
+                window.renderCmsChart = function() {
+                    if (typeof Chart === 'undefined') {
+                        setTimeout(window.renderCmsChart, 100);
+                        return;
+                    }
+
+                    const canvas = document.getElementById('cmsTrendChart');
+                    const container = document.getElementById('cmsTrendChartContainer');
+                    if (!canvas || !container) return;
+                    
+                    const labels = JSON.parse(container.getAttribute('data-labels') || '[]');
+                    const articles = JSON.parse(container.getAttribute('data-articles') || '[]');
+                    const comments = JSON.parse(container.getAttribute('data-comments') || '[]');
+
+                    const oldChart = Chart.getChart(canvas);
+                    if (oldChart) {
+                        oldChart.destroy();
+                    }
+                    
+                    const ctx = canvas.getContext('2d');
+                    const blueGradient = ctx.createLinearGradient(0, 0, 0, 240);
+                    blueGradient.addColorStop(0, 'rgba(59, 130, 246, 0.2)');
+                    blueGradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
+
+                    const greenGradient = ctx.createLinearGradient(0, 0, 0, 240);
+                    greenGradient.addColorStop(0, 'rgba(16, 185, 129, 0.2)');
+                    greenGradient.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
+
+                    new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [
+                                {
+                                    label: 'Bài viết mới',
+                                    data: articles,
+                                    borderColor: '#3b82f6',
+                                    backgroundColor: blueGradient,
+                                    borderWidth: 3,
+                                    pointRadius: 4,
+                                    pointHoverRadius: 6,
+                                    fill: true,
+                                    tension: 0.35,
+                                },
+                                {
+                                    label: 'Bình luận mới',
+                                    data: comments,
+                                    borderColor: '#10b981',
+                                    backgroundColor: greenGradient,
+                                    borderWidth: 3,
+                                    pointRadius: 4,
+                                    pointHoverRadius: 6,
+                                    fill: true,
+                                    tension: 0.35,
+                                }
+                            ]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: { 
+                                legend: { display: false } 
+                            },
+                            scales: {
+                                x: {
+                                    grid: { display: false }
+                                },
+                                y: { 
+                                    beginAtZero: true, 
+                                    ticks: { stepSize: 1 } 
+                                }
+                            }
+                        }
+                    });
+                };
+                $nextTick(() => { window.renderCmsChart(); });
+            "
+            x-effect="
+                const trigger = '{{ microtime() }}';
+                if (window.renderCmsChart) {
+                    window.renderCmsChart();
+                }
+            "
+            data-labels="{{ json_encode($trend['labels']) }}"
+            data-articles="{{ json_encode($trend['articles']) }}"
+            data-comments="{{ json_encode($trend['comments']) }}"
+            style="position:relative; height:240px;"
+        >
+            <canvas id="cmsTrendChart" wire:ignore></canvas>
         </div>
     </div>
 
@@ -241,147 +334,5 @@
         @endif
     </div>
 </div>
-
-@push('scripts')
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
-<script>
-document.addEventListener('DOMContentLoaded', function () {
-    const canvas = document.getElementById('cmsTrendChart');
-    if (!canvas) return;
-
-    const labels = @json($trend['labels']);
-    const articles = @json($trend['articles']);
-    const comments = @json($trend['comments']);
-
-    const ctx = canvas.getContext('2d');
-    
-    // Gradients
-    const blueGradient = ctx.createLinearGradient(0, 0, 0, 240);
-    blueGradient.addColorStop(0, 'rgba(59, 130, 246, 0.2)');
-    blueGradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
-
-    const greenGradient = ctx.createLinearGradient(0, 0, 0, 240);
-    greenGradient.addColorStop(0, 'rgba(16, 185, 129, 0.2)');
-    greenGradient.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
-
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels,
-            datasets: [
-                {
-                    label: 'Bài viết mới',
-                    data: articles,
-                    borderColor: '#3b82f6',
-                    backgroundColor: blueGradient,
-                    borderWidth: 3,
-                    pointRadius: 4,
-                    pointHoverRadius: 6,
-                    fill: true,
-                    tension: 0.35,
-                },
-                {
-                    label: 'Bình luận mới',
-                    data: comments,
-                    borderColor: '#10b981',
-                    backgroundColor: greenGradient,
-                    borderWidth: 3,
-                    pointRadius: 4,
-                    pointHoverRadius: 6,
-                    fill: true,
-                    tension: 0.35,
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { 
-                legend: { display: false } 
-            },
-            scales: {
-                x: {
-                    grid: { display: false }
-                },
-                y: { 
-                    beginAtZero: true, 
-                    ticks: { stepSize: 1 } 
-                }
-            }
-        }
-    });
-});
-
-// Re-init chart after Livewire updates
-document.addEventListener('livewire:updated', function () {
-    const canvas = document.getElementById('cmsTrendChart');
-    if (!canvas) return;
-    
-    const old = Chart.getChart(canvas);
-    if (old) old.destroy();
-
-    const labels = @json($trend['labels']);
-    const articles = @json($trend['articles']);
-    const comments = @json($trend['comments']);
-
-    const ctx = canvas.getContext('2d');
-    
-    const blueGradient = ctx.createLinearGradient(0, 0, 0, 240);
-    blueGradient.addColorStop(0, 'rgba(59, 130, 246, 0.2)');
-    blueGradient.addColorStop(1, 'rgba(59, 130, 246, 0.0)');
-
-    const greenGradient = ctx.createLinearGradient(0, 0, 0, 240);
-    greenGradient.addColorStop(0, 'rgba(16, 185, 129, 0.2)');
-    greenGradient.addColorStop(1, 'rgba(16, 185, 129, 0.0)');
-
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels,
-            datasets: [
-                {
-                    label: 'Bài viết mới',
-                    data: articles,
-                    borderColor: '#3b82f6',
-                    backgroundColor: blueGradient,
-                    borderWidth: 3,
-                    pointRadius: 4,
-                    pointHoverRadius: 6,
-                    fill: true,
-                    tension: 0.35,
-                },
-                {
-                    label: 'Bình luận mới',
-                    data: comments,
-                    borderColor: '#10b981',
-                    backgroundColor: greenGradient,
-                    borderWidth: 3,
-                    pointRadius: 4,
-                    pointHoverRadius: 6,
-                    fill: true,
-                    tension: 0.35,
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: { 
-                legend: { display: false } 
-            },
-            scales: {
-                x: {
-                    grid: { display: false }
-                },
-                y: { 
-                    beginAtZero: true, 
-                    ticks: { stepSize: 1 } 
-                }
-            }
-        }
-    });
-});
-</script>
-@endpush
 
 </x-filament-panels::page>
