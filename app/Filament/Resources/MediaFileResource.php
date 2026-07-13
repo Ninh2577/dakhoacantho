@@ -22,7 +22,8 @@ class MediaFileResource extends Resource
         return auth()->user() && auth()->user()->hasPermission(static::class);
     }
 
-    protected static ?string $navigationIcon = 'heroicon-o-photo';
+    protected static ?string $navigationIcon = 'heroicon-o-film';
+    protected static ?string $activeNavigationIcon = 'heroicon-m-film';
 
     protected static ?string $navigationLabel = 'Thư viện Media';
 

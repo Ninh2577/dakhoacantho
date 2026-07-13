@@ -17,7 +17,8 @@ class ReportsAnalytics extends Page
         return auth()->user() && auth()->user()->hasPermission(static::class);
     }
 
-    protected static ?string $navigationIcon = 'heroicon-o-chart-bar';
+    protected static ?string $navigationIcon = 'heroicon-o-chart-bar-square';
+    protected static ?string $activeNavigationIcon = 'heroicon-m-chart-bar-square';
 
     protected static ?string $navigationLabel = 'Báo cáo & Phân tích';
 

@@ -23,7 +23,8 @@ class CategoryResource extends Resource
         return auth()->user() && auth()->user()->hasPermission(static::class);
     }
 
-    protected static ?string $navigationIcon = 'heroicon-o-folder';
+    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    protected static ?string $activeNavigationIcon = 'heroicon-m-rectangle-stack';
 
     protected static ?string $navigationLabel = 'Danh mục';
 

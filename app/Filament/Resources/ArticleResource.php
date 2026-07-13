@@ -36,7 +36,8 @@ class ArticleResource extends Resource
         return auth()->user() && auth()->user()->hasPermission(static::class);
     }
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
+    protected static ?string $navigationIcon = 'heroicon-o-newspaper';
+    protected static ?string $activeNavigationIcon = 'heroicon-m-newspaper';
 
     protected static ?string $navigationLabel = 'Bài viết';
 

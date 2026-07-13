@@ -23,6 +23,7 @@ class ArticleCommentResource extends Resource
     }
 
     protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-left-right';
+    protected static ?string $activeNavigationIcon = 'heroicon-m-chat-bubble-left-right';
 
     protected static ?string $navigationLabel = 'Bình luận bài viết';
 

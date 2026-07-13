@@ -20,7 +20,8 @@ class RolePermissions extends Page implements HasForms
 {
     use InteractsWithForms;
 
-    protected static ?string $navigationIcon = 'heroicon-o-key';
+    protected static ?string $navigationIcon = 'heroicon-o-lock-open';
+    protected static ?string $activeNavigationIcon = 'heroicon-m-lock-open';
 
     protected static string $view = 'filament.pages.role-permissions';
 

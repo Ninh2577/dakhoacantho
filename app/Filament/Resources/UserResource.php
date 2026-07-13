@@ -22,7 +22,8 @@ class UserResource extends Resource
         return auth()->user() && auth()->user()->hasPermission(static::class);
     }
 
-    protected static ?string $navigationIcon = 'heroicon-o-users';
+    protected static ?string $navigationIcon = 'heroicon-o-user-circle';
+    protected static ?string $activeNavigationIcon = 'heroicon-m-user-circle';
 
     protected static ?string $navigationLabel = 'Người dùng';
 
