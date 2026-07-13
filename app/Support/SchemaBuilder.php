@@ -40,6 +40,7 @@ class SchemaBuilder
         }
 
         $sameAs = array_filter([
+            \App\Models\Setting::site('facebook_url'),
             \App\Models\Setting::site('youtube_url'),
             \App\Models\Setting::site('zalo_url'),
             \App\Models\Setting::site('tiktok_url'),
@@ -59,34 +60,62 @@ class SchemaBuilder
         }
 
         // 1. Organization / MedicalClinic / LocalBusiness combined node
-        $organization = [
-            '@context' => 'https://schema.org',
-            '@type' => 'MedicalBusiness',
-            '@id' => $siteUrl.'/#organization',
-            'name' => \App\Models\Setting::site('clinic_name'),
-            'alternateName' => \App\Models\Setting::site('clinic_short_name'),
-            'url' => $siteUrl,
-            'logo' => $logoUrl,
-            'image' => $logoUrl,
-            'description' => \App\Models\Setting::get('site_description') ?: 'Chia sẻ các tin tức sức khỏe - tư vấn và đưa ra những kiến thức bổ ích về : Bệnh nam khoa, phụ khoa, bệnh trĩ, sức khỏe sinh sản, bệnh xã hội,...',
-            'address' => [
-                '@type' => 'PostalAddress',
-                'streetAddress' => $streetAddress,
-                'addressLocality' => $addressLocality,
-                'addressRegion' => $addressRegion,
-                'postalCode' => '900000',
-                'addressCountry' => 'VietNam',
-            ],
-            'openingHoursSpecification' => [
-                '@type' => 'OpeningHoursSpecification',
-                'dayOfWeek' => [
-                    'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
+        $organization = null;
+        if (\App\Models\Setting::site('override_schema')) {
+            $customJson = \App\Models\Setting::site('custom_schema_json');
+            if (! empty($customJson)) {
+                $decoded = json_decode($customJson, true);
+                if (json_last_error() === JSON_ERROR_NONE) {
+                    if (isset($decoded['@graph'][0])) {
+                        $organization = $decoded['@graph'][0];
+                    } elseif (isset($decoded['@graph'])) {
+                        $organization = $decoded['@graph'];
+                    } else {
+                        $organization = $decoded;
+                    }
+                }
+            }
+        }
+
+        if (empty($organization)) {
+            $organization = [
+                '@context' => 'https://schema.org',
+                '@type' => 'MedicalBusiness',
+                '@id' => $siteUrl.'/#organization',
+                'name' => \App\Models\Setting::site('clinic_name'),
+                'alternateName' => \App\Models\Setting::site('clinic_short_name'),
+                'url' => $siteUrl,
+                'logo' => \App\Models\Setting::site('logo_url') ?: $logoUrl,
+                'image' => \App\Models\Setting::site('logo_url') ?: $logoUrl,
+                'description' => \App\Models\Setting::site('site_description') ?: 'Chia sẻ các tin tức sức khỏe - tư vấn và đưa ra những kiến thức bổ ích về : Bệnh nam khoa, phụ khoa, bệnh trĩ, sức khỏe sinh sản, bệnh xã hội,...',
+                'telephone' => $phoneE164,
+                'email' => \App\Models\Setting::site('email'),
+                'priceRange' => \App\Models\Setting::site('price_range') ?: '$$',
+                'address' => [
+                    '@type' => 'PostalAddress',
+                    'streetAddress' => $streetAddress,
+                    'addressLocality' => $addressLocality,
+                    'addressRegion' => $addressRegion,
+                    'postalCode' => '900000',
+                    'addressCountry' => 'VietNam',
                 ],
-                'opens' => $opens,
-                'closes' => $closes,
-            ],
-            'areaServed' => $addressRegion,
-        ];
+                'geo' => [
+                    '@type' => 'GeoCoordinates',
+                    'latitude' => \App\Models\Setting::site('latitude'),
+                    'longitude' => \App\Models\Setting::site('longitude'),
+                ],
+                'openingHoursSpecification' => [
+                    '@type' => 'OpeningHoursSpecification',
+                    'dayOfWeek' => [
+                        'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday',
+                    ],
+                    'opens' => $opens,
+                    'closes' => $closes,
+                ],
+                'sameAs' => array_values($sameAs),
+                'areaServed' => $addressRegion,
+            ];
+        }
 
         // 2. WebSite Node
         $website = [

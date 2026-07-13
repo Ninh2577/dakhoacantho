@@ -912,7 +912,8 @@ button[aria-expanded] svg {
 /* === Premium Role Permissions Page Overrides === */
 
 /* Tabs segmented controller styling */
-.fi-role-permissions-page .fi-tabs {
+.fi-role-permissions-page .fi-tabs,
+.fi-schema-settings-page .fi-tabs {
     background: #f1f5f9 !important; /* light slate */
     border-radius: 12px !important;
     padding: 6px !important;
@@ -923,12 +924,14 @@ button[aria-expanded] svg {
     width: auto !important;
 }
 
-.dark .fi-role-permissions-page .fi-tabs {
+.dark .fi-role-permissions-page .fi-tabs,
+.dark .fi-schema-settings-page .fi-tabs {
     background: rgba(255, 255, 255, 0.03) !important;
     border: 1px solid rgba(255, 255, 255, 0.05) !important;
 }
 
-.fi-role-permissions-page .fi-tabs-item {
+.fi-role-permissions-page .fi-tabs-item,
+.fi-schema-settings-page .fi-tabs-item {
     border-radius: 8px !important;
     padding: 0.5rem 1.25rem !important;
     font-weight: 600 !important;
@@ -939,30 +942,35 @@ button[aria-expanded] svg {
     transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
-.fi-role-permissions-page .fi-tabs-item:hover {
+.fi-role-permissions-page .fi-tabs-item:hover,
+.fi-schema-settings-page .fi-tabs-item:hover {
     color: #0f172a !important;
     background: rgba(255, 255, 255, 0.5) !important;
 }
 
-.dark .fi-role-permissions-page .fi-tabs-item:hover {
+.dark .fi-role-permissions-page .fi-tabs-item:hover,
+.dark .fi-schema-settings-page .fi-tabs-item:hover {
     color: #ffffff !important;
     background: rgba(255, 255, 255, 0.05) !important;
 }
 
-.fi-role-permissions-page .fi-tabs-item.fi-active {
+.fi-role-permissions-page .fi-tabs-item.fi-active,
+.fi-schema-settings-page .fi-tabs-item.fi-active {
     background: #ffffff !important;
     color: #6366f1 !important;
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.02) !important;
 }
 
-.dark .fi-role-permissions-page .fi-tabs-item.fi-active {
+.dark .fi-role-permissions-page .fi-tabs-item.fi-active,
+.dark .fi-schema-settings-page .fi-tabs-item.fi-active {
     background: #1e1b4b !important;
     color: #a5b4fc !important;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
 }
 
 /* Inner form card panels */
-.fi-role-permissions-page .fi-fo-tabs > div:last-child {
+.fi-role-permissions-page .fi-fo-tabs > div:last-child,
+.fi-schema-settings-page .fi-fo-tabs > div:last-child {
     background: transparent !important;
     border: none !important;
     padding: 0 !important;
@@ -1082,5 +1090,39 @@ button[aria-expanded] svg {
 .fi-role-permissions-page button[type="submit"]:hover {
     transform: translateY(-1px) !important;
     box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35) !important;
+}
+
+/* --- Code Block & JSON-LD Previews --- */
+.fi-fo-placeholder pre {
+    font-family: 'Fira Code', 'Courier New', Courier, monospace !important;
+    background: #090d16 !important; /* deep dark blue */
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    color: #34d399 !important; /* Emerald green text */
+    box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.6) !important;
+    border-radius: 12px !important;
+    padding: 1.25rem !important;
+}
+
+.dark .fi-fo-placeholder pre {
+    background: #05070c !important;
+    border: 1px solid rgba(255, 255, 255, 0.03) !important;
+}
+
+/* Monospace Textarea Code Editor */
+.fi-fo-textarea textarea.font-mono {
+    font-family: 'Fira Code', 'Courier New', Courier, monospace !important;
+    background: #090d16 !important;
+    color: #34d399 !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
+    box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.6) !important;
+    border-radius: 12px !important;
+    padding: 1.25rem !important;
+    font-size: 11px !important;
+    line-height: 1.6 !important;
+}
+
+.dark .fi-fo-textarea textarea.font-mono {
+    background: #05070c !important;
+    border: 1px solid rgba(255, 255, 255, 0.04) !important;
 }
 </style>
