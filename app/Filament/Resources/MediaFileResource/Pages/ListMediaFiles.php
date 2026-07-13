@@ -27,6 +27,7 @@ class ListMediaFiles extends ListRecords
 
                         $scannedCount = 0;
                         $syncedCount = 0;
+                        $cleanedCount = 0;
 
                         if (preg_match('/Total scanned:\s*(\d+)/i', $output, $scannedMatches)) {
                             $scannedCount = (int) $scannedMatches[1];
@@ -34,10 +35,18 @@ class ListMediaFiles extends ListRecords
                         if (preg_match('/Newly synced:\s*(\d+)/i', $output, $syncedMatches)) {
                             $syncedCount = (int) $syncedMatches[1];
                         }
+                        if (preg_match('/Obsolete cleaned:\s*(\d+)/i', $output, $cleanedMatches)) {
+                            $cleanedCount = (int) $cleanedMatches[1];
+                        }
+
+                        $bodyText = "Đã quét hoàn tất **" . number_format($scannedCount) . "** tệp tin trên đĩa.\nĐồng bộ mới thành công **" . number_format($syncedCount) . "** ảnh/tài liệu.";
+                        if ($cleanedCount > 0) {
+                            $bodyText .= "\nĐã dọn dẹp **" . number_format($cleanedCount) . "** tệp tin bị thiếu khỏi database.";
+                        }
 
                         Notification::make()
                             ->title('Đồng bộ thành công!')
-                            ->body("Đã quét hoàn tất **" . number_format($scannedCount) . "** tệp tin.\nĐồng bộ mới thành công **" . number_format($syncedCount) . "** ảnh/tài liệu vào Thư viện.")
+                            ->body($bodyText)
                             ->success()
                             ->send();
                     } catch (\Exception $e) {

@@ -126,9 +126,32 @@ class SyncMediaFiles extends Command
             $syncedCount += $inserted;
         }
 
+        // Clean up obsolete database records (files in DB but missing on disk)
+        $this->info("Checking for obsolete media records in database...");
+        $allDbFiles = MediaFile::select(['id', 'file_path'])->get();
+        $obsoleteIds = [];
+        $publicStoragePath = storage_path('app/public');
+        
+        foreach ($allDbFiles as $dbFile) {
+            $fullPath = $publicStoragePath . '/' . $dbFile->file_path;
+            if (!file_exists($fullPath)) {
+                $obsoleteIds[] = $dbFile->id;
+            }
+        }
+        
+        $deletedCount = 0;
+        if (count($obsoleteIds) > 0) {
+            $this->info("Deleting " . count($obsoleteIds) . " obsolete database records...");
+            $chunks = array_chunk($obsoleteIds, 1000);
+            foreach ($chunks as $chunk) {
+                $deletedCount += MediaFile::whereIn('id', $chunk)->delete();
+            }
+        }
+
         $this->info("Synchronization completed!");
         $this->info("Total scanned: {$totalScanned} files.");
         $this->info("Newly synced: {$syncedCount} files.");
+        $this->info("Obsolete cleaned: {$deletedCount} files.");
 
         return 0;
     }

@@ -3,10 +3,12 @@
 namespace App\Filament\Pages;
 
 use App\Models\Article;
-use App\Models\Consultation;
-use App\Models\Patient;
+use App\Models\Category;
+use App\Models\ArticleComment;
+use App\Models\MediaFile;
 use Filament\Pages\Page;
 use Illuminate\Support\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class ReportsAnalytics extends Page
 {
@@ -14,6 +16,7 @@ class ReportsAnalytics extends Page
     {
         return auth()->user() && auth()->user()->hasPermission(static::class);
     }
+
     protected static ?string $navigationIcon = 'heroicon-o-chart-bar';
 
     protected static ?string $navigationLabel = 'Báo cáo & Phân tích';
@@ -54,28 +57,30 @@ class ReportsAnalytics extends Page
     {
         $from = $this->getDateFrom();
 
-        $totalConsultations = Consultation::count();
-        $pendingConsultations = Consultation::where('status', 'pending')->count();
-        $processedConsultations = Consultation::whereIn('status', ['contacted', 'booked', 'visited'])->count();
-        $newPatients = Patient::where('created_at', '>=', $from)->count();
-        $totalPatients = Patient::count();
-
-        // Conversion rate: patients created from consultations
-        $converted = Consultation::whereNotNull('patient_id')->count();
-        $convRate = $totalConsultations > 0 ? round($converted / $totalConsultations * 100, 1) : 0;
-
         $totalArticles = Article::count();
+        $newArticles = Article::where('created_at', '>=', $from)->count();
         $publishedArticles = Article::where('is_published', true)->count();
-        $avgSeo = Article::whereNotNull('seo_score')->avg('seo_score');
+        $draftArticles = Article::where('is_published', false)->count();
+        $avgSeo = Article::where('is_published', true)->whereNotNull('seo_score')->avg('seo_score');
+
+        $totalComments = ArticleComment::count();
+        $pendingComments = ArticleComment::where('status', 'pending')->count();
+        $approvedComments = ArticleComment::where('status', 'approved')->count();
+        $newComments = ArticleComment::where('created_at', '>=', $from)->count();
+
+        $totalMediaFiles = MediaFile::count();
+        $totalMediaSizeBytes = MediaFile::sum('file_size');
+        // Convert to MB
+        $totalMediaSizeMB = round($totalMediaSizeBytes / (1024 * 1024), 1);
 
         return compact(
-            'totalConsultations', 'pendingConsultations', 'processedConsultations',
-            'newPatients', 'totalPatients', 'convRate',
-            'totalArticles', 'publishedArticles', 'avgSeo'
+            'totalArticles', 'newArticles', 'publishedArticles', 'draftArticles', 'avgSeo',
+            'totalComments', 'pendingComments', 'approvedComments', 'newComments',
+            'totalMediaFiles', 'totalMediaSizeMB'
         );
     }
 
-    public function getConsultationTrendProperty(): array
+    public function getTrendProperty(): array
     {
         $from = $this->getDateFrom();
         $days = [];
@@ -85,18 +90,21 @@ class ReportsAnalytics extends Page
             $current->addDay();
         }
 
-        return [
-            'labels' => collect($days)->map(fn ($d) => $d->format('d/m'))->toArray(),
-            'data' => collect($days)->map(fn ($d) => Consultation::whereDate('created_at', $d)->count())->toArray(),
-        ];
-    }
+        $labels = collect($days)->map(fn ($d) => $d->format('d/m'))->toArray();
+        
+        $articlesData = collect($days)->map(function ($d) {
+            return Article::whereDate('created_at', $d)->count();
+        })->toArray();
 
-    public function getPendingConsultationsProperty()
-    {
-        return Consultation::where('status', 'pending')
-            ->latest()
-            ->limit(10)
-            ->get();
+        $commentsData = collect($days)->map(function ($d) {
+            return ArticleComment::whereDate('created_at', $d)->count();
+        })->toArray();
+
+        return [
+            'labels' => $labels,
+            'articles' => $articlesData,
+            'comments' => $commentsData,
+        ];
     }
 
     public function getLowSeoArticlesProperty()
@@ -108,34 +116,21 @@ class ReportsAnalytics extends Page
             ->get();
     }
 
-    public function getSpecialtyStatsProperty()
+    public function getCategoryStatsProperty()
     {
-        return Consultation::whereNotNull('department')
-            ->where('department', '!=', '')
-            ->selectRaw('department, count(*) as consultations')
-            ->groupBy('department')
-            ->orderByDesc('consultations')
+        return Category::withCount('articles')
+            ->orderByDesc('articles_count')
             ->limit(8)
-            ->get()
-            ->map(function ($row) {
-                $articleCount = Article::whereHas('category', fn ($q) => $q->where('name', 'like', "%{$row->department}%"))->count();
-
-                return [
-                    'department' => $row->department,
-                    'consultations' => $row->consultations,
-                    'articles' => $articleCount,
-                ];
-            });
+            ->get();
     }
 
     protected function getViewData(): array
     {
         return [
             'stats' => $this->getStatsProperty(),
-            'consultationTrend' => $this->getConsultationTrendProperty(),
-            'pendingConsultations' => $this->getPendingConsultationsProperty(),
+            'trend' => $this->getTrendProperty(),
             'lowSeoArticles' => $this->getLowSeoArticlesProperty(),
-            'specialtyStats' => $this->getSpecialtyStatsProperty(),
+            'categoryStats' => $this->getCategoryStatsProperty(),
             'range' => $this->range,
         ];
     }
