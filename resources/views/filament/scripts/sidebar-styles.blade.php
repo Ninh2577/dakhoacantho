@@ -94,13 +94,15 @@
 /* === Group Labels === */
 .fi-sidebar .fi-sidebar-group-label,
 .fi-sidebar-group-label span,
-.fi-sidebar-group-label {
-    color: rgba(196, 181, 253, 0.7) !important;
-    font-size: 0.625rem !important;
-    font-weight: 700 !important;
-    letter-spacing: 0.12em !important;
+.fi-sidebar-group-label,
+.fi-sidebar .fi-sidebar-group-label *,
+.fi-sidebar-group-label * {
+    color: rgba(196, 181, 253, 0.95) !important;
+    font-size: 0.725rem !important;
+    font-weight: 800 !important;
+    letter-spacing: 0.14em !important;
     text-transform: uppercase !important;
-    padding: 1rem 1.125rem 0.375rem !important;
+    padding: 1.125rem 1.125rem 0.375rem !important;
 }
 
 /* === Group Divider === */
@@ -151,11 +153,26 @@
 }
 
 /* === All Text Spans Inside Nav Items === */
-.fi-sidebar span:not(.fi-dropdown-list-item-label):not(.fi-dropdown-header-label),
 .fi-sidebar .fi-sidebar-item-label,
-.fi-sidebar li span:not(.fi-dropdown-list-item-label):not(.fi-dropdown-header-label),
-.fi-sidebar nav span:not(.fi-dropdown-list-item-label):not(.fi-dropdown-header-label) {
-    color: inherit !important;
+.fi-sidebar span:not(.fi-dropdown-list-item-label):not(.fi-dropdown-header-label):not(.fi-sidebar-group-label):not(.fi-sidebar-group-label *),
+.fi-sidebar li span:not(.fi-dropdown-list-item-label):not(.fi-dropdown-header-label):not(.fi-sidebar-group-label):not(.fi-sidebar-group-label *),
+.fi-sidebar nav span:not(.fi-dropdown-list-item-label):not(.fi-dropdown-header-label):not(.fi-sidebar-group-label):not(.fi-sidebar-group-label *) {
+    color: rgba(226, 232, 240, 0.95) !important;
+    font-weight: 500 !important;
+}
+
+/* Hover and active states for navigation text spans */
+.fi-sidebar a:hover span,
+.fi-sidebar button:hover span,
+.fi-sidebar .fi-sidebar-item-button:hover .fi-sidebar-item-label {
+    color: #ffffff !important;
+}
+
+.fi-sidebar a[aria-current="page"] span,
+.fi-sidebar .fi-sidebar-item-button[aria-current="page"] span,
+.fi-sidebar .fi-active span {
+    color: #ffffff !important;
+    font-weight: 700 !important;
 }
 
 /* === All Icons Inside Sidebar === */
