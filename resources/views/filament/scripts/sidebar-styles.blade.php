@@ -340,4 +340,226 @@ button[aria-expanded] svg {
 .fi-dropdown-panel:has(.fi-dropdown-header) .fi-dropdown-list-item:not(.fi-color-gray) .fi-dropdown-list-item-icon {
     color: #ffffff !important;
 }
+
+/* === Premium Admin Dashboard Overrides === */
+
+/* --- Main Layout Adjustments --- */
+.fi-main {
+    background-color: #f8fafc !important; /* Soft premium slate background for light mode */
+}
+
+.dark .fi-main {
+    background-color: #030712 !important; /* Deep dark slate for dark mode */
+}
+
+.fi-header {
+    margin-bottom: 2.25rem !important;
+}
+
+.fi-header-heading {
+    font-size: 1.875rem !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.03em !important;
+    color: #0f172a !important;
+}
+
+.dark .fi-header-heading {
+    color: #ffffff !important;
+}
+
+/* --- Stats Cards Overview --- */
+.fi-wi-stats-overview {
+    gap: 1.25rem !important;
+}
+
+.fi-wi-stats-overview-stat {
+    position: relative !important;
+    overflow: hidden !important;
+    background: #ffffff !important;
+    border: 1px solid rgba(226, 232, 240, 0.8) !important;
+    border-radius: 14px !important;
+    padding: 1.5rem !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01) !important;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s !important;
+}
+
+.fi-wi-stats-overview-stat:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 12px 20px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02) !important;
+    border-color: rgba(99, 102, 241, 0.25) !important;
+}
+
+.dark .fi-wi-stats-overview-stat {
+    background: #1e1b4b !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+.dark .fi-wi-stats-overview-stat:hover {
+    border-color: rgba(165, 180, 252, 0.2) !important;
+    box-shadow: 0 12px 25px -3px rgba(0, 0, 0, 0.4), 0 4px 10px -2px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Stat Card Top Accent Line */
+.fi-wi-stats-overview-stat::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    height: 4px !important;
+    border-radius: 9999px 9999px 0 0 !important;
+    background: transparent;
+    transition: background 0.3s !important;
+    z-index: 10 !important;
+}
+
+.fi-wi-stats-overview-stat:has(.fi-color-info)::before {
+    background: #0284c7 !important;
+}
+
+.fi-wi-stats-overview-stat:has(.fi-color-success)::before {
+    background: #10b981 !important;
+}
+
+.fi-wi-stats-overview-stat:has(.fi-color-warning)::before {
+    background: #f59e0b !important;
+}
+
+.fi-wi-stats-overview-stat:has(.fi-color-danger)::before {
+    background: #ef4444 !important;
+}
+
+.fi-wi-stats-overview-stat:has(.fi-color-primary)::before {
+    background: #6366f1 !important;
+}
+
+/* Stat Card Labels & Elements */
+.fi-wi-stats-overview-stat-label {
+    font-size: 0.8125rem !important;
+    text-transform: uppercase !important;
+    letter-spacing: 0.06em !important;
+    font-weight: 700 !important;
+    color: #475569 !important;
+}
+
+.dark .fi-wi-stats-overview-stat-label {
+    color: #94a3b8 !important;
+}
+
+.fi-wi-stats-overview-stat-value {
+    font-size: 2.25rem !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.04em !important;
+    color: #0f172a !important;
+    margin-top: 0.375rem !important;
+    margin-bottom: 0.375rem !important;
+}
+
+.dark .fi-wi-stats-overview-stat-value {
+    color: #ffffff !important;
+}
+
+.fi-wi-stats-overview-stat-description {
+    font-size: 0.8125rem !important;
+    font-weight: 600 !important;
+}
+
+/* Rounded Soft Background Badges for Stat Card Icons */
+.fi-wi-stats-overview-stat-icon {
+    color: #6366f1 !important;
+    background: rgba(99, 102, 241, 0.08) !important;
+    padding: 7px !important;
+    width: 20px !important;
+    height: 20px !important;
+    border-radius: 50% !important;
+    box-sizing: content-box !important;
+}
+
+.dark .fi-wi-stats-overview-stat-icon {
+    color: #a5b4fc !important;
+    background: rgba(165, 180, 252, 0.1) !important;
+}
+
+.fi-wi-stats-overview-stat:has(.fi-color-success) .fi-wi-stats-overview-stat-icon {
+    color: #10b981 !important;
+    background: rgba(16, 185, 129, 0.08) !important;
+}
+
+.fi-wi-stats-overview-stat:has(.fi-color-info) .fi-wi-stats-overview-stat-icon {
+    color: #0284c7 !important;
+    background: rgba(2, 132, 199, 0.08) !important;
+}
+
+.fi-wi-stats-overview-stat:has(.fi-color-warning) .fi-wi-stats-overview-stat-icon {
+    color: #f59e0b !important;
+    background: rgba(245, 158, 11, 0.08) !important;
+}
+
+.fi-wi-stats-overview-stat:has(.fi-color-danger) .fi-wi-stats-overview-stat-icon {
+    color: #ef4444 !important;
+    background: rgba(239, 68, 68, 0.08) !important;
+}
+
+.dark .fi-wi-stats-overview-stat:has(.fi-color-success) .fi-wi-stats-overview-stat-icon {
+    color: #34d399 !important;
+    background: rgba(52, 211, 153, 0.12) !important;
+}
+
+.dark .fi-wi-stats-overview-stat:has(.fi-color-info) .fi-wi-stats-overview-stat-icon {
+    color: #38bdf8 !important;
+    background: rgba(56, 189, 248, 0.12) !important;
+}
+
+.dark .fi-wi-stats-overview-stat:has(.fi-color-warning) .fi-wi-stats-overview-stat-icon {
+    color: #fbbf24 !important;
+    background: rgba(251, 191, 36, 0.12) !important;
+}
+
+.dark .fi-wi-stats-overview-stat:has(.fi-color-danger) .fi-wi-stats-overview-stat-icon {
+    color: #f87171 !important;
+    background: rgba(248, 113, 113, 0.12) !important;
+}
+
+/* --- Chart Cards --- */
+.fi-wi-chart .fi-section {
+    border-radius: 16px !important;
+    background: #ffffff !important;
+    border: 1px solid rgba(226, 232, 240, 0.8) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01) !important;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s !important;
+}
+
+.fi-wi-chart .fi-section:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 12px 20px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02) !important;
+    border-color: rgba(99, 102, 241, 0.25) !important;
+}
+
+.dark .fi-wi-chart .fi-section {
+    background: #1e1b4b !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+.dark .fi-wi-chart .fi-section:hover {
+    border-color: rgba(165, 180, 252, 0.2) !important;
+    box-shadow: 0 12px 25px -3px rgba(0, 0, 0, 0.4), 0 4px 10px -2px rgba(0, 0, 0, 0.2) !important;
+}
+
+.fi-wi-chart .fi-section-header-heading {
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    letter-spacing: -0.02em !important;
+    color: #0f172a !important;
+}
+
+.dark .fi-wi-chart .fi-section-header-heading {
+    color: #ffffff !important;
+}
+
+.fi-wi-chart .fi-section-header-description {
+    font-size: 0.8125rem !important;
+    font-weight: 500 !important;
+}
 </style>

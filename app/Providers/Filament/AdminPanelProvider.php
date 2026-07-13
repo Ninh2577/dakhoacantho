@@ -3,8 +3,7 @@
 namespace App\Providers\Filament;
 
 use App\Filament\Widgets\DashboardStatsWidget;
-use App\Filament\Widgets\PatientVisitsChart;
-use App\Filament\Widgets\SpecialtiesChart;
+use App\Filament\Widgets\AnalyticsChart;
 use App\Http\Middleware\AdminAuthenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
@@ -42,8 +41,7 @@ class AdminPanelProvider extends PanelProvider
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
                 DashboardStatsWidget::class,
-                PatientVisitsChart::class,
-                SpecialtiesChart::class,
+                AnalyticsChart::class,
             ])
             ->middleware([
                 EncryptCookies::class,
