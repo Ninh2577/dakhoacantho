@@ -12,6 +12,8 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Support\Facades\Hash;
+use Filament\Tables\Columns\Layout\Stack;
+use Filament\Tables\Columns\Layout\Split;
 
 class UserResource extends Resource
 {
@@ -84,47 +86,71 @@ class UserResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('avatar')
-                    ->label('Ảnh đại diện')
-                    ->circular()
-                    ->default(fn (User $record) => 'https://ui-avatars.com/api/?name='.urlencode($record->name).'&color=7F9CF5&background=EBF4FF'),
-                Tables\Columns\TextColumn::make('name')
-                    ->label('Họ và tên')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('email')
-                    ->label('Email')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('role')
-                    ->label('Vai trò')
-                    ->badge()
-                    ->color(fn (string $state): string => match ($state) {
-                        'admin' => 'danger',
-                        'doctor' => 'success',
-                        'editor' => 'warning',
-                        default => 'gray',
-                    })
-                    ->formatStateUsing(fn (string $state): string => match ($state) {
-                        'admin' => 'Quản trị viên',
-                        'doctor' => 'Bác sĩ',
-                        'editor' => 'Biên tập viên',
-                        default => (function() use ($state) {
-                            $customRoles = Setting::get('custom_roles', []);
-                            foreach ($customRoles as $role) {
-                                if (($role['slug'] ?? '') === $state) {
-                                    return $role['name'] ?? $state;
-                                }
-                            }
-                            return $state;
-                        })(),
-                    })
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->label('Ngày tạo')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable(),
+                Stack::make([
+                    Tables\Columns\ImageColumn::make('avatar')
+                        ->label('Ảnh đại diện')
+                        ->circular()
+                        ->size(80)
+                        ->alignCenter()
+                        ->default(fn (User $record) => 'https://ui-avatars.com/api/?name='.urlencode($record->name).'&color=7F9CF5&background=EBF4FF&size=128')
+                        ->extraAttributes(['class' => 'flex justify-center pt-6']),
+
+                    Stack::make([
+                        Tables\Columns\TextColumn::make('name')
+                            ->label('Họ và tên')
+                            ->searchable()
+                            ->sortable()
+                            ->weight('bold')
+                            ->size('lg')
+                            ->alignCenter(),
+
+                        Tables\Columns\TextColumn::make('email')
+                            ->label('Email')
+                            ->searchable()
+                            ->sortable()
+                            ->color('gray')
+                            ->size('sm')
+                            ->alignCenter(),
+
+                        Tables\Columns\TextColumn::make('role')
+                            ->label('Vai trò')
+                            ->badge()
+                            ->alignCenter()
+                            ->color(fn (string $state): string => match ($state) {
+                                'admin' => 'danger',
+                                'doctor' => 'success',
+                                'editor' => 'warning',
+                                default => 'gray',
+                            })
+                            ->formatStateUsing(fn (string $state): string => match ($state) {
+                                'admin' => 'Quản trị viên',
+                                'doctor' => 'Bác sĩ',
+                                'editor' => 'Biên tập viên',
+                                default => (function() use ($state) {
+                                    $customRoles = Setting::get('custom_roles', []);
+                                    foreach ($customRoles as $role) {
+                                        if (($role['slug'] ?? '') === $state) {
+                                            return $role['name'] ?? $state;
+                                        }
+                                    }
+                                    return $state;
+                                })(),
+                            }),
+
+                        Tables\Columns\TextColumn::make('created_at')
+                            ->label('Ngày tạo')
+                            ->dateTime('d/m/Y H:i')
+                            ->color('gray')
+                            ->size('xs')
+                            ->icon('heroicon-m-calendar')
+                            ->alignCenter(),
+                    ])->space(3)->extraAttributes(['class' => 'p-6 flex flex-col items-center justify-center gap-y-2']),
+                ]),
+            ])
+            ->contentGrid([
+                'sm' => 2,
+                'md' => 3,
+                'xl' => 4,
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('role')

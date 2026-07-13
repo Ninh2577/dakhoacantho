@@ -857,7 +857,7 @@ button[aria-expanded] svg {
 
 /* Image preview crop fixes inside the card */
 .fi-ta-content-grid .fi-ta-col-instant img,
-.fi-ta-content-grid .fi-ta-image img {
+.fi-ta-content-grid .fi-ta-col-preview img {
     object-fit: cover !important;
     width: 100% !important;
     height: 160px !important;
