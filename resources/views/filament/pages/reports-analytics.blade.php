@@ -40,19 +40,41 @@
 </style>
 
 {{-- Header & Range Filter --}}
-<div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-2">
+<div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-4 mb-4">
     <div>
         <p class="text-sm text-gray-500 font-medium">Theo dõi và phân tích hiệu suất nội dung của website Phòng Khám Đa Khoa Cần Thơ</p>
     </div>
-    <div class="flex items-center gap-2 self-start md:self-auto bg-gray-100 p-1 rounded-xl" style="background-color: #f1f5f9; padding: 4px;">
-        @foreach(['today' => 'Hôm nay', '7' => '7 ngày', '30' => '30 ngày', 'month' => 'Tháng này'] as $key => $label)
-            <button
-                wire:click="setRange('{{ $key }}')"
-                class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all duration-200"
-                style="{{ $range === $key ? 'background-color: #ffffff; color: #0f172a; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1); border-radius: 8px;' : 'color: #64748b; background: transparent; border: none;' }}">
-                {{ $label }}
-            </button>
-        @endforeach
+    
+    <div class="flex flex-col sm:flex-row sm:items-center gap-3 self-start xl:self-auto">
+        {{-- Range Buttons --}}
+        <div class="flex items-center gap-1 bg-gray-100 p-1 rounded-xl" style="background-color: #f1f5f9; padding: 4px; display: inline-flex;">
+            @foreach(['today' => 'Hôm nay', '7' => '7 ngày', '30' => '30 ngày', 'month' => 'Tháng này'] as $key => $label)
+                <button
+                    wire:click="setRange('{{ $key }}')"
+                    class="px-3 py-1.5 rounded-lg text-xs font-bold transition-all duration-200"
+                    style="{{ $range === $key ? 'background-color: #ffffff; color: #0f172a; box-shadow: 0 1px 3px 0 rgba(0,0,0,0.1); border-radius: 8px;' : 'color: #64748b; background: transparent; border: none;' }}">
+                    {{ $label }}
+                </button>
+            @endforeach
+        </div>
+
+        {{-- Custom Date Pickers --}}
+        <div class="flex items-center gap-2 bg-white px-3 py-1.5 border border-gray-200 rounded-xl shadow-sm text-xs font-semibold text-gray-600" style="border: 1px solid #cbd5e1; background-color: #ffffff; border-radius: 12px; padding: 6px 12px; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); display: inline-flex;">
+            <span style="color: #64748b; font-weight: 600;">Từ</span>
+            <input 
+                type="date" 
+                wire:model.live="dateFrom" 
+                class="bg-transparent border-0 p-0 text-xs font-bold text-gray-800 focus:ring-0 focus:outline-none cursor-pointer"
+                style="border: none; padding: 0; outline: none; background: transparent; width: 110px; font-weight: 700; color: #1e293b;"
+            />
+            <span style="color: #64748b; font-weight: 600;">đến</span>
+            <input 
+                type="date" 
+                wire:model.live="dateTo" 
+                class="bg-transparent border-0 p-0 text-xs font-bold text-gray-800 focus:ring-0 focus:outline-none cursor-pointer"
+                style="border: none; padding: 0; outline: none; background: transparent; width: 110px; font-weight: 700; color: #1e293b;"
+            />
+        </div>
     </div>
 </div>
 

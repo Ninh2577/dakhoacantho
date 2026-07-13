@@ -150,6 +150,18 @@ class ArticleController extends Controller
             return '<img '.$attributes.' />';
         }, $article->content);
 
+        // 5. Log page view to database (wrapped in try-catch to avoid breaking frontend on error)
+        try {
+            \App\Models\ArticleView::create([
+                'article_id' => $article->id,
+                'ip_address' => request()->ip(),
+                'user_agent' => substr(request()->userAgent() ?? '', 0, 255),
+                'created_at' => now(),
+            ]);
+        } catch (\Exception $e) {
+            \Log::error("Failed to log article view: " . $e->getMessage());
+        }
+
         return view('articles.show', compact('article', 'relatedArticles'));
     }
 

@@ -388,16 +388,40 @@ class ArticleResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('id')
-                    ->label('ID')
-                    ->rowIndex(),
+                    ->label('STT')
+                    ->rowIndex()
+                    ->alignCenter(),
                 Tables\Columns\ImageColumn::make('thumbnail_image')
                     ->label('Ảnh')
-                    ->disk('public'),
+                    ->square()
+                    ->circular()
+                    ->size(40)
+                    ->disk('public')
+                    ->getStateUsing(function (Article $record): ?string {
+                        if (empty($record->thumbnail_image)) {
+                            return null;
+                        }
+                        $url = $record->thumbnail_image;
+                        // If it's already a full URL, just return the path part relative to storage
+                        if (str_starts_with($url, 'http://') || str_starts_with($url, 'https://')) {
+                            return $url;
+                        }
+                        // Strip leading slashes and storage prefix
+                        $path = ltrim($url, '/');
+                        if (str_starts_with($path, 'storage/')) {
+                            $path = substr($path, strlen('storage/'));
+                        }
+                        return $path;
+                    }),
                 Tables\Columns\TextColumn::make('title')
                     ->label('Tiêu đề')
                     ->searchable()
                     ->wrap()
-                    ->description(fn (Article $record): string => 'slug: /'.$record->slug),
+                    ->weight('bold')
+                    ->color('gray.800')
+                    ->url(fn (Article $record) => route('filament.admin.resources.articles.edit', $record))
+                    ->description(fn (Article $record): string => '/' . $record->slug, position: 'below')
+                    ->limit(80),
                 Tables\Columns\TextColumn::make('slug')
                     ->label('Slug')
                     ->searchable()
@@ -414,6 +438,8 @@ class ArticleResource extends Resource
                     ->label('Tác giả')
                     ->searchable()
                     ->sortable()
+                    ->icon('heroicon-m-user')
+                    ->iconColor('gray')
                     ->placeholder('Chưa xác định')
                     ->default(fn (Article $record): ?string => match ($record->category?->slug) {
                         'nam-khoa' => 'BS. Nguyễn Văn An',
@@ -430,6 +456,11 @@ class ArticleResource extends Resource
                         'Bản nháp' => 'warning',
                         default => 'gray',
                     })
+                    ->icon(fn (string $state): string => match ($state) {
+                        'Công khai' => 'heroicon-m-check-circle',
+                        'Bản nháp' => 'heroicon-m-document-text',
+                        default => 'heroicon-m-question-mark-circle',
+                    })
                     ->sortable()
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('seo_score')
@@ -437,12 +468,36 @@ class ArticleResource extends Resource
                     ->badge()
                     ->formatStateUsing(fn ($state): string => ($state === null || $state === 0) ? 'Chưa cấu hình' : (string) $state)
                     ->color(fn ($state): string => match (true) {
-                        $state === null || $state === 0 => 'warning',
+                        $state === null || $state === 0 => 'gray',
                         $state >= 80 => 'success',
                         $state >= 50 => 'warning',
                         default => 'danger',
                     })
+                    ->icon(fn ($state): string => match (true) {
+                        $state === null || $state === 0 => 'heroicon-m-question-mark-circle',
+                        $state >= 80 => 'heroicon-m-sparkles',
+                        $state >= 50 => 'heroicon-m-exclamation-triangle',
+                        default => 'heroicon-m-x-circle',
+                    })
                     ->sortable()
+                    ->toggleable(),
+                Tables\Columns\TextColumn::make('views_this_month')
+                    ->label('Lượt xem')
+                    ->getStateUsing(function (Article $record): int {
+                        try {
+                            if (!\Illuminate\Support\Facades\Schema::hasTable('article_views')) {
+                                return 0;
+                            }
+                            return \App\Models\ArticleView::where('article_id', $record->id)
+                                ->where('created_at', '>=', now()->startOfMonth())
+                                ->count();
+                        } catch (\Exception $e) {
+                            return 0;
+                        }
+                    })
+                    ->icon('heroicon-m-eye')
+                    ->iconColor('blue')
+                    ->sortable(false)
                     ->toggleable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->label('Ngày tạo')
@@ -456,6 +511,8 @@ class ArticleResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('created_at', 'desc')
+            ->striped()
+            ->recordUrl(fn (Article $record) => route('filament.admin.resources.articles.edit', $record))
             ->filters([
                 Tables\Filters\SelectFilter::make('category_id')
                     ->label('Chuyên khoa')
@@ -509,14 +566,22 @@ class ArticleResource extends Resource
             ])
             ->defaultPaginationPageOption(10)
             ->actions([
-                Tables\Actions\Action::make('view')
-                    ->label('Xem')
-                    ->icon('heroicon-o-arrow-top-right-on-square')
-                    ->color('gray')
-                    ->url(fn (Article $record): string => $record->public_url)
-                    ->openUrlInNewTab(),
-                Tables\Actions\EditAction::make()->label('Sửa'),
-                Tables\Actions\DeleteAction::make()->label('Xóa'),
+                Tables\Actions\ActionGroup::make([
+                    Tables\Actions\Action::make('view')
+                        ->label('Xem trực tiếp')
+                        ->icon('heroicon-o-arrow-top-right-on-square')
+                        ->color('gray')
+                        ->url(fn (Article $record): string => $record->public_url)
+                        ->openUrlInNewTab(),
+                    Tables\Actions\EditAction::make()
+                        ->label('Sửa bài')
+                        ->color('warning'),
+                    Tables\Actions\DeleteAction::make()
+                        ->label('Xóa bài'),
+                ])
+                ->icon('heroicon-m-ellipsis-vertical')
+                ->tooltip('Thao tác')
+                ->color('gray'),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

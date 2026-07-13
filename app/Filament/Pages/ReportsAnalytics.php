@@ -31,34 +31,63 @@ class ReportsAnalytics extends Page
 
     protected static ?string $slug = 'reports-analytics';
 
-    public string $range = '7'; // days
+    public string $range = '7'; // days or 'custom'
+    public ?string $dateFrom = null;
+    public ?string $dateTo = null;
 
     public function mount(): void
     {
         $this->range = request()->get('range', '7');
+        
+        list($from, $to) = $this->getDateRange();
+        $this->dateFrom = $from->format('Y-m-d');
+        $this->dateTo = $to->format('Y-m-d');
     }
 
     public function setRange(string $range): void
     {
         $this->range = $range;
+        
+        list($from, $to) = $this->getDateRange();
+        $this->dateFrom = $from->format('Y-m-d');
+        $this->dateTo = $to->format('Y-m-d');
     }
 
-    protected function getDateFrom(): Carbon
+    public function updatedDateFrom(): void
     {
-        return match ($this->range) {
-            'today' => Carbon::today(),
-            '30' => Carbon::today()->subDays(29),
-            'month' => Carbon::today()->startOfMonth(),
-            default => Carbon::today()->subDays(6), // 7 days
+        $this->range = 'custom';
+    }
+
+    public function updatedDateTo(): void
+    {
+        $this->range = 'custom';
+    }
+
+    protected function getDateRange(): array
+    {
+        if ($this->range === 'custom') {
+            $from = $this->dateFrom ? Carbon::parse($this->dateFrom)->startOfDay() : Carbon::today()->subDays(6)->startOfDay();
+            $to = $this->dateTo ? Carbon::parse($this->dateTo)->endOfDay() : Carbon::today()->endOfDay();
+            return [$from, $to];
+        }
+
+        $to = Carbon::today()->endOfDay();
+        $from = match ($this->range) {
+            'today' => Carbon::today()->startOfDay(),
+            '30' => Carbon::today()->subDays(29)->startOfDay(),
+            'month' => Carbon::today()->startOfMonth()->startOfDay(),
+            default => Carbon::today()->subDays(6)->startOfDay(), // 7 days
         };
+
+        return [$from, $to];
     }
 
     public function getStatsProperty(): array
     {
-        $from = $this->getDateFrom();
+        list($from, $to) = $this->getDateRange();
 
         $totalArticles = Article::count();
-        $newArticles = Article::where('created_at', '>=', $from)->count();
+        $newArticles = Article::whereBetween('created_at', [$from, $to])->count();
         $publishedArticles = Article::where('is_published', true)->count();
         $draftArticles = Article::where('is_published', false)->count();
         $avgSeo = Article::where('is_published', true)->whereNotNull('seo_score')->avg('seo_score');
@@ -66,7 +95,7 @@ class ReportsAnalytics extends Page
         $totalComments = ArticleComment::count();
         $pendingComments = ArticleComment::where('status', 'pending')->count();
         $approvedComments = ArticleComment::where('status', 'approved')->count();
-        $newComments = ArticleComment::where('created_at', '>=', $from)->count();
+        $newComments = ArticleComment::whereBetween('created_at', [$from, $to])->count();
 
         $totalMediaFiles = MediaFile::count();
         $totalMediaSizeBytes = MediaFile::sum('file_size');
@@ -82,10 +111,17 @@ class ReportsAnalytics extends Page
 
     public function getTrendProperty(): array
     {
-        $from = $this->getDateFrom();
+        list($from, $to) = $this->getDateRange();
+        
+        // Safety check to prevent generating too many days if user selects a massive range
+        $diffInDays = $from->diffInDays($to);
+        if ($diffInDays > 90) {
+            $from = $to->copy()->subDays(90);
+        }
+
         $days = [];
         $current = $from->copy();
-        while ($current->lte(Carbon::today())) {
+        while ($current->lte($to)) {
             $days[] = $current->copy();
             $current->addDay();
         }
