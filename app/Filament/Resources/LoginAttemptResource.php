@@ -42,37 +42,47 @@ class LoginAttemptResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\IconColumn::make('successful')
-                    ->label('Kết quả')
-                    ->boolean()
-                    ->trueIcon('heroicon-o-check-circle')
-                    ->falseIcon('heroicon-o-x-circle')
-                    ->trueColor('success')
-                    ->falseColor('danger'),
+                Tables\Columns\TextColumn::make('successful')
+                    ->label('Trạng thái')
+                    ->badge()
+                    ->color(fn (bool $state): string => $state ? 'success' : 'danger')
+                    ->formatStateUsing(fn (bool $state): string => $state ? 'Thành công' : 'Thất bại')
+                    ->icon(fn (bool $state): string => $state ? 'heroicon-m-check-circle' : 'heroicon-m-x-circle'),
 
                 Tables\Columns\TextColumn::make('email')
-                    ->label('Email')
+                    ->label('Tài khoản / Email')
                     ->searchable()
+                    ->icon('heroicon-m-envelope')
+                    ->color('gray')
                     ->placeholder('—'),
 
                 Tables\Columns\TextColumn::make('ip_address')
-                    ->label('IP')
+                    ->label('Địa chỉ IP')
                     ->searchable()
-                    ->copyable(),
+                    ->fontFamily('mono')
+                    ->color('info')
+                    ->icon('heroicon-m-globe-alt')
+                    ->copyable()
+                    ->copyMessage('Đã sao chép IP thành công'),
 
                 Tables\Columns\TextColumn::make('failure_reason')
-                    ->label('Lý do thất bại')
-                    ->placeholder('—'),
+                    ->label('Lý do lỗi')
+                    ->placeholder('—')
+                    ->badge()
+                    ->color('danger')
+                    ->formatStateUsing(fn (?string $state): ?string => $state ? $state : null),
 
                 Tables\Columns\TextColumn::make('user_agent')
-                    ->label('User Agent')
-                    ->limit(50)
+                    ->label('Thiết bị (User Agent)')
+                    ->limit(45)
                     ->tooltip(fn ($record) => $record->user_agent)
+                    ->color('gray')
                     ->placeholder('—'),
 
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('Thời gian')
+                    ->label('Thời gian đăng nhập')
                     ->dateTime('d/m/Y H:i:s')
+                    ->description(fn ($record) => $record->created_at->diffForHumans())
                     ->sortable(),
             ])
             ->defaultSort('created_at', 'desc')
@@ -105,6 +115,13 @@ class LoginAttemptResource extends Resource
     public static function getRelations(): array
     {
         return [];
+    }
+
+    public static function getWidgets(): array
+    {
+        return [
+            LoginAttemptResource\Widgets\LoginAttemptsOverview::class,
+        ];
     }
 
     public static function getPages(): array

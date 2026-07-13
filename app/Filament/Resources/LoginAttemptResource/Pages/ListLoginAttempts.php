@@ -13,4 +13,11 @@ class ListLoginAttempts extends ListRecords
     {
         return [];
     }
+
+    protected function getHeaderWidgets(): array
+    {
+        return [
+            LoginAttemptResource\Widgets\LoginAttemptsOverview::class,
+        ];
+    }
 }
