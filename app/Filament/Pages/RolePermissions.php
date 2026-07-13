@@ -67,8 +67,6 @@ class RolePermissions extends Page implements HasForms
     {
         if ($slug === 'doctor') {
             return [
-                \App\Filament\Resources\PatientResource::class,
-                \App\Filament\Resources\ConsultationResource::class,
             ];
         }
         if ($slug === 'editor') {
@@ -90,8 +88,6 @@ class RolePermissions extends Page implements HasForms
             \App\Filament\Resources\CategoryResource::class => 'Tài nguyên: Quản lý Danh mục bài viết',
             \App\Filament\Resources\ArticleCommentResource::class => 'Tài nguyên: Quản lý Bình luận',
             \App\Filament\Resources\MediaFileResource::class => 'Tài nguyên: Quản lý Thư viện Media',
-            \App\Filament\Resources\PatientResource::class => 'Tài nguyên: Quản lý Bệnh nhân',
-            \App\Filament\Resources\ConsultationResource::class => 'Tài nguyên: Quản lý Lịch hẹn & Tư vấn',
             \App\Filament\Resources\UserResource::class => 'Tài nguyên: Quản lý Người dùng',
             \App\Filament\Resources\SecurityEventResource::class => 'Tài nguyên: Nhật ký Bảo mật',
             \App\Filament\Resources\LoginAttemptResource::class => 'Tài nguyên: Lịch sử Đăng nhập',

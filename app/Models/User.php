@@ -51,8 +51,6 @@ class User extends Authenticatable implements FilamentUser
         // Fallback default permissions for legacy editor/doctor
         $defaultPermissions = [
             'doctor' => [
-                \App\Filament\Resources\PatientResource::class,
-                \App\Filament\Resources\ConsultationResource::class,
             ],
             'editor' => [
                 \App\Filament\Resources\ArticleResource::class,

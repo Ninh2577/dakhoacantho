@@ -23,9 +23,11 @@ class ConsultationResource extends Resource
 {
     protected static ?string $model = Consultation::class;
 
+    protected static bool $shouldRegisterNavigation = false;
+
     public static function canAccess(): bool
     {
-        return auth()->user() && auth()->user()->hasPermission(static::class);
+        return false;
     }
 
     protected static ?string $navigationIcon = 'heroicon-o-chat-bubble-left-right';
