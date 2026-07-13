@@ -146,6 +146,7 @@ class SecurityScan extends Page implements Tables\Contracts\HasTable
                 TextColumn::make('target')
                     ->label('Mục tiêu / Tệp tin')
                     ->placeholder('—')
+                    ->fontFamily('mono')
                     ->copyable()
                     ->searchable(),
 
@@ -204,7 +205,9 @@ class SecurityScan extends Page implements Tables\Contracts\HasTable
                 TableAction::make('view_details')
                     ->label('Chi tiết')
                     ->icon('heroicon-o-eye')
-                    ->color('gray')
+                    ->color('info')
+                    ->iconButton()
+                    ->tooltip('Xem chi tiết & Khuyến nghị')
                     ->modalHeading('Chi tiết kết quả quét bảo mật')
                     ->modalSubmitAction(false)
                     ->modalCancelActionLabel('Đóng')
@@ -220,6 +223,8 @@ class SecurityScan extends Page implements Tables\Contracts\HasTable
                     ->label('Đã duyệt')
                     ->icon('heroicon-m-check-circle')
                     ->color('success')
+                    ->iconButton()
+                    ->tooltip('Đánh dấu là đã duyệt')
                     ->action(function (FileScanResult $record) {
                         $record->markReviewed();
                         Notification::make()
@@ -234,6 +239,8 @@ class SecurityScan extends Page implements Tables\Contracts\HasTable
                     ->label('Bỏ qua')
                     ->icon('heroicon-m-eye-slash')
                     ->color('warning')
+                    ->iconButton()
+                    ->tooltip('Bỏ qua cảnh báo này')
                     ->form([
                         TextInput::make('ignored_reason')
                             ->label('Lý do bỏ qua')

@@ -340,7 +340,14 @@ class SecurityScannerService
                 while (($line = fgets($handle)) !== false) {
                     $lineNum++;
                     foreach ($spamKeywords as $keyword) {
-                        if (stripos($line, $keyword) !== false) {
+                        if (in_array($keyword, ['viagra', 'cialis', 'levitra'])) {
+                            $pattern = '/\b' . preg_quote($keyword, '/') . '\b/i';
+                            $matched = preg_match($pattern, $line);
+                        } else {
+                            $matched = (stripos($line, $keyword) !== false);
+                        }
+
+                        if ($matched) {
                             $matchedKeyword = $keyword;
                             $matchedLine = $line;
                             $matchedLineNum = $lineNum;
@@ -754,6 +761,12 @@ class SecurityScannerService
                 continue;
             }
             if (filesize($file) > $this->maxScanFileSize) {
+                continue;
+            }
+
+            // Skip PHP execution function scan on JS files to prevent RegExp.exec false positives
+            $ext = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+            if ($ext === 'js') {
                 continue;
             }
 

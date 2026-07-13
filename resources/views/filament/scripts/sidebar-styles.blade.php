@@ -1299,4 +1299,101 @@ button[aria-expanded] svg {
 .fi-api-sync-page .fi-lock-btn:active {
     transform: translateY(1px) !important;
 }
+
+/* === Security Scan Page Overrides === */
+
+/* Scoped Container spacing */
+.fi-security-scan-page {
+    display: block;
+}
+
+/* Base Card Styling */
+.fi-security-scan-page .fi-scan-card {
+    border-radius: 16px !important;
+    padding: 1.5rem !important;
+    min-height: 140px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    border: 1px solid #e2e8f0 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+}
+
+.dark .fi-security-scan-page .fi-scan-card {
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Hover effects */
+.fi-security-scan-page .fi-scan-card:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: 0 12px 20px -10px rgba(0, 0, 0, 0.15) !important;
+}
+
+/* 1. Status: Healthy */
+.fi-security-scan-page .fi-scan-card.status-healthy {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(16, 185, 129, 0.2) !important;
+}
+
+/* 2. Status: Warning */
+.fi-security-scan-page .fi-scan-card.status-warning {
+    background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(245, 158, 11, 0.2) !important;
+}
+
+/* 3. Status: Danger */
+.fi-security-scan-page .fi-scan-card.status-danger {
+    background: linear-gradient(135deg, #ef4444 0%, #b91c1c 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(239, 68, 68, 0.2) !important;
+}
+
+/* Light theme for numeric/metadata cards */
+.fi-security-scan-page .fi-scan-card.info-card {
+    background: #ffffff !important;
+    color: #1e293b !important;
+}
+
+.dark .fi-security-scan-page .fi-scan-card.info-card {
+    background: #111827 !important;
+    color: #cbd5e1 !important;
+}
+
+/* Pulsing Cyber Dot Animation */
+.fi-security-scan-page .pulse-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    position: relative;
+    display: inline-block;
+}
+
+.fi-security-scan-page .pulse-dot.dot-healthy {
+    background-color: #34d399;
+    box-shadow: 0 0 8px #34d399;
+}
+.fi-security-scan-page .pulse-dot.dot-warning {
+    background-color: #fbbf24;
+    box-shadow: 0 0 8px #fbbf24;
+}
+.fi-security-scan-page .pulse-dot.dot-danger {
+    background-color: #f87171;
+    box-shadow: 0 0 8px #f87171;
+}
+
+.fi-security-scan-page .pulse-dot::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-color: inherit;
+    opacity: 0.75;
+    animation: pulse-ring 1.5s cubic-bezier(0.215, 0.610, 0.355, 1) infinite;
+    top: 0;
+    left: 0;
+}
 </style>
