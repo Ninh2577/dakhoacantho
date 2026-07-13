@@ -908,4 +908,179 @@ button[aria-expanded] svg {
     background: rgba(30, 27, 75, 0.9) !important;
     border: 1px solid rgba(255, 255, 255, 0.05) !important;
 }
+
+/* === Premium Role Permissions Page Overrides === */
+
+/* Tabs segmented controller styling */
+.fi-role-permissions-page .fi-tabs {
+    background: #f1f5f9 !important; /* light slate */
+    border-radius: 12px !important;
+    padding: 6px !important;
+    gap: 6px !important;
+    border: none !important;
+    margin-bottom: 1.5rem !important;
+    display: inline-flex !important;
+    width: auto !important;
+}
+
+.dark .fi-role-permissions-page .fi-tabs {
+    background: rgba(255, 255, 255, 0.03) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.fi-role-permissions-page .fi-tabs-item {
+    border-radius: 8px !important;
+    padding: 0.5rem 1.25rem !important;
+    font-weight: 600 !important;
+    font-size: 0.8125rem !important;
+    color: #64748b !important;
+    background: transparent !important;
+    border: none !important;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.fi-role-permissions-page .fi-tabs-item:hover {
+    color: #0f172a !important;
+    background: rgba(255, 255, 255, 0.5) !important;
+}
+
+.dark .fi-role-permissions-page .fi-tabs-item:hover {
+    color: #ffffff !important;
+    background: rgba(255, 255, 255, 0.05) !important;
+}
+
+.fi-role-permissions-page .fi-tabs-item.fi-active {
+    background: #ffffff !important;
+    color: #6366f1 !important;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04), 0 2px 4px rgba(0, 0, 0, 0.02) !important;
+}
+
+.dark .fi-role-permissions-page .fi-tabs-item.fi-active {
+    background: #1e1b4b !important;
+    color: #a5b4fc !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* Inner form card panels */
+.fi-role-permissions-page .fi-fo-tabs > div:last-child {
+    background: transparent !important;
+    border: none !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+}
+
+/* Repeater Items (custom roles cards) */
+.fi-role-permissions-page .fi-fo-repeater-item {
+    background: #ffffff !important;
+    border: 1px solid rgba(226, 232, 240, 0.8) !important;
+    border-left: 4px solid #6366f1 !important; /* Premium left bar */
+    border-radius: 12px !important;
+    padding: 1.5rem !important;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02) !important;
+    margin-bottom: 1.5rem !important;
+    transition: all 0.25s ease !important;
+}
+
+.fi-role-permissions-page .fi-fo-repeater-item:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 10px 20px rgba(99, 102, 241, 0.05) !important;
+    border-color: rgba(99, 102, 241, 0.2) !important;
+}
+
+.dark .fi-role-permissions-page .fi-fo-repeater-item {
+    background: #1e1b4b !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    border-left: 4px solid #818cf8 !important;
+}
+
+/* Repeater header lines */
+.fi-role-permissions-page .fi-fo-repeater-item-header {
+    padding-bottom: 0.75rem !important;
+    border-bottom: 1px dashed rgba(226, 232, 240, 0.8) !important;
+    margin-bottom: 1.25rem !important;
+}
+
+.dark .fi-role-permissions-page .fi-fo-repeater-item-header {
+    border-bottom: 1px dashed rgba(255, 255, 255, 0.05) !important;
+}
+
+/* CheckboxList grid label options (detailed permissions) */
+.fi-role-permissions-page .fi-fo-checkbox-list-option-label {
+    background: #ffffff !important;
+    border: 1px solid rgba(226, 232, 240, 0.8) !important;
+    border-radius: 10px !important;
+    padding: 0.75rem 1rem !important;
+    transition: all 0.2s ease !important;
+    cursor: pointer !important;
+    display: flex !important;
+    align-items: center !important;
+}
+
+.fi-role-permissions-page .fi-fo-checkbox-list-option-label:hover {
+    border-color: rgba(99, 102, 241, 0.3) !important;
+    background: #f8fafc !important;
+}
+
+.fi-role-permissions-page .fi-fo-checkbox-list-option-label:has(input:checked) {
+    border-color: #6366f1 !important;
+    background: rgba(99, 102, 241, 0.04) !important;
+}
+
+.dark .fi-role-permissions-page .fi-fo-checkbox-list-option-label {
+    background: #1e1b4b !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.dark .fi-role-permissions-page .fi-fo-checkbox-list-option-label:hover {
+    background: rgba(255, 255, 255, 0.02) !important;
+}
+
+.dark .fi-role-permissions-page .fi-fo-checkbox-list-option-label:has(input:checked) {
+    border-color: #818cf8 !important;
+    background: rgba(99, 102, 241, 0.08) !important;
+}
+
+/* Add Repeater Item Button styling */
+.fi-role-permissions-page .fi-fo-repeater-add-button button,
+.fi-role-permissions-page .fi-fo-repeater button[wire\:click*="add"] {
+    background: #ffffff !important;
+    border: 1px dashed rgba(99, 102, 241, 0.4) !important;
+    color: #6366f1 !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    padding: 0.5rem 1.25rem !important;
+    transition: all 0.2s ease !important;
+}
+
+.fi-role-permissions-page .fi-fo-repeater-add-button button:hover,
+.fi-role-permissions-page .fi-fo-repeater button[wire\:click*="add"]:hover {
+    background: rgba(99, 102, 241, 0.04) !important;
+    border-style: solid !important;
+    border-color: #6366f1 !important;
+    transform: translateY(-1px) !important;
+}
+
+.dark .fi-role-permissions-page .fi-fo-repeater-add-button button,
+.dark .fi-role-permissions-page .fi-fo-repeater button[wire\:click*="add"] {
+    background: rgba(255, 255, 255, 0.02) !important;
+    border: 1px dashed rgba(165, 180, 252, 0.3) !important;
+    color: #a5b4fc !important;
+}
+
+/* Save Form Button */
+.fi-role-permissions-page button[type="submit"] {
+    background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+    color: #ffffff !important;
+    font-weight: 600 !important;
+    border-radius: 8px !important;
+    padding: 0.625rem 1.5rem !important;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25) !important;
+    border: none !important;
+    transition: all 0.2s ease !important;
+}
+
+.fi-role-permissions-page button[type="submit"]:hover {
+    transform: translateY(-1px) !important;
+    box-shadow: 0 6px 16px rgba(99, 102, 241, 0.35) !important;
+}
 </style>

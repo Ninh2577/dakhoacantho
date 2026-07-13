@@ -153,6 +153,14 @@ class RolePermissions extends Page implements HasForms
                                     ])
                                     ->columns(3)
                                     ->addActionLabel('Thêm vai trò mới')
+                                    ->deleteAction(
+                                        fn ($action) => $action
+                                            ->requiresConfirmation()
+                                            ->modalHeading('Xóa vai trò')
+                                            ->modalDescription('Bạn có chắc chắn muốn xóa vai trò này không? Hành động này sẽ không thể hoàn tác.')
+                                            ->modalSubmitActionLabel('Đồng ý xóa')
+                                            ->modalCancelActionLabel('Hủy bỏ')
+                                    )
                                     ->hint('Sau khi thêm hoặc xóa vai trò, vui lòng bấm "Lưu thay đổi" để hệ thống tải lại trang và cập nhật danh sách cấu hình phân quyền bên dưới.'),
                             ]),
                         Tab::make('Phân quyền chi tiết')

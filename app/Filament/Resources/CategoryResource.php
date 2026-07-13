@@ -77,6 +77,11 @@ class CategoryResource extends Resource
             ->actions([
                 EditAction::make(),
                 DeleteAction::make()
+                    ->requiresConfirmation()
+                    ->modalHeading('Xóa danh mục')
+                    ->modalDescription('Bạn có chắc chắn muốn xóa danh mục này không? Hành động này sẽ không thể hoàn tác.')
+                    ->modalSubmitActionLabel('Đồng ý xóa')
+                    ->modalCancelActionLabel('Hủy bỏ')
                     ->before(function (DeleteAction $action, Category $record) {
                         if ($record->articles()->exists()) {
                             Notification::make()

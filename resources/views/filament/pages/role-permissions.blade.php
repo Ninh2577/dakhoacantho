@@ -1,4 +1,4 @@
-<x-filament-panels::page>
+<x-filament-panels::page class="fi-role-permissions-page">
     <form wire:submit="save">
         {{ $this->form }}
 
