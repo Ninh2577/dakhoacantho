@@ -10,6 +10,8 @@ use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Notifications\Notification;
+use Filament\Tables\Columns\Layout\Stack;
+use Filament\Tables\Columns\Layout\Split;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
@@ -58,48 +60,59 @@ class MediaFileResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\ImageColumn::make('preview')
-                    ->label('Ảnh xem trước')
-                    ->square()
-                    ->size(50)
-                    ->state(fn ($record) => $record->url)
-                    ->defaultImageUrl(fn ($record) => str_contains($record->file_type, 'image') ? null : 'https://ui-avatars.com/api/?name=DOC&color=7F9CF5&background=EBF4FF')
-                    ->action(
-                        Tables\Actions\Action::make('view_image')
-                            ->modalContent(fn ($record) => view('filament.components.image-preview', ['record' => $record]))
-                            ->modalHeading(fn ($record) => $record->name)
-                            ->modalSubmitAction(false)
-                            ->modalCancelActionLabel('Đóng')
-                    ),
+                Stack::make([
+                    Tables\Columns\ImageColumn::make('preview')
+                        ->label('Ảnh xem trước')
+                        ->square()
+                        ->height(160)
+                        ->width('100%')
+                        ->state(fn ($record) => $record->url)
+                        ->defaultImageUrl(fn ($record) => str_contains($record->file_type, 'image') ? null : 'https://ui-avatars.com/api/?name=DOC&color=7F9CF5&background=EBF4FF')
+                        ->extraImgAttributes(['class' => 'object-cover w-full h-full rounded-t-xl'])
+                        ->action(
+                            Tables\Actions\Action::make('view_image')
+                                ->modalContent(fn ($record) => view('filament.components.image-preview', ['record' => $record]))
+                                ->modalHeading(fn ($record) => $record->name)
+                                ->modalSubmitAction(false)
+                                ->modalCancelActionLabel('Đóng')
+                        ),
 
-                Tables\Columns\TextColumn::make('name')
-                    ->label('Tên tệp')
-                    ->searchable()
-                    ->sortable()
-                    ->wrap(),
+                    Stack::make([
+                        Tables\Columns\TextColumn::make('name')
+                            ->label('Tên tệp')
+                            ->searchable()
+                            ->sortable()
+                            ->weight('bold')
+                            ->size('sm')
+                            ->wrap()
+                            ->limit(35),
 
-                Tables\Columns\TextColumn::make('file_path')
-                    ->label('Đường dẫn')
-                    ->searchable()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                        Split::make([
+                            Tables\Columns\TextColumn::make('file_type')
+                                ->label('Định dạng')
+                                ->badge()
+                                ->color(fn (string $state): string => str_contains($state, 'image') ? 'success' : 'warning'),
 
-                Tables\Columns\TextColumn::make('file_type')
-                    ->label('Định dạng')
-                    ->sortable()
-                    ->badge()
-                    ->color(fn (string $state): string => str_contains($state, 'image') ? 'success' : 'warning'),
+                            Tables\Columns\TextColumn::make('readable_size')
+                                ->label('Dung lượng')
+                                ->color('gray')
+                                ->size('xs')
+                                ->alignEnd(),
+                        ]),
 
-                Tables\Columns\TextColumn::make('readable_size')
-                    ->label('Dung lượng')
-                    ->sortable(query: function (Builder $query, string $direction): Builder {
-                        return $query->orderBy('file_size', $direction);
-                    }),
-
-                Tables\Columns\TextColumn::make('created_at')
-                    ->label('Ngày tải lên')
-                    ->dateTime('d/m/Y H:i')
-                    ->sortable(),
+                        Tables\Columns\TextColumn::make('created_at')
+                            ->label('Ngày tải lên')
+                            ->dateTime('d/m/Y H:i')
+                            ->color('gray')
+                            ->size('xs')
+                            ->icon('heroicon-m-calendar'),
+                    ])->space(3)->extraAttributes(['class' => 'p-4 flex flex-col gap-y-2']),
+                ]),
+            ])
+            ->contentGrid([
+                'sm' => 2,
+                'md' => 3,
+                'xl' => 4,
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('file_type')

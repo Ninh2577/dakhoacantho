@@ -798,4 +798,114 @@ button[aria-expanded] svg {
     color: inherit !important;
     transition: transform 0.2s ease !important;
 }
+
+/* === Premium Media Library Grid Overrides === */
+.fi-ta-content-grid {
+    gap: 1.5rem !important;
+}
+
+/* 1. Card Container (.fi-ta-record) */
+.fi-ta-content-grid .fi-ta-record {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important; /* Make all cards match height */
+    background: #ffffff !important;
+    border: 1px solid rgba(226, 232, 240, 0.8) !important;
+    border-radius: 16px !important;
+    padding: 0 !important; /* image flush to borders */
+    overflow: hidden !important;
+    position: relative !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01) !important;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.25s !important;
+}
+
+.fi-ta-content-grid .fi-ta-record:hover {
+    transform: translateY(-6px) !important;
+    box-shadow: 0 16px 24px -4px rgba(0, 0, 0, 0.06), 0 8px 8px -4px rgba(0, 0, 0, 0.03) !important;
+    border-color: rgba(99, 102, 241, 0.25) !important;
+}
+
+.dark .fi-ta-content-grid .fi-ta-record {
+    background: #1e1b4b !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.2), 0 2px 4px -1px rgba(0, 0, 0, 0.1) !important;
+}
+
+.dark .fi-ta-content-grid .fi-ta-record:hover {
+    border-color: rgba(165, 180, 252, 0.20) !important;
+    box-shadow: 0 16px 25px -4px rgba(0, 0, 0, 0.4), 0 8px 10px -4px rgba(0, 0, 0, 0.2) !important;
+}
+
+/* 2. Inner Wrapper (line 546) */
+.fi-ta-content-grid .fi-ta-record > div {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    width: 100% !important;
+    align-items: stretch !important;
+}
+
+/* 3. Content Container (line 576) */
+.fi-ta-content-grid .fi-ta-record > div > div {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
+    width: 100% !important;
+    padding-top: 0 !important;
+    padding-bottom: 0 !important;
+}
+
+/* Image preview crop fixes inside the card */
+.fi-ta-content-grid .fi-ta-col-instant img,
+.fi-ta-content-grid .fi-ta-image img {
+    object-fit: cover !important;
+    width: 100% !important;
+    height: 160px !important;
+    border-radius: 14px 14px 0 0 !important;
+}
+
+/* Push actions block to the bottom of the card and style it */
+.fi-ta-content-grid .fi-ta-record > div > div > div:last-child {
+    background: #f8fafc !important;
+    border-top: 1px solid rgba(226, 232, 240, 0.8) !important;
+    padding: 0.75rem 1rem !important;
+    display: flex !important;
+    justify-content: flex-end !important;
+    gap: 0.5rem !important;
+    margin-top: auto !important; /* push footer to the bottom */
+}
+
+.dark .fi-ta-content-grid .fi-ta-record > div > div > div:last-child {
+    background: rgba(255, 255, 255, 0.02) !important;
+    border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+/* Action button styles in the card footer */
+.fi-ta-content-grid .fi-ta-actions button,
+.fi-ta-content-grid .fi-ta-actions a {
+    border-radius: 8px !important;
+    font-size: 0.75rem !important;
+    font-weight: 600 !important;
+    padding: 0.375rem 0.75rem !important;
+    transition: all 0.2s ease !important;
+}
+
+/* Floating checkbox container inside the card */
+.fi-ta-content-grid .fi-ta-record-checkbox {
+    position: absolute !important;
+    top: 12px !important;
+    left: 12px !important;
+    z-index: 10 !important;
+    margin: 0 !important;
+    padding: 4px !important;
+    background: rgba(255, 255, 255, 0.9) !important;
+    border-radius: 6px !important;
+    border: 1px solid rgba(226, 232, 240, 0.8) !important;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+}
+
+.dark .fi-ta-content-grid .fi-ta-record-checkbox {
+    background: rgba(30, 27, 75, 0.9) !important;
+    border: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
 </style>
