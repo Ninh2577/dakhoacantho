@@ -21,7 +21,7 @@
     @yield('meta')
 
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}">
+    <link rel="icon" type="image/png" href="{{ asset('favicon.png') }}?v={{ time() }}">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
