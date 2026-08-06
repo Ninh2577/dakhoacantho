@@ -11,7 +11,7 @@
                 <!-- Logo -->
                 <div class="flex-shrink-0 mr-1 lg:mr-2 xl:mr-8">
                     <a href="{{ route('home') }}" class="flex items-center gap-2 group">
-                        <img src="{{ asset('images/logo-icon.png') }}?v={{ time() }}" class="w-12 h-12 object-contain" alt="{{ \App\Models\Setting::site('clinic_short_name') }}">
+                        <img src="{{ asset('images/logo-icon.png') }}?v={{ filemtime(public_path('images/logo-icon.png')) }}" class="w-12 h-12 object-contain" alt="{{ \App\Models\Setting::site('clinic_short_name') }}">
                         <div class="leading-tight">
                             <span class="block text-base lg:text-lg font-black text-clinic-blue tracking-tight">{{ \App\Models\Setting::site('clinic_short_name') }}</span>
                         </div>
