@@ -15,8 +15,8 @@ class TinyMCEUploadController extends Controller
      */
     public function upload(Request $request)
     {
-        // 1. Authorize - only logged in users with admin role
-        if (! auth()->check() || auth()->user()->role !== 'admin') {
+        // 1. Authorize - only logged in users with admin role or editor role
+        if (! auth()->check() || ! in_array(auth()->user()->role, ['admin', 'editor'])) {
             return response()->json(['error' => 'Unauthorized access.'], 403);
         }
 

@@ -88,7 +88,7 @@ class AppServiceProvider extends ServiceProvider
         \Illuminate\Support\Carbon::setLocale('vi');
 
         Gate::define('access-admin-api', function (User $user) {
-            return $user->role === 'admin';
+            return in_array($user->role, ['admin', 'editor']);
         });
 
         if ($this->app->environment('production')) {
