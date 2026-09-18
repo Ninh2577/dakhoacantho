@@ -20,13 +20,13 @@
         ],
         [
             'label' => 'Hậu môn - Trực tràng',
-            'desc' => 'Cắt trĩ bằng PPH, HCPT không đau, hồi phục nhanh',
+            'desc' => 'Cắt trĩ bằng PPH, HCPT hạn chế đau, hồi phục nhanh',
             'url' => url('/ngoai-khoa/benh-tri'),
             'icon' => '<svg class="w-6 h-6 text-clinic-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path></svg>'
         ],
         [
             'label' => 'Ngoại khoa',
-            'desc' => 'Tiểu phẫu ngoại khoa, cắt bao quy đầu thẩm mỹ vô trùng',
+            'desc' => 'Tiểu phẫu ngoại khoa, cắt thắt trĩ, cắt bao quy đầu thẩm mỹ, vô trùng.',
             'url' => ($cat = \App\Models\Category::findBySlug('ngoai-khoa')) ? $cat->public_url : route('category.show', ['category_path' => 'ngoai-khoa']),
             'icon' => '<svg class="w-6 h-6 text-clinic-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>'
         ],
@@ -57,7 +57,7 @@
                     </h2>
                     
                     <p class="text-slate-600 text-sm leading-relaxed font-medium">
-                        Chúng tôi cung cấp các gói dịch vụ thăm khám chuyên khoa khép kín, ứng dụng công nghệ y tế tiên tiến đảm bảo chẩn đoán chính xác và điều trị hiệu quả nhất.
+                        Chúng tôi cung cấp các gói dịch vụ thăm khám chuyên khoa khép kín, ứng dụng công nghệ y tế tiên tiến giúp chẩn đoán và điều trị hiệu quả.
                     </p>
 
                     <div class="pt-2">

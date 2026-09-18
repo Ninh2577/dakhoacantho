@@ -30,7 +30,7 @@
                 </h1>
                 
                 <p class="text-slate-600 text-sm sm:text-base md:text-lg leading-relaxed max-w-2xl mx-auto lg:mx-0 font-semibold">
-                    Đội ngũ tư vấn giàu kinh nghiệm cùng trang thiết bị y tế hỗ trợ hiện đại, mang lại quy trình thăm khám nhanh chóng, hiệu quả và bảo mật tuyệt đối thông tin khách hàng.
+                    Đội ngũ tư vấn giàu kinh nghiệm cùng trang thiết bị y tế hỗ trợ hiện đại, mang lại quy trình thăm khám nhanh chóng, hiệu quả và bảo mật thông tin khách hàng.
                 </p>
 
                 <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
@@ -94,7 +94,7 @@
             <div class="bg-slate-50/50 rounded-2xl border border-slate-100 p-6 text-center space-y-3">
                 <span class="w-12 h-12 rounded-full bg-clinic-blue/10 text-clinic-blue flex items-center justify-center mx-auto text-xl font-bold">🔒</span>
                 <h3 class="font-extrabold text-slate-900 text-base">Bảo mật thông tin</h3>
-                <p class="text-slate-550 text-xs leading-relaxed font-semibold">Quy trình lưu trữ và mã hóa hồ sơ bệnh án nghiêm ngặt, cam kết giữ kín quyền riêng tư của khách hàng.</p>
+                <p class="text-slate-550 text-xs leading-relaxed font-semibold">Thông tin cá nhân và hồ sơ khám bệnh được quản lý bảo mật, tôn trọng quyền riêng tư của khách hàng.</p>
             </div>
             <!-- Box 2 -->
             <div class="bg-slate-50/50 rounded-2xl border border-slate-100 p-6 text-center space-y-3">
