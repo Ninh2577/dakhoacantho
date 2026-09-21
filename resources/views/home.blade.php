@@ -5,7 +5,7 @@
 @section('meta')
     <x-seo 
         title="{{ \App\Models\Setting::site('clinic_name') }} | Uy Tín - Tận Tâm" 
-        description="{{ \App\Models\Setting::site('clinic_name') }} - Địa chỉ khám chữa bệnh uy tín, riêng tư và chuyên nghiệp hàng đầu tại Cần Thơ. Đăng ký tư vấn trực tuyến nhanh chóng." 
+        description="{{ \App\Models\Setting::site('clinic_name') }} - Địa chỉ khám chữa bệnh uy tín, riêng tư và chuyên nghiệp tại Cần Thơ. Đăng ký tư vấn trực tuyến nhanh chóng." 
         canonical="{{ url('/') }}"
         :breadcrumbs="[['name' => 'Trang chủ', 'url' => url('/')]]"
     />

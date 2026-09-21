@@ -160,7 +160,7 @@
             <div class="text-center max-w-3xl mx-auto mb-16 space-y-4">
                 <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 tracking-tight">Quy Trình & Hỗ Trợ Trước và Sau Tiểu Phẫu</h2>
                 <div class="w-16 h-1 bg-clinic-blue mx-auto rounded-full"></div>
-                <p class="text-slate-500 text-base md:text-lg">Chúng tôi luôn đặt sự an toàn và thoải mái của người bệnh lên hàng đầu thông qua quy trình hỗ trợ chặt chẽ, chu đáo.</p>
+                <p class="text-slate-500 text-base md:text-lg">Chúng tôi luôn đặt sự an toàn và thoải mái của người bệnh lên thông qua quy trình hỗ trợ chặt chẽ, chu đáo.</p>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -271,7 +271,7 @@
                     </div>
                     <h3 class="text-lg font-bold text-slate-900 mb-2 relative z-10">Phẫu Thuật Hiện Đại</h3>
                     <p class="text-slate-500 text-sm leading-relaxed relative z-10">
-                        Thực hiện phẫu thuật tại phòng mổ vô khuẩn một chiều dưới sự hỗ trợ của trang thiết bị tối tân hàng đầu.
+                        Thực hiện phẫu thuật tại phòng mổ vô khuẩn một chiều dưới sự hỗ trợ của trang thiết bị tối tân.
                     </p>
                 </div>
 
@@ -329,7 +329,7 @@
                         Hệ Thống Cơ Sở Vật Chất Đạt Chuẩn Quốc Tế
                     </h2>
                     <p class="text-slate-500 text-sm md:text-base leading-relaxed">
-                        {{ \App\Models\Setting::site('clinic_short_name') }} tự hào sở hữu hệ thống phòng mổ vô khuẩn một chiều, được trang bị các thiết bị chẩn đoán hình ảnh và phẫu thuật hiện đại từ các tập đoàn y tế hàng đầu thế giới như GE, Siemens, Olympus.
+                        {{ \App\Models\Setting::site('clinic_short_name') }} tự hào sở hữu hệ thống phòng mổ vô khuẩn một chiều, được trang bị các thiết bị chẩn đoán hình ảnh và phẫu thuật hiện đại từ các tập đoàn y tế thế giới như GE, Siemens, Olympus.
                     </p>
                     
                     <ul class="space-y-3">

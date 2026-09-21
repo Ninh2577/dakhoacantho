@@ -206,7 +206,7 @@
                         Hệ thống thiết bị xét nghiệm đạt tiêu chuẩn ISO 15189:2012
                     </h2>
                     <p class="text-slate-600 leading-relaxed text-sm md:text-base">
-                        Chúng tôi đầu tư mạnh mẽ vào hệ thống máy móc tự động hóa hoàn toàn từ các tập đoàn hàng đầu thế giới như Roche, Abbott, Siemens. Quy trình xét nghiệm được kiểm soát nghiêm ngặt theo tiêu chuẩn quốc tế.
+                        Chúng tôi đầu tư mạnh mẽ vào hệ thống máy móc tự động hóa hoàn toàn từ các tập đoàn thế giới như Roche, Abbott, Siemens. Quy trình xét nghiệm được kiểm soát nghiêm ngặt theo tiêu chuẩn quốc tế.
                     </p>
 
                     <div class="space-y-4 pt-2">

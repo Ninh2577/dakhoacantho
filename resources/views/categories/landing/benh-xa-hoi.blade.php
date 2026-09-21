@@ -258,7 +258,7 @@
                     <div class="absolute -bottom-6 -right-6 bg-gradient-to-br from-clinic-blue to-[#0b4c8c] text-white p-6 rounded-2xl shadow-xl max-w-[280px] border border-white/10">
                         <h4 class="text-xl font-extrabold mb-1">Hơn 15 năm</h4>
                         <p class="text-xs text-slate-200 leading-normal font-medium">
-                            Kinh nghiệm lâm sàng thực tế. "Chúng tôi cam kết đặt sự riêng tư và sức khỏe của bệnh nhân lên hàng đầu."
+                            Kinh nghiệm lâm sàng thực tế. "Chúng tôi cam kết đặt sự riêng tư và sức khỏe của bệnh nhân lên."
                         </p>
                     </div>
                 </div>
