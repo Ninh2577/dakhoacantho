@@ -99,7 +99,7 @@
                             Chúng tôi luôn sẵn sàng hỗ trợ bạn
                         </h2>
                         <p class="text-sm text-slate-600 leading-relaxed max-w-xl">
-                            Phòng Khám Đa Khoa Cần Thơ tự hào là cơ sở y tế uy tín hàng đầu tại Đồng bằng sông Cửu Long, nơi quy tụ đội ngũ chuyên môn cao và trang thiết bị hiện đại nhất.
+                            Phòng Khám Đa Khoa Cần Thơ tự hào là cơ sở y tế uy tín tại Đồng bằng sông Cửu Long, nơi quy tụ đội ngũ chuyên môn cao và trang thiết bị hiện đại nhất.
                         </p>
                     </div>
 
